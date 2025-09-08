@@ -1,0 +1,11 @@
+{
+  "name": "legal_advice_25-26",
+  "version": "1.0.0",
+  "description": "Legal_Advice project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
