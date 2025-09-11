@@ -56,6 +56,41 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 } */
+.hover-zone {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 250px;
+  height: 100vh;
+  z-index: 999;
+}
+
+/* 抽屜本體 */
+.drawer {
+  position: fixed;
+  right: -200px;
+  top: 15%;
+  width: 300px;
+  min-width: 300px;     /* 最小寬度限制，避免在小螢幕上太窄 */
+  height: 68%;
+  background-color: #616161;
+  color: white;
+  transition: right 0.3s ease;
+  padding: 10px;
+  margin: 20px auto;
+  opacity: 0.7; 
+  border-radius: 20px;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
+  z-index: 998;
+}
+
+.drawer.open {
+  right: 0;
+}
+
+.drawer.closed {
+  right: -200px;
+}
 
 .centerarea {
       position: absolute;
@@ -70,6 +105,8 @@ button:focus-visible {
       margin: 20px auto;
       opacity: 0.7; 
       border-radius: 20px;
+      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
+      z-index: 998;
       /* transition: width 0.3s ease; */
 }
 
