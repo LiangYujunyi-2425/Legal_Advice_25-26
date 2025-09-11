@@ -1,23 +1,21 @@
 import { useState } from 'react';
-import './block.css';
+import './index.css';
 
-export default function RightBlock() {
-  const [visible, setVisible] = useState(false);
+
+export default function RightBlock({ visible, setVisible }) {
   const [hoveringZone, setHoveringZone] = useState(false);
   const [hoveringDrawer, setHoveringDrawer] = useState(false);
 
-  // 檢查是否完全離開
   const checkLeave = () => {
     setTimeout(() => {
       if (!hoveringZone && !hoveringDrawer) {
         setVisible(false);
       }
-    }, 100); // 延遲避免滑鼠快速移動造成閃爍
+    }, 100);
   };
 
   return (
     <>
-      {/* 觸發區域 */}
       <div
         className="hover-zone"
         onMouseEnter={() => {
@@ -30,7 +28,6 @@ export default function RightBlock() {
         }}
       ></div>
 
-      {/* 抽屜本體 */}
       <div
         className={`drawer ${visible ? 'open' : 'closed'}`}
         onMouseEnter={() => setHoveringDrawer(true)}
@@ -44,3 +41,5 @@ export default function RightBlock() {
     </>
   );
 }
+
+
