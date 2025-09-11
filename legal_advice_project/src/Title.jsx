@@ -1,4 +1,12 @@
+const handleClick = () => {
+    window.location.href = 'https://example.com';}
+
 function Title(){
-    return <h2>project画面支持</h2>
+    return (
+        <>
+        <button onClick={handleClick}>6666</button>
+        <h2>project画面支持</h2>
+        </>
+    )
 }
 export default Title
