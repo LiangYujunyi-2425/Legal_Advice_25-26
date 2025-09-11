@@ -4,8 +4,8 @@ const handleClick = () => {
 function Title(){
     return (
         <>
-        <button onClick={handleClick}>6666</button>
-        <h2>project画面支持</h2>
+            <div className="centerarea">
+            </div>
         </>
     )
 }
