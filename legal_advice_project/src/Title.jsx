@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect  } from 'react';
 import './index.css';
 
 export default function CenterArea({ shrink }) {
-  const [file, setFile] = useState(null);
+  const [file, setFile ] = useState(null);
   const [previewURL, setPreviewURL] = useState(null);
   const [dragOver, setDragOver] = useState(false);
+  const videoRef = useRef(null);
+  const [videoOpen, setVideoOpen] = useState(false);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -32,6 +34,22 @@ export default function CenterArea({ shrink }) {
     }
   };
 
+  useEffect(() => {
+      const startCamera = async () => {
+      try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          }} 
+          catch (err) {
+          console.error('無法取得攝像頭串流：', err);
+          }
+      };
+
+        startCamera();
+  }, []);
+
+
   return (
     <div
       className={`centerarea ${dragOver ? 'drag-over' : ''} ${shrink ? 'shrink' : ''}`}
@@ -42,6 +60,12 @@ export default function CenterArea({ shrink }) {
       onDragLeave={() => setDragOver(false)}
       onDrop={handleDrop}
     >
+      <button onClick={() => setVideoOpen(!videoOpen)}>
+        {videoOpen ? '隱藏攝像頭' : '顯示攝像頭'}
+      </button>
+      <div className= {videoOpen ? 'visible' : 'hidden'}>
+        <video ref={videoRef} autoPlay muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' , borderRadius: '20px' }}/>
+      </div>
       <div className="upload-zone">
         <input type="file" accept="image/*" onChange={handleFileChange} />
         <p>或將檔案拖曳到此區域</p>
