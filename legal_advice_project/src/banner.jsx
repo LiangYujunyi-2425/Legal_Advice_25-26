@@ -1,5 +1,5 @@
 import React from 'react';
-import './banner.css';
+import './index.css';
 
 export default function Banner({ shrink }) {
   return (

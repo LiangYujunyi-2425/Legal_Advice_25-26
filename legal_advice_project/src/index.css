@@ -69,10 +69,10 @@ button:focus-visible {
 .drawer {
   position: fixed;
   right: -200px;
-  top: 15%;
+  top: 6%;
   width: 300px;
   min-width: 300px;     /* 最小寬度限制，避免在小螢幕上太窄 */
-  height: 68%;
+  height: 85%;
   background-color: #616161;
   color: white;
   transition: right 0.3s ease;
@@ -100,7 +100,7 @@ button:focus-visible {
       width: 88%;
       max-width: 1500px;*/
       min-width: 300px;     /* 最小寬度限制，避免在小螢幕上太窄 */
-      height: 70%;
+      height: 85%;
       background-color: #616161;
       margin: 20px auto;
       opacity: 0.7; 
@@ -109,6 +109,37 @@ button:focus-visible {
       z-index: 998;
       /* transition: width 0.3s ease; */
 }
+
+.banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background-color: #1e1e1e;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
+  transition: height 0.3s ease;
+}
+
+
+.banner-btn {
+  background-color: #444;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.banner-btn:hover {
+  background-color: #666;
+}
+
 
 @media (max-width: 768px) {
       .rectangle {

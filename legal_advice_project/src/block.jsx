@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import './block.css';
+import './index.css';
 
 
 export default function RightBlock({ visible, setVisible }) {

@@ -13,7 +13,7 @@ function App() {
 
   return (
     <>
-      <Banner shrink={drawerVisible} />
+      <Banner/>
       <RightBlock visible={drawerVisible} setVisible={setDrawerVisible} />
 
       <div>
