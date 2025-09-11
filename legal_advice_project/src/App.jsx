@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Title from './Title'
 //import './App.css'
 //component名称需要大写
+import RightBlock from './block'
 
 
 function App() {
@@ -13,9 +14,11 @@ function App() {
 
       <div>
         <Title/>
-      </div>
+      </div>  
 
+      <RightBlock />
     </>
+    
   )
 }
 
