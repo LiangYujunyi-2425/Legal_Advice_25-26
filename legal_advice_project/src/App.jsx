@@ -17,7 +17,7 @@ function App() {
       <RightBlock visible={drawerVisible} setVisible={setDrawerVisible} />
 
       <div>
-        <Title/>
+        <Title shrink={drawerVisible} />
       </div>  
 
     </>

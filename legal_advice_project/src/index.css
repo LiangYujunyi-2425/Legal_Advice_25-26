@@ -60,7 +60,7 @@ button:focus-visible {
   position: fixed;
   right: 0;
   top: 0;
-  width: 250px;
+  width: 200px;
   height: 100vh;
   z-index: 999;
 }
@@ -93,12 +93,12 @@ button:focus-visible {
 }
 
 .centerarea {
-      position: absolute;
+      position: fixed;
       top: 50%;
       left: 3%;
       transform: translateY(-50%);
       width: 88%;
-      max-width: 1500px;
+      max-width: 1700px;
       min-width: 300px;     /* 最小寬度限制，避免在小螢幕上太窄 */
       height: 85%;
       background-color: #616161;
@@ -107,8 +107,57 @@ button:focus-visible {
       border-radius: 20px;
       box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
       z-index: 998;
-      /* transition: width 0.3s ease; */
+      transition: width 0.3s ease;
 }
+
+.centerarea.drag-over {
+  background-color: #e0f7ff;
+  border-color: #00aaff;
+}
+
+.centerarea.shrink {
+  width: calc(88% - 220px);
+}
+
+.upload-zone {
+  text-align: center;
+}
+
+.upload-zone input[type="file"] {
+  margin-bottom: 10px;
+}
+
+.file-info {
+  margin-top: 10px;
+}
+
+.remove-btn {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 5px;
+  transition: background-color 0.2s ease;
+}
+
+.remove-btn:hover {
+  background-color: #cc0000;
+}
+
+.preview-area {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.preview-img {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 10px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+}
+
 
 .banner {
   position: fixed;
