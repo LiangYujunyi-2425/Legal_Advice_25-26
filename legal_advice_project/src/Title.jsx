@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect  } from 'react';
 import './index.css';
 import addPhotoIcon from './assets/addphoto.png';
 import addPhotoIconpdf from './assets/pdffile.png';
+import addPhotoIconscreen from './assets/diaphragm.png';
 
 export default function CenterArea({ shrink }) {
   const [file, setFile ] = useState(null);
@@ -74,6 +75,14 @@ export default function CenterArea({ shrink }) {
           marginBottom: '10px',
         }}
       />
+      <img className= {videoOpen ? 'cutscreen' : 'cutscreenoff'}
+        src={addPhotoIconscreen}
+        style={{
+          width: '40px',
+          height: '40px',
+          cursor: 'pointer',
+          marginBottom: '10px',
+        }}></img>
       <div className= {videoOpen ? 'visible' : 'hidden'} style={{ width: '100%', height: '100%'}}>
         <video ref={videoRef} autoPlay muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' , borderRadius: '20px' }}/>
       </div>
