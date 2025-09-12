@@ -60,10 +60,10 @@ export default function CenterArea({ shrink }) {
       onDragLeave={() => setDragOver(false)}
       onDrop={handleDrop}
     >
-      <button onClick={() => setVideoOpen(!videoOpen)}>
-        {videoOpen ? '隱藏攝像頭' : '顯示攝像頭'}
+      <button className='openbutt' onClick={() => setVideoOpen(!videoOpen)}>
+        {videoOpen ? 'PDF模式' : '實景模式'}
       </button>
-      <div className= {videoOpen ? 'visible' : 'hidden'}>
+      <div className= {videoOpen ? 'visible' : 'hidden'} style={{ width: '100%', height: '100%'}}>
         <video ref={videoRef} autoPlay muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' , borderRadius: '20px' }}/>
       </div>
       <div className="upload-zone">
