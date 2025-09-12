@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect  } from 'react';
 import './index.css';
+import addPhotoIcon from './assets/addphoto.png';
+import addPhotoIconpdf from './assets/pdffile.png';
 
 export default function CenterArea({ shrink }) {
   const [file, setFile ] = useState(null);
@@ -60,9 +62,18 @@ export default function CenterArea({ shrink }) {
       onDragLeave={() => setDragOver(false)}
       onDrop={handleDrop}
     >
-      <button className='openbutt' onClick={() => setVideoOpen(!videoOpen)}>
-        {videoOpen ? 'PDF模式' : '實景模式'}
-      </button>
+      {/* 圖片按鈕 */}
+      <img className='openbutt'
+        src={videoOpen ? addPhotoIconpdf : addPhotoIcon}
+        alt={videoOpen ? '隱藏攝像頭' : '顯示攝像頭'}
+        onClick={() => setVideoOpen(!videoOpen)}
+        style={{
+          width: '40px',
+          height: '40px',
+          cursor: 'pointer',
+          marginBottom: '10px',
+        }}
+      />
       <div className= {videoOpen ? 'visible' : 'hidden'} style={{ width: '100%', height: '100%'}}>
         <video ref={videoRef} autoPlay muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' , borderRadius: '20px' }}/>
       </div>
