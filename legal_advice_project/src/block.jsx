@@ -36,7 +36,7 @@ export default function RightBlock({ visible, setVisible }) {
           checkLeave();
         }}
       >
-        <p>這是右邊抽屜內容</p>
+        <p>深入解讀AI對話欄//信息框</p>
       </div>
     </>
   );

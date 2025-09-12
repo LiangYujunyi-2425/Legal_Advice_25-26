@@ -205,9 +205,14 @@ button:focus-visible {
 
 .openbutt{
   position: fixed;
-  right: 200px;
-  top: 7%;
+  right: 35px;
+  top: 3%;
+  filter: drop-shadow(0 0 8px #fcfcfc); /* 青色光暈 */
+  transition: filter 0.3s ease;
   z-index: 2000;
+}
+.openbutt:hover{
+  filter: drop-shadow(0 0 12px #0271bb);
 }
 
 @media (max-width: 768px) {
