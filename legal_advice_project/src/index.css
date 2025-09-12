@@ -111,7 +111,7 @@ button:focus-visible {
 }
 
 .centerarea.drag-over {
-  background-color: #e0f7ff;
+  background-color: #e0e2ff;
   border-color: #00aaff;
 }
 
@@ -136,7 +136,13 @@ button:focus-visible {
   margin-top: 10px;
   z-index: 1040;
 }
-
+.infooff{
+  display: none;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  z-index: 1040;
+}
 .remove-btn {
   background-color: #ff4d4d;
   color: white;
@@ -167,9 +173,9 @@ button:focus-visible {
 
 .banner {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
+  top: 1.5%;
+  left: 3%;
+  width: 95%;
   height: 60px;
   background-color: #1e1e1e;
   display: flex;
@@ -177,6 +183,8 @@ button:focus-visible {
   align-items: center;
   z-index: 1000;
   transition: height 0.3s ease;
+  border-radius: 20px;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
 }
 
 

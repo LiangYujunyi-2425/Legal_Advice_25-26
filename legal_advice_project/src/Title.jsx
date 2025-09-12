@@ -77,7 +77,7 @@ export default function CenterArea({ shrink }) {
       <div className= {videoOpen ? 'visible' : 'hidden'} style={{ width: '100%', height: '100%'}}>
         <video ref={videoRef} autoPlay muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' , borderRadius: '20px' }}/>
       </div>
-      <div className="upload-zone">
+      <div className={videoOpen ? 'infooff' : 'upload-zone'}>
         <input type="file" accept="image/*" onChange={handleFileChange} />
         <p>或將檔案拖曳到此區域</p>
 
