@@ -215,12 +215,26 @@ button:focus-visible {
   position: fixed;
   right: 35px;
   top: 3%;
-  filter: drop-shadow(0 0 8px #fcfcfc); /* 青色光暈 */
+  filter: drop-shadow(0 0 8px #dbe1ff); /* 青色光暈 */
   transition: filter 0.3s ease;
   z-index: 2000;
 }
 .openbutt:hover{
-  filter: drop-shadow(0 0 12px #0271bb);
+  filter: drop-shadow(0 0 12px #fffcd4);
+}
+.cutscreen{
+  position: fixed;
+  right: 50%;
+  top: 90%;
+  filter: drop-shadow(0 0 8px #dfe9ff); /* 青色光暈 */
+  transition: filter 0.3s ease;
+  z-index: 2000;
+}
+.cutscreenoff{
+  display: none;
+}
+.cutscreen:hover{
+  filter: drop-shadow(0 0 12px #feffcd);
 }
 
 @media (max-width: 768px) {
