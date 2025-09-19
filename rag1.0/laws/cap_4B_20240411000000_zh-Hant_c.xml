@@ -1,0 +1,666 @@
+<?xml version="1.0" encoding="UTF-8"?><subLeg xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.xml.gov.hk/schemas/hklm/1.0 https://www.elegislation.gov.hk/schemas/hklm.xsd" xml:lang="zh-Hant-HK"><meta><docName>第4章，附屬法例B</docName><docType>cap</docType><docNumber>4B</docNumber><docStatus>In effect</docStatus><dc:identifier>/hk/cap4B!zh-Hant-HK</dc:identifier><dc:date>2024-04-11</dc:date><dc:subject>legislation</dc:subject><dc:language>zh-Hant-HK</dc:language><dc:publisher>DoJ</dc:publisher><dc:rights>the Government of the Hong Kong Special Administrative Region</dc:rights></meta><main xml:lang="zh-Hant-HK" xsi:schemaLocation="http://www.xml.gov.hk/schemas/hklm/1.0 https://www.elegislation.gov.hk/schemas/hklm.xsd"><docTitle id="ID_1438403278696_002" name="shortTitle" reason="inEffect" status="operational" temporalId="shortTitle" startPeriod="2024-04-11">《高等法院訴訟人儲存金規則》</docTitle><sourceNote>(<ref href="/hk/1998/25">1998年第25號第2條</ref>)</sourceNote><enactingFormula role="empoweringSection">(<ref href="/hk/cap4/s57">第4章第57條</ref>)</enactingFormula><commencementNote>[1979年5月11日]</commencementNote><sourceNote>(格式變更——<ref href="/hk/2024/er2">2024年第2號編輯修訂紀錄</ref>)</sourceNote><crossHeading class="add-toc">導言</crossHeading><section id="ID_1438403278806_001" name="s1" reason="inEffect" role="rule" startPeriod="2024-04-11" status="operational" temporalId="s1"><num value="1">1.</num><heading>引稱</heading><text>本規則可引稱為《高等法院訴訟人儲存金規則》。</text><sourceNote>(<ref href="/hk/1998/25">1998年第25號第2條</ref>)</sourceNote></section><section id="ID_1438403278884_002" name="s2" reason="inEffect" role="rule" startPeriod="2024-04-11" status="operational" temporalId="s2"><num value="2">2.</num><heading>釋義</heading><leadIn>在本規則中，除文意另有所指外 ——</leadIn><def name="分類帳帳目"><term>分類帳帳目</term> (<term xml:lang="en">ledger account</term>)指冠以訟案或事宜的標題的任何獨立帳目，而該獨立帳目是根據(或將會根據)命令或其他依據而在司法常務官簿冊上開立的，並有(或將會有)儲存金記入其貸方； <sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></def><def name="司法常務官"><term>司法常務官</term>
+                (<term xml:lang="en">Registrar</term>)指法院的司法常務官；</def><def name="向法院交存,交存於法院"><term>向法院交存</term>
+                (<term xml:lang="en">lodge in
+                court</term>)指向法院繳存或轉入法院或存放於法院，而<term>交存於法院</term>
+                (<term xml:lang="en">lodgment in court</term>)具有相應的涵義；</def><def name="命令"><term>命令</term>
+                (<term xml:lang="en">order</term>)指法院命令，包括判決或判令，並包括命令的<ref>附表</ref>；</def><def name="法院"><term>法院</term>
+                (<term xml:lang="en">court</term>)指高等法院；<inline class="width_6"> </inline><sourceNote>(<ref href="/hk/1998/25">1998年第25號第2條</ref>)</sourceNote></def><def name="訟案或事宜的標題"><term>訟案或事宜的標題</term>
+                (<term xml:lang="en">title of the cause or matter</term>)指有關紀錄內訟案或事宜的簡稱；</def><def name="會計師"><term>會計師</term>
+                (<term xml:lang="en">Accountant</term>)指司法機構會計師；</def><def name="儲存金,法院儲存金"><term>儲存金</term>
+                (<term xml:lang="en">funds</term>)或<term>法院儲存金</term>
+                (<term xml:lang="en">funds in court</term>)指記在(或將會記入)司法常務官帳目的任何款項或證券、動產或其任何部分，並包括箱盒及其他財物。
+            <sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></def><sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></section><crossHeading class="add-toc">向法院交存儲存金</crossHeading><section id="ID_1438403278915_002" name="s3" reason="inEffect" role="rule" startPeriod="2016-04-01" status="operational" temporalId="s3"><num value="3">3.</num><heading>儲存金的交存</heading><subsection id="ID_1438412785178_018" name="1" temporalId="s3_1"><num value="1">(1)</num><content>除非任何法律規定須以某特定方式處理，否則所有須向法院交存並記入某分類帳帳目的儲存金，均須向司法常務官交存，而司法常務官須就此事發收據給作出交存的人。
+                <sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></content></subsection><subsection id="ID_1438412785178_026" name="2" temporalId="s3_2"><num value="2">(2)</num><content>如有提議將任何證券、動產、箱盒或其他財物向法院交存，司法常務官可對之作出他認為適合的查看，然後就此事發收據給作出交存的人。</content></subsection><subsection id="ID_1438412785178_034" name="3" temporalId="s3_3"><num value="3">(3)</num><content>除第(4)款另有規定外，每張就交存而發出的收據，均須於頁首註明該項交存所關乎的訟案或事宜的標題，並須載有關於該項交存的足夠詳情，而格式須盡量與<ref>附表</ref>的表格1相若。
+                <sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></content></subsection><subsection id="ID_1468463112888_001" name="4" temporalId="s3_4"><num value="4">(4)</num><leadIn>凡有一筆款項向法院交存作為儲存金，則就此而發出的收據須 ——</leadIn><paragraph name="a" temporalId="s3_4_a" id="ID_1468463112888_002"><num value="a">(a)</num><content>指明所收到的款項的數額；</content></paragraph><paragraph name="b" temporalId="s3_4_b" id="ID_1468463112888_003"><num value="b">(b)</num><content>指明該項交存所關乎的法院訴訟編號；</content></paragraph><paragraph name="c" temporalId="s3_4_c" id="ID_1468463112888_004"><num value="c">(c)</num><content>指明指示交存該筆款項的命令的日期；</content></paragraph><paragraph name="d" temporalId="s3_4_d" id="ID_1468463112888_005"><num value="d">(d)</num><content>指明交存該筆款項的一方；</content></paragraph><paragraph name="e" temporalId="s3_4_e" id="ID_1468463112888_006"><num value="e">(e)</num><content>指明交存的方法；</content></paragraph><paragraph name="f" temporalId="s3_4_f" id="ID_1468463112888_007"><num value="f">(f)</num><content>概述該項交存的目的；及</content></paragraph><paragraph id="ID_1468463112888_008" name="g" temporalId="s3_4_g"><num value="g">(g)</num><content>採用<ref>附表</ref>中的<ref>表格1A</ref>。
+                            <sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></content></paragraph></subsection><subsection id="ID_1464752562815_002" name="4A" temporalId="s3_4A"><num value="4A">(4A)</num><content>凡款項是由仲裁程序的一方所交存，而該一方是按照法院規則而向法院繳存款項的，則收據須載有關於隨同繳存發出的繳存款項通知書所列出的情況的陳述。<sourceNote>(<ref href="/hk/1982/ln351">1982年第351號法律公告</ref>；<ref href="/hk/1998/25">1998年第25號第2條</ref>；<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></content></subsection><subsection id="ID_1438412785178_104" name="5" temporalId="s3_5"><num value="5">(5)</num><content>凡所交存的儲存金是一筆款項，司法常務官須將該筆款項存入庫務署署長所指示的銀行帳戶內，稱為“高等法院訴訟人儲存金帳戶”。<sourceNote>(<ref href="/hk/1998/25">1998年第25號第2條</ref>)</sourceNote></content></subsection></section><section id="ID_1438403278930_001" name="s4" reason="inEffect" role="rule" startPeriod="2016-04-01" status="operational" temporalId="s4"><num value="4">4.</num><heading>帳目及登記冊的備存</heading><subsection id="ID_1438412785225_042" name="1" temporalId="s4_1"><num value="1">(1)</num><leadIn>司法常務官須 ——</leadIn><paragraph id="ID_1438412785225_050" name="a" temporalId="s4_1_a"><num value="a">(a)</num><content>備存適當的分類帳帳目，將所有交存法院的儲存金(不論是款項或證券)記入貸方，並將從該等帳目提取或轉撥的任何該等儲存金記入借方；</content></paragraph><paragraph id="ID_1438412785225_058" name="b" temporalId="s4_1_b"><num value="b">(b)</num><content>將任何該等交存法院的儲存金所作的投資以適當方式記錄在該等帳目內；及</content></paragraph><paragraph id="ID_1438412785241_006" name="c" temporalId="s4_1_c"><num value="c">(c)</num><content>將對該等儲存金所作的任何處理(以交存、提取、轉撥或投資方式作出者除外)，按情況所需以適當方式記錄在該等帳目內。</content></paragraph></subsection><subsection id="ID_1438412785241_013" name="2" temporalId="s4_2"><num value="2">(2)</num><leadIn>司法常務官須 ——</leadIn><paragraph id="ID_1438412785241_021" name="a" temporalId="s4_2_a"><num value="a">(a)</num><content>就所有交存法院的儲存金(屬款項或證券者除外)備存登記冊；</content></paragraph><paragraph id="ID_1438412785241_029" name="b" temporalId="s4_2_b"><num value="b">(b)</num><content>將該等儲存金的任何交存、提取、轉撥、投資或以其他方式所作的處理記錄在登記冊內；及</content></paragraph><paragraph id="ID_1438412785241_037" name="c" temporalId="s4_2_c"><num value="c">(c)</num><content>就登記冊內的每一記項，在分類帳帳目上以適當方式作出備忘。</content></paragraph></subsection><sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></section><section id="ID_1438403278930_003" name="s5" reason="inEffect" role="rule" startPeriod="2000-06-09" status="operational" temporalId="s5"><num value="5">5.</num><heading>周年帳目報表</heading><subsection id="ID_1438412785287_004" name="1" temporalId="s5_1"><num value="1">(1)</num><leadIn>司法常務官須每年就他根據<ref>第4(1)條</ref>所備存的帳目，安排擬備一份截至該年3月31日為止的12個月的帳目報表，而該帳目報表須 ——</leadIn><paragraph id="ID_1438412785287_012" name="a" temporalId="s5_1_a"><num value="a">(a)</num><content>包括收支表及資產負債報表；及</content></paragraph><paragraph id="ID_1438412785287_020" name="b" temporalId="s5_1_b"><num value="b">(b)</num><content>由司法常務官簽署。</content></paragraph></subsection><subsection id="ID_1438412785287_027" name="2" temporalId="s5_2"><num value="2">(2)</num><sourceNote>(由<ref href="/hk/2000/32">2000年第32號第23條</ref>廢除)</sourceNote></subsection></section><section id="ID_1438403278946_002" name="s6" reason="inEffect" role="rule" startPeriod="2016-04-01" status="operational" temporalId="s6"><num value="6">6.</num><heading>證券</heading><sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote><subsection id="ID_1438412785334_019" name="1" temporalId="s6_1"><num value="1">(1)</num><content>各類證券均可繳存法院。</content></subsection><subsection id="ID_1438412785334_027" name="2" temporalId="s6_2"><num value="2">(2)</num><content>根據香港法例成立的公司或法團所發行的證券，如屬已繳足股款而無須承擔任何法律責任者，則可按司法常務官的職銜轉讓予司法常務官。
+                <sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></content></subsection><subsection id="ID_1438412785334_035" name="3" temporalId="s6_3"><num value="3">(3)</num><content>其他證券可放置在一個箱盒或包裹內，向司法常務官交存，而司法常務官在接收該箱盒或包裹作保管前，須確保該箱盒或包裹已妥為標識和密封，並須在交存該箱盒或包裹的人面前查看其內容。　<sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></content></subsection><subsection id="ID_1438412785334_043" name="4" temporalId="s6_4"><num value="4">(4)</num><leadIn>如證券須轉讓至司法常務官名下，則交存證券的人須 ——
+                <sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></leadIn><paragraph id="ID_1438412785334_051" name="a" temporalId="s6_4_a"><num value="a">(a)</num><content>簽立有關的轉讓文書，並從司法常務官取得格式盡量與<ref>附表</ref>的表格2相若的授權書；及</content></paragraph><paragraph id="ID_1438412785334_059" name="b" temporalId="s6_4_b"><num value="b">(b)</num><content>將有關的轉讓文書連同授權書遞交備有該等證券轉讓簿冊的公司或法團的辦事處。</content></paragraph></subsection><subsection id="ID_1468463136519_001" name="5" temporalId="s6_5"><num value="5">(5)</num><leadIn>凡第(4)款所指的轉讓文書及授權書，已遞交某公司或法團的辦事處 ——</leadIn><paragraph id="ID_1468463136519_002" name="a" temporalId="s6_5_a"><num value="a">(a)</num><content>如有關證券並非在認可證券市場上市，則該公司或法團在登記該項轉讓後，須向司法常務官遞送一份證明書，述明該等證券已按授權而轉讓，而該證明書須採用<ref>附表</ref>中的表格3；或</content></paragraph><paragraph id="ID_1468463136519_003" name="b" temporalId="s6_5_b"><num value="b">(b)</num><content>如有關證券是在認可證券市場上市的，則該公司或法團在登記該項轉讓後，須按司法常務官的職銜，發出以司法常務官為持有人的該等證券的證明書，並向法院交存該證明書。 <sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></content></paragraph></subsection><subsection id="ID_1438412785350_013" name="6" temporalId="s6_6"><num value="6">(6)</num><content>司法常務官接獲根據第(5)款遞送的證明書後，須就有關交存發收據給作出交存的人。</content></subsection><subsection id="ID_1468463136534_004" name="7" temporalId="s6_7"><num value="7">(7)</num><leadIn>在本條中——</leadIn><def name="認可證券市場"><term>認可證券市場</term> (<term xml:lang="en">recognized stock market</term>)具有《證券及期貨條例》(<ref href="/hk/cap571">第571章</ref>)<ref>附表1第1部第1條</ref>所給予的涵義。 <sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></def></subsection></section><section id="ID_1438403278962_002" name="s7" reason="inEffect" role="rule" startPeriod="2024-04-11" status="operational" temporalId="s7"><num value="7">7.</num><heading>將有關證券的本金及派息記入簿冊內</heading><text>司法常務官須將就交存於法院的證券所收到的任何本金或派息記入其簿冊內；如屬本金，則須記入於收到本金時產生該本金的證券所屬的帳目的貸方；如屬派息，則須記入於該等派息變成為到期應收前孳生該等派息的證券的過戶登記冊閉封時該等證券所屬的帳目的貸方。</text></section><crossHeading class="add-toc">從法院儲存金作支出、交付及轉撥以及將儲存金作其他處理</crossHeading><section id="ID_1438403278977_001" name="s8" reason="inEffect" role="rule" startPeriod="2016-04-01" status="operational" temporalId="s8"><num value="8">8.</num><heading>從交存法院的款項支出的款項</heading><subsection id="ID_1438412785397_025" name="1" temporalId="s8_1"><num value="1">(1)</num><leadIn>任何交存法院的款項可按以下方式支出 ——</leadIn><paragraph id="ID_1438412785397_033" name="a" temporalId="s8_1_a"><num value="a">(a)</num><content>款額不超逾$250者，以現金或支票方式；</content></paragraph><paragraph id="ID_1438412785397_041" name="b" temporalId="s8_1_b"><num value="b">(b)</num><content>款額超逾$250者，以支票方式；或</content></paragraph><paragraph id="ID_1438412785397_049" name="c" temporalId="s8_1_c"><num value="c">(c)</num><content>任何款額，以藉從法院的銀行帳戶轉撥儲存金而作出付款的方式，</content></paragraph><continued>而任何支票或向銀行發出的從儲存金作轉撥的指示，須由司法常務官不時以書面授權的2人簽署。<inline class="width_6"> </inline><sourceNote>(<ref href="/hk/1980/ln345">1980年第345號法律公告</ref>)</sourceNote></continued></subsection><subsection id="ID_1467969070007_001" name="2" temporalId="s8_2"><num value="2">(2)</num><content>以現金或支票所作的支出，須於不屬星期六或公眾假期的任何日子，於法院會計部的辦公時間內，在法院辦理。
+                        <sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></content></subsection></section><section id="ID_1438403278977_003" name="s9" reason="inEffect" role="rule" startPeriod="2024-04-11" status="operational" temporalId="s9"><num value="9">9.</num><heading>款項須由司法常務官的證明書確定</heading><text>如有命令指示任何款項須由司法常務官的證明書確定，並其後須按照該證明書支付，則該證明書的格式須盡量與<ref>附表</ref>的表格4相若，而司法常務官在接獲有權收款的人的請求後，須按照<ref>第8條</ref>支付該款項。</text></section><section id="ID_1438403278993_002" name="s10" reason="inEffect" role="rule" startPeriod="2024-04-11" status="operational" temporalId="s10"><num value="10">10.</num><heading>訟費的支付</heading><leadIn>如有命令指示，任何經指示須予評定的訟費須從法院儲存金支出，則司法常務官須 ——</leadIn><paragraph id="ID_1438412785443_041" name="a" temporalId="s10_a"><num value="a">(a)</num><content>在其證明書中述明應獲付訟費的人的姓名或名稱及地址，而該證明書的格式須盡量與<ref>附表</ref>的表格5相若；及</content></paragraph><paragraph id="ID_1438412785443_049" name="b" temporalId="s10_b"><num value="b">(b)</num><content>在有權收款的人請求時，按照<ref>第8條</ref>支付該款項。</content></paragraph></section><section id="ID_1438403279008_002" name="s11" reason="inEffect" role="rule" startPeriod="2016-04-01" status="operational" temporalId="s11"><num value="11">11.</num><heading>從儲存金作支出或轉撥等以給予有權收款的人的遺產代理人</heading><subsection id="ID_1438412785521_011" name="1" temporalId="s11_1"><num value="1">(1)</num><content>如藉命令指示，法院儲存金須支付、轉撥或交付予命令或司法常務官的證明書中指名或描述的人(但該命令或證明書中說明以受託人、遺囑執行人或遺產管理人的身分，或非因其本身權利或非為其本人自用而有權收取該儲存金的人除外)，而該儲存金或其中任何部分當其時仍未支付、轉撥或交付，則除非命令另有指示，否則一經證明該人已去世(不論是在該命令作出當日或之後)，或(如屬指示須向該人作為債權人而作支付的情況)一經證明該人於命令作出之日前已去世，該儲存金或該部分可支付、轉撥或交付予該名死者的合法遺產代理人或尚存的合法遺產代理人。</content></subsection><subsection id="ID_1438412785521_019" name="2" temporalId="s11_2"><num value="2">(2)</num><content>如無人就該名死者取得遺產管理，而該名死者是未有立下遺囑而去世及其資產連同指示須從儲存金如此支付、轉撥或交付予他的款額在內價值不超逾$5,000，則可在身為死者的配偶、子女、父親、母親、兄弟或姊妹而會有權取得其遺產的管理的人，採用<ref>附表</ref>的表格6作出一項聲明後，將該儲存金支付、轉撥或交付予該人。</content></subsection><subsection id="ID_1438412785537_005" name="3" temporalId="s11_3"><num value="3">(3)</num><content>如藉命令指示，法院儲存金須支付、轉撥或交付予任何身為合法遺產代理人的人，而該儲存金或其中任何部分當其時仍未支付、轉撥或交付，則一經證明任何一名該等合法遺產代理人已去世(不論是在命令作出當日或之後)，該儲存金或該部分可支付、轉撥或交付予尚存的合法遺產代理人。</content></subsection><subsection id="ID_1438412785537_013" name="4" temporalId="s11_4"><num value="4">(4)</num><content>如遺囑認證或遺產管理書看來是在指示從儲存金作支出、轉撥或交付的命令之日起計2年屆滿後的任何時間所授予的，或如屬儲存金包含利息或派息的情況，而遺囑認證或遺產管理書看來是在最後一次收到上述利息或派息之日起計2年屆滿後的任何時間授予的，則不得根據本條將儲存金自法院支出、轉出或交付予該人的合法遺產代理人。
+                <sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></content></subsection></section><section id="ID_1438403279024_001" name="s12" reason="inEffect" role="rule" startPeriod="2016-04-01" status="operational" temporalId="s12"><num value="12">12.</num><heading>指示作支出、轉撥等命令須描述有權收款的人及其他</heading><subsection id="ID_1438412785553_019" name="1" temporalId="s12_1"><num value="1">(1)</num><content>除非每一名從法院儲存金獲支付、轉撥或交付的人的姓名或名稱會在司法常務官的證明書中述明，否則每一項指示如此作支出、轉撥或交付的命令，均須列明該人的全名，而在支付予商號的情況下，述明該商號的營業名稱即屬足夠。</content></subsection><subsection id="ID_1438412785553_027" name="2" temporalId="s12_2"><num value="2">(2)</num><content>如藉命令指示，存於法院的款項須支付予命令或司法常務官的證明書中描述為共同合夥人的任何人，則該款項可支付予該等共同合夥人中的任何一人或多於一人或尚存的共同合夥人。
+                <sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></content></subsection></section><section id="ID_1438403279024_003" name="s13" reason="inEffect" role="rule" startPeriod="2024-04-11" status="operational" temporalId="s13"><num value="13">13.</num><heading>指示將交存法院的款項作投資的命令</heading><subsection id="ID_1438412785584_011" name="1" temporalId="s13_1"><num value="1">(1)</num><content>如藉命令指示，交存法院的款項須作投資，則須製備該命令的一方須向司法常務官遞交請求作出投資的書面請求，而司法常務官須隨即按照命令所指示的方式促致將該筆款項作投資。</content></subsection><subsection id="ID_1438412785584_019" name="2" temporalId="s13_2"><num value="2">(2)</num><content>指示將交存法院的款項作投資的命令，須列明所指示的該筆款項投資須用的名義的人的姓名或名稱或職銜。</content></subsection></section><section id="ID_1438403279040_002" name="s14" reason="inEffect" role="rule" startPeriod="2016-04-01" status="operational" temporalId="s14"><num value="14">14.</num><heading>指示將交存法院的款項以其他方式處理的命令</heading><content>如藉命令指示，交存法院的款項須以交存、提取、轉撥或投資以外的方式處理，則須製備該命令的一方須向司法常務官遞交請求將該筆款項按命令的條款處理的書面請求，而司法常務官須隨即按命令行事。
+            </content><sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></section><section id="ID_1438403279055_001" name="s15" reason="inEffect" role="rule" startPeriod="2016-04-01" status="operational" temporalId="s15"><num value="15">15.</num><heading>將儲存金結轉至獨立帳目</heading><sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote><content>如有命令規定，法院儲存金須結轉至某個獨立帳目，則就此目的而開立的帳目的標題，須述明該儲存金所屬的訟案或事宜的標題。</content><sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></section><crossHeading class="add-toc">將交存的款項作投資</crossHeading><sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote><section id="ID_1438403279055_003" name="s16" reason="inEffect" role="rule" startPeriod="2024-04-11" status="operational" temporalId="s16"><num value="16">16.</num><heading>司法常務官將款項作投資的權力</heading><sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote><subsection id="ID_1438412785693_011" name="1" temporalId="s16_1"><num value="1">(1)</num><content>除非有命令另作指示，否則司法常務官可將任何交存法院的、記在分類帳帳目的貸方的款項按他認為適合的方式作投資，並可在任何時間更改該投資。</content></subsection><subsection id="ID_1438412785693_019" name="2" temporalId="s16_2"><num value="2">(2)</num><leadIn>除第(3)款另有規定外，如司法常務官將任何交存法院的、記在分類帳帳目的貸方的款項作投資，則司法常務官從該投資收到的任何派息或利息或就此而收到的任何本金 ——
+                <sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></leadIn><paragraph id="ID_1438412785693_027" name="a" temporalId="s16_2_a"><num value="a">(a)</num><content>須存入高等法院訴訟人儲存金帳戶；及 <sourceNote>(<ref href="/hk/1998/25">1998年第25號第2條</ref>)</sourceNote></content></paragraph><paragraph id="ID_1438412785693_035" name="b" temporalId="s16_2_b"><num value="b">(b)</num><content>須記入在派息或利息到期須予支付或收到本金時，其簿冊上有關投資當時所屬的帳目的貸方。</content></paragraph></subsection><subsection id="ID_1438412785693_042" name="3" temporalId="s16_3"><num value="3">(3)</num><leadIn>除非有命令另作指示，及除<ref>第(3A)</ref>、<ref>(3AB)</ref>、<ref>(3B)</ref>及<ref>(3C)款</ref>另有規定外，否則不得就交存法院的、記在分類帳帳目的貸方的下述任何款項而將利息記入貸方 ——  <sourceNote>(<ref href="/hk/1998/ln274">1998年第274號法律公告</ref>；<ref href="/hk/2008/ln155">2008年第155號法律公告</ref>；<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></leadIn><paragraph id="ID_1438412785693_050" name="a" temporalId="s16_3_a"><num value="a">(a)</num><content>繳存法院作為訟費的保證的款項，或作為清償或賠罪或為遵從某項給予在繳存款項後作抗辯的許可的命令而繳存法院的款項；</content></paragraph><paragraph id="ID_1438412785693_058" name="b" temporalId="s16_3_b"><num value="b">(b)</num><content>款額小於$7,500的款項； <sourceNote>(<ref href="/hk/1998/ln274">1998年第274號法律公告</ref>)</sourceNote></content></paragraph><paragraph id="ID_1438412785693_066" name="c" temporalId="s16_3_c"><num value="c">(c)</num><content>繳存法院以支付各項開支(包括但不限於看管員費用、管理員費用及證人開支)的款項；</content></paragraph><paragraph id="ID_1438412785693_074" name="d" temporalId="s16_3_d"><num value="d">(d)</num><content>繳存法院作為銷售得益的款項；</content></paragraph><paragraph id="ID_1438412785693_082" name="e" temporalId="s16_3_e"><num value="e">(e)</num><content>繳存法院作為清償判定債項的款項；</content></paragraph><paragraph id="ID_1438412785693_090" name="f" temporalId="s16_3_f"><num value="f">(f)</num><content>為遵從根據下述條例作出的命令而繳存法院的款項，即《婚姻訴訟條例》(<ref href="/hk/cap179">第179章</ref>)、《婚姻法律程序與財產條例》(<ref href="/hk/cap192">第192章</ref>)、《分居令及贍養令條例》(<ref href="/hk/cap16">第16章</ref>)、《贍養令(交互強制執行)條例》(<ref href="/hk/cap188">第188章</ref>)或《未成年人監護條例》(<ref href="/hk/cap13">第13章</ref>)；或 <sourceNote>(<ref href="/hk/1998/ln274">1998年第274號法律公告</ref>)</sourceNote></content></paragraph><paragraph id="ID_1438412785693_098" name="g" temporalId="s16_3_g"><num value="g">(g)</num><sourceNote>(由<ref href="/hk/1998/ln274">1998年第274號法律公告</ref>廢除)</sourceNote></paragraph><paragraph id="ID_1438412785709_006" name="h" temporalId="s16_3_h"><num value="h">(h)</num><content>根據《高等法院規則》(<ref href="/hk/cap4A">第4章，附屬法例A</ref>)第75號命令在任何海事法律程序中繳存法院的款項。
+                            <sourceNote>(<ref href="/hk/1998/25">1998年第25號第2條</ref>)</sourceNote></content></paragraph></subsection><subsection id="ID_1458199579199_001" name="3A" temporalId="s16_3A"><num value="3A">(3A)</num><content>凡為第<ref>(3)(a)</ref>款所提述的任何目的而向法院繳存款項，須自繳存該筆款項當日後的第3個工作日起，將利息記入有關訟案或事宜所屬的分類帳帳目的貸方。<sourceNote>(<ref href="/hk/1998/ln274">1998年第274號法律公告</ref>)</sourceNote></content></subsection><subsection id="ID_1468463164366_001" name="3AB" temporalId="s16_3AB"><num value="3AB">(3AB)</num><leadIn>儘管有第(3A)款的規定，如有款項在生效日期前，為第<ref>(3)(a)</ref>款提述的任何目的而向法院繳存，而沒有利息根據在緊接生效日期前有效的本條，記入有關訟案或事宜所屬的分類帳帳目的貸方，則須自以下日期起，將利息記入該帳目的貸方 ——</leadIn><paragraph id="ID_1468463164366_002" name="a" temporalId="s16_3AB_a"><num value="a">(a)</num><content>(如款項在生效日期前2個工作日之前繳存)生效日期當日，或(如生效日期並非工作日)生效日期後的首個工作日；</content></paragraph><paragraph id="ID_1468463164382_003" name="b" temporalId="s16_3AB_b"><num value="b">(b)</num><content>(如款項在生效日期前2個工作日繳存)生效日期後的首個工作日，或(如生效日期並非工作日)生效日期後的第2個工作日；或</content></paragraph><paragraph id="ID_1468463164382_004" name="c" temporalId="s16_3AB_c"><num value="c">(c)</num><content>(如款項在生效日期前1個工作日繳存)生效日期後的第2個工作日，或(如生效日期並非工作日)生效日期後的第3個工作日。
+                            <sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></content></paragraph></subsection><subsection id="ID_1458199579214_002" name="3B" temporalId="s16_3B"><num value="3B">(3B)</num><content>儘管有<ref>第(3A)</ref>及<ref>(3AB)款</ref>的規定，凡為第<ref>(3)(a)</ref>款所提述的任何目的而向法院繳存款項，是《高等法院規則》(<ref href="/hk/cap4A">第4章，附屬法例A</ref>)第22號命令所指的附帶條款付款，則須自繳存該筆款項當日後的第28日起，將利息記入有關訟案或事宜所屬的分類帳帳目的貸方。
+                <sourceNote>(<ref href="/hk/2008/ln155">2008年第155號法律公告</ref>)</sourceNote></content></subsection><subsection id="ID_1468463164382_005" name="3C" temporalId="s16_3C"><num value="3C">(3C)</num><content>儘管有<ref>第(3A)</ref>及<ref>(3AB)款</ref>的規定，如有款項為第<ref>(3)(a)</ref>款提述的任何目的而向法院繳存，而該筆款項是《高等法院規則》(<ref href="/hk/cap4A">第4章，附屬法例A</ref>)<ref>第62A號</ref>命令所指的附帶條款付款，則須自繳存該筆款項當日後的第14日起，將利息記入有關訟案或事宜所屬的分類帳帳目的貸方。
+                        <sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></content></subsection><subsection id="ID_1438412785709_027" name="4" temporalId="s16_4"><num value="4">(4)</num><content>交存法院的任何款項，所得利息的計算不得考慮少於$1之數。</content></subsection><subsection id="ID_1468463164382_006" name="5" temporalId="s16_5"><num value="5">(5)</num><content>凡須就交存法院的、記在分類帳帳目的貸方的款項而支付利息，司法常務官無須將該等利息的款額分攤。 <sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></content></subsection><subsection id="ID_1468463164382_007" name="6" temporalId="s16_6"><num value="6">(6)</num><leadIn>在本條中 ——</leadIn><def name="工作日">
+                <leadIn><term>工作日</term> (<term xml:lang="en">business day</term>)指不是以下任何日子的日子 ——</leadIn>
+                <paragraph id="ID_1468463164398_008" name="a" temporalId="s16_6_a"><num value="a">(a)</num><content>公眾假期；</content></paragraph>
+                <paragraph id="ID_1468463164398_009" name="b" temporalId="s16_6_b"><num value="b">(b)</num><content>星期六；或</content></paragraph>
+                <paragraph id="ID_1468463164398_010" name="c" temporalId="s16_6_c"><num value="c">(c)</num><content>《釋義及通則條例》(<ref href="/hk/cap1">第1章</ref>)<ref>第71(2)條</ref>所界定的烈風警告日或黑色暴雨警告日；</content></paragraph>
+            </def><def name="生效日期">*<term>生效日期</term>
+                    (<term xml:lang="en">commencement
+                    date</term>)指《2015年高等法院訴訟人儲存金(修訂)規則》(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)開始實施的日期。
+                        <sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>；<ref href="/hk/2024/er2">2024年第2號編輯修訂紀錄</ref>)</sourceNote></def></subsection><sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote><editorialNote type="footnote" id="ID_1705654488421_001">
+            <content>編輯附註：</content>
+            <content><inline class="force_orig_font">*</inline> 生效日期︰2016年4月1日。</content>
+        </editorialNote></section><section id="ID_1438403279071_002" name="s17" reason="inEffect" role="rule" startPeriod="2016-04-01" status="operational" temporalId="s17"><num value="17">17.</num><heading>收入盈餘</heading><content>司法常務官須於每一財政年度結束後，在切實可行範圍內盡快將當時存於高等法院訴訟人儲存金帳戶內超出本規則規定須記入各項帳目貸方款額的任何款項，付予庫務署，而該款項須轉撥入香港政府一般收入內。</content><sourceNote>(<ref href="/hk/1998/25">1998年第25號第2條</ref>；<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></section><section id="ID_1438403279086_002" name="s18" reason="inEffect" role="rule" startPeriod="2024-04-11" status="operational" temporalId="s18"><num value="18">18.</num><heading>管理訴訟人儲存金帳目的費用</heading><text>根據本規則須備存的各項帳目，有關管理費用須由香港政府一般收入撥款支付。</text></section><crossHeading class="add-toc">生存等證據</crossHeading><section id="ID_1438403279086_004" name="s19" reason="inEffect" role="rule" startPeriod="2016-04-01" status="operational" temporalId="s19"><num value="19">19.</num><heading>以誓章作為生存或履行條件的證據</heading><content>凡任何人根據命令有權收取派息或其他定期付款，而司法常務官要求提供證據，證明該人仍在世，或證明向該人支付上述派息或付款的先決條件已獲履行，則該證據須以誓章方式提供。</content><sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></section><section id="ID_1438403279102_002" name="s20" reason="inEffect" role="rule" startPeriod="2024-04-11" status="operational" temporalId="s20"><num value="20">20.</num><heading>以誓章或聲明作為其他事宜的證據</heading><text>在實行命令的指示時，司法常務官為了並非已包括在<ref>第19條</ref>的任何目的而要求提供證據，可收取一份誓章或法定聲明並據此行事，而每份上述的誓章或法定聲明，在司法常務官認為有需要時，須送交法院存檔。</text></section><crossHeading class="add-toc">雜項</crossHeading><section id="ID_1438403279118_001" name="s21" reason="inEffect" role="rule" startPeriod="2016-04-01" status="operational" temporalId="s21"><num value="21">21.</num><heading>儲存金類別及款額的證明書</heading><subsection id="ID_1438412785802_018" name="1" temporalId="s21_1"><num value="1">(1)</num><content>凡任何人聲稱在記在某帳目的貸方的任何法院儲存金中，具有利害關係，並簽署(或由他人代為簽署)一份指明該帳目的請求書，則司法常務官在接獲該請求書後，除非有良好的拒絕理由，否則須發出一份關於該儲存金的款額及類別的證明書，該證明書須提述在其日期當日開始時，該帳目的狀況，但不得包括該日的交易在內。</content></subsection><subsection id="ID_1438412785802_026" name="2" temporalId="s21_2"><num value="2">(2)</num><leadIn>司法常務官須在根據第(1)款發出的證明書內就以下事宜作出通知 ——</leadIn><paragraph id="ID_1438412785802_034" name="a" temporalId="s21_2_a"><num value="a">(a)</num><content>對記在證明書所指明帳目的貸方的法院儲存金的轉撥、出售、支付、交付或其他方式的處理有影響的任何押記令的日期或任何限制上述事宜的命令的日期(以他已獲通知的押記令或命令為限)；</content></paragraph><paragraph id="ID_1438412785802_042" name="b" temporalId="s21_2_b"><num value="b">(b)</num><content>該押記令或限制令，是否影響該儲存金所包含的本金、利息或派息；及</content></paragraph><paragraph id="ID_1438412785802_050" name="c" temporalId="s21_2_c"><num value="c">(c)</num><content>須獲發證明書的人的姓名或名稱，或該押記令或限制令所惠及的人的姓名或名稱。</content></paragraph></subsection><subsection id="ID_1438412785802_057" name="3" temporalId="s21_3"><num value="3">(3)</num><content>如自證明書發出後並無對儲存金的款額或類別作出任何更改，司法常務官可重訂根據第(1)款發出的證明書的日期。</content></subsection><sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></section><section id="ID_1438403279118_003" name="s22" reason="inEffect" role="rule" startPeriod="2024-04-11" status="operational" temporalId="s22"><num value="22">22.</num><heading>在司法常務官簿冊上的帳目的謄本</heading><leadIn>司法常務官一經接獲聲稱與法院儲存金有利害關係的人所簽署或由他人代該人所簽署的請求書，除非有好的理由可作拒絕，否則須 ——</leadIn><paragraph id="ID_1438412785833_019" name="a" temporalId="s22_a"><num value="a">(a)</num><content>發出請求書所指明的在其簿冊上的帳目的謄本；及</content></paragraph><paragraph id="ID_1438412785833_027" name="b" temporalId="s22_b"><num value="b">(b)</num><content>按個別情況就法院儲存金的交易或處理提供不時所需的其他資料或發出不時所需的證明書。</content></paragraph></section><section id="ID_1438403279133_001" name="s23" reason="inEffect" role="rule" startPeriod="2016-04-01" status="operational" temporalId="s23"><num value="23">23.</num><heading>將無人認領的存於法院的款項轉撥</heading><subsection id="ID_1438412785849_011" name="1" temporalId="s23_1"><num value="1">(1)</num><content>如任何款項存於法院無人認領達5年，終審法院首席法官可應司法常務官的申請，命令將該筆款項轉撥入香港政府一般收入內。
+                <sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)</sourceNote></content></subsection><subsection id="ID_1438412785849_019" name="2" temporalId="s23_2"><num value="2">(2)</num><content>終審法院首席法官根據第(1)款作出任何該等命令前，可指示作出他認為需要的通知(如有的話)，並指示將通知給予他認為適合的各方。</content></subsection><sourceNote>(<ref href="/hk/1998/25">1998年第25號第2條</ref>)</sourceNote></section><section id="ID_1438403279133_003" name="s24" reason="repealed" role="rule" startPeriod="2016-04-01" status="repealed" temporalId="s24"><num value="24">24.</num><sourceNote>(由<ref href="hk/2015/ln148">2015年第148號法律公告</ref>廢除)</sourceNote></section><schedule id="ID_1438403279164_001" name="sch0" reason="inEffect" startPeriod="2024-04-11" status="operational" temporalId="sch0"><num value="0">附表</num><crossHeading><inline class="not_bold">表格1</inline></crossHeading><note type="inline" class="align_right" role="crossReferences">[<ref href="/hk/cap4B/s3">第3(3)條</ref>]</note><text><table xmlns="http://www.w3.org/1999/xhtml" width="446">
+                <colgroup>
+                    <col width="26.79%"></col>
+                    <col width="38.21%"></col>
+                    <col width="8.21%"></col>
+                    <col width="26.79%"></col>
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <td class="align_center" colspan="4">
+                            
+                            <p><i>收據</i></p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            <p xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">香港特別行政區<br></br>高等法院</p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            <p>(<i>訟案或事宜的標題。</i><inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"> </inline>年第<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"> </inline>宗)</p>
+                            
+                            <p></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <p class="align_justified left_indent_0 first_line_indent_24">茲收到<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_120"> </inline>交來下述證券(<i>在此填寫詳情</i>)，<i>或</i>標識為<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_70"> </inline>的包裹，而包裹宣稱是載有(<i>在此填寫內容清單</i>)，<i>或</i>下述動產(<i>在此填寫詳情</i>)。</p>
+                            <p></p>
+                            <p></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p></p>
+                        </td>
+                        <td>
+                            <p></p>
+                        </td>
+                        <td>
+                            <p></p>
+                        </td>
+                        <td>
+                            <p></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        
+                        <td colspan="2" class="align_right cellpadding_right_5">
+                            <p class="align_right">(簽署) </p>
+                        </td>
+                        <td class="align_left leaders_." colspan="2"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"></td>
+                        
+                        <td colspan="2" class="align_center"><i>司法常務官</i></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <p></p>
+                            <p class="align_justified left_indent_0 first_line_indent_24">日期：<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"></inline>年<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"></inline>月<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"></inline>日</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table><sourceNote>(<ref href="/hk/1998/25">1998年第25號第2條</ref>；<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)<marker role="blank-line"></marker><marker role="blank-line"></marker></sourceNote></text><text class="align_center"><fillIn class=" width_49">_</fillIn><marker role="blank-line"></marker><marker role="section-break"></marker></text><crossHeading><inline class="not_bold">表格1A</inline></crossHeading><note type="inline" class="align_right" role="crossReferences">[<ref href="/hk/cap4B/s3">第3(4)條</ref>]</note><text><table xmlns="http://www.w3.org/1999/xhtml" width="448" class="left_indent_0">
+                <colgroup>
+                    <col width="24.82%"></col>
+                    <col width="10.12%"></col>
+                    <col width="33.33%"></col>
+                    <col width="10.12%"></col>
+                    <col width="21.61%"></col>
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <td class="align_center" colspan="5">
+                            
+                            
+                            <p class="left_indent_0 first_line_indent_0  align_center"><i xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">收據</i></p>
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            <p class="align_center left_indent_0 first_line_indent_0">香港特別行政區<br></br>高等法院</p>
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            <p class=" align_center">(<i xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">訟案或事宜的標題</i>。<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_30"> </inline>年第<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"> </inline>宗)</p>
+                            
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <p></p>
+                            <p>收據編號</p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            
+                        </td>
+                        <td></td>
+                        <td colspan="2" class="align_center">
+                            <p></p>
+                            <p>所收款額</p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="align_left" colspan="5">
+                            <p class="align_justified ">收據日期</p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="align_left" colspan="5">
+                            <p class="align_justified ">訴訟編號</p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="align_left" colspan="5">
+                            <p class="align_justified ">命令日期(如適用的話)</p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="align_left" colspan="5">
+                            <p class=" align_justified">付款人</p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="align_left border_bottom_0.5" colspan="5">
+                            <p class="align_justified ">付款目的</p>
+                            <p></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="align_left border_bottom_0.5" colspan="2">
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            <p>付款編號</p>
+                            
+                            
+                            <p></p>
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                        </td>
+                        <td class="align_center border_top_0.5 border_bottom_0.5">
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            <p>付款方法</p>
+                            
+                            <p></p>
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                        </td>
+                        <td class="align_right border_top_0.5 border_bottom_0.5" colspan="2">
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            <p>所收款額</p>
+                            
+                            
+                            <p></p>
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            
+                        </td>
+                    </tr>
+                </tbody>
+            </table><sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)<marker role="blank-line"></marker></sourceNote></text><text class="align_center"><fillIn class=" width_49">_</fillIn><marker role="blank-line"></marker><marker role="blank-line"></marker></text><crossHeading><inline class="not_bold">表格2</inline></crossHeading><note type="inline" class="align_right" role="crossReferences">[<ref href="/hk/cap4B/s6">第6(4)條</ref>]</note><text><table xmlns="http://www.w3.org/1999/xhtml" width="446">
+                <colgroup>
+                    <col width="65%"></col>
+                    <col width="8.21%"></col>
+                    <col width="26.79%"></col>
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <td class="align_center" colspan="3">
+                            
+                            <p><i>公司或法團登記證券轉讓的授權書</i></p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            <p>香港特別行政區<br></br>高等法院</p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            <p>(<i>訟案或事宜的標題。</i><inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"> </inline>年第<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"> </inline>宗)</p>
+                            
+                            <p></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            <paragraph xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="align_justified left_indent_0 first_line_indent_0" id="ID_1458199207233_002" name="0" temporalId="sch0_0"><content>致香港<inline class="width_150"> </inline>有限公司。</content></paragraph>
+                            <paragraph xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="align_justified left_indent_0 first_line_indent_24" id="ID_1458199207233_003" name="0-1" temporalId="sch0_0-1"><content>(<i>公司或法團名稱</i>)證券(編號為<fillIn class="width_70"> </fillIn>)，現由<br></br><fillIn class="width_70"> </fillIn>轉讓予司法常務官。請登記此項轉讓。</content></paragraph>
+                            <p></p>
+                            <p></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p></p>
+                        </td>
+                        <td>
+                            <p></p>
+                        </td>
+                        <td>
+                            <p></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        
+                        <td class="cellpadding_right_5">
+                            <p class="align_right">(簽署) </p>
+                        </td>
+                        <td colspan="2" class="align_left leaders_."></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td colspan="2">
+                            <p class="align_center"><i>司法常務官</i></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            <p></p>
+                            <p class="first_line_indent_24 align_justified">日期：<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"></inline>年<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"></inline>月<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"></inline>日</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table><sourceNote>(<ref href="/hk/1998/25">1998年第25號第2條</ref>；<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)<marker role="blank-line"></marker><marker role="blank-line"></marker></sourceNote></text><text class="align_center"><fillIn class=" width_49">_</fillIn><marker role="blank-line"></marker><marker role="section-break"></marker></text><crossHeading><inline class="not_bold">表格3</inline></crossHeading><note type="inline" class="align_right" role="crossReferences">[<ref href="/hk/cap4B/s6">第6(5)條</ref>]</note><text><table xmlns="http://www.w3.org/1999/xhtml" width="446">
+                <colgroup>
+                    <col width="65%"></col>
+                    <col width="8.21%"></col>
+                    <col width="26.79%"></col>
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <td class="align_center" colspan="3">
+                            <p><i>證券登記證明書</i></p>
+                            <p></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            <p class="align_justified left_indent_0 first_line_indent_24">現按授權，於下述簽署日期，將(<i xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">公司或法團名稱</i>)證券(編號為<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_100"> </inline>)轉讓予司法常務官。</p>
+                            <p></p>
+                            <p></p>
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        
+                        <td class="align_right cellpadding_right_3">
+                            <p class="align_right">(簽署) </p>
+                        </td>
+                        <td class="align_left leaders_." colspan="2"></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td colspan="2">
+                            <p class="align_right"><i>有限公司秘書</i></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"><marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="section-break"></marker><marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker><marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker><p class="first_line_indent_24 align_justified">日期：<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"></inline>年<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"></inline>月<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"></inline>日</p></td>
+                    </tr>
+                </tbody>
+            </table><sourceNote>(<ref href="/hk/1998/25">1998年第25號第2條</ref>；<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)<marker role="blank-line"></marker><marker role="blank-line"></marker></sourceNote></text><text class="align_center"><fillIn class=" width_49">_</fillIn><marker role="blank-line"></marker></text><crossHeading><inline class="not_bold">表格4</inline></crossHeading><note type="inline" class="align_right" role="crossReferences">[<ref href="/hk/cap4B/s9">第9條</ref>]</note><text><table xmlns="http://www.w3.org/1999/xhtml" width="446">
+                <colgroup>
+                    <col width="26.79%"></col>
+                    <col width="38.21%"></col>
+                    <col width="8.21%"></col>
+                    <col width="26.79%"></col>
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <td class="align_center" colspan="4">
+                            <p><i>確定款項證明書</i></p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            <p>香港特別行政區<br></br>高等法院</p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            <p>(<i>訟案或事宜的標題。</i><inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_30"> </inline>年第<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"> </inline>宗)</p>
+                            
+                            <p></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <p class="align_justified left_indent_0 first_line_indent_24">本人現核證根據日期為<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"> </inline>年<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"> </inline>月<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"> </inline>日的命令，於此尾附的<ref xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">附表</ref>所述款項合計總額$<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_70"> </inline>，已確定為根據該命令就(<i>述明付款目的</i>)<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_120"></inline>須付予以下分別指名的人的款項。</p>
+                            <p></p>
+                            <p class="first_line_indent_24 align_justified">日期：<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"></inline>年<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"></inline>月<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"></inline>日</p>
+                            <p></p>
+                            <p></p>
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        
+                        <td colspan="2" class="align_right cellpadding_right_5">
+                            <p class="align_right">(簽署) </p>
+                        </td>
+                        <td class="align_left leaders_." colspan="2"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"></td>
+                        <td colspan="2">
+                            <p class="align_center"><i>司法常務官</i></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="align_center">
+                            <p></p>
+                            <p>附表</p>
+                            <p></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        
+                        <td class="align_center valign_center border_top_0.5 border_right_0.5 border_bottom_0.5 above_space_between_line_8 below_space_between_line_8">
+                            <p xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"><i>姓名或名稱</i></p>
+                        </td>
+                        
+                        <td colspan="2" class="align_center valign_center border_top_0.5 border_right_0.5 border_bottom_0.5 above_space_between_line_8 below_space_between_line_8"><i>地址(如能確定)</i></td>
+                        
+                        <td class="align_center valign_center border_top_0.5 border_bottom_0.5 above_space_between_line_8 below_space_between_line_8">
+                            <p class="align_center valign_center"><i>須付款額</i></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="border_right_0.5 border_bottom_0.5"></td>
+                        <td colspan="2" class="border_bottom_0.5 border_right_0.5">
+                            <br></br>
+                            <br></br>
+                            <br></br>
+                            <br></br>
+                            <br></br>
+                            <br></br>
+                        </td>
+                        <td class="border_bottom_0.5"></td>
+                    </tr>
+                </tbody>
+            </table><sourceNote>(<ref href="/hk/1998/25">1998年第25號第2條</ref>；<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)<marker role="blank-line"></marker><marker role="blank-line"></marker></sourceNote></text><text class="align_center"><fillIn class=" width_49">_</fillIn><marker role="blank-line"></marker><marker role="blank-line"></marker></text><crossHeading><inline class="not_bold">表格5</inline></crossHeading><note type="inline" class="align_right" role="crossReferences">[<ref href="/hk/cap4B/s10">第10條</ref>]</note><text><table xmlns="http://www.w3.org/1999/xhtml" width="445">
+                <colgroup>
+                    
+                    <col width="45%"></col>
+                    
+                    <col width="24%"></col>
+                    
+                    <col width="31%"></col>
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <td class="align_center" colspan="3">
+                            <p class="left_indent_0 first_line_indent_0  align_center"><i xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">經評定的訟費證明書</i></p>
+                            
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="align_center">
+                            <p class="align_center left_indent_0 first_line_indent_0">香港特別行政區<br></br>高等法院</p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="align_center">
+                            <p class="align_center ">(<i xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">訟案或事宜的標題</i>。<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_30"> </inline>年第<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"> </inline>宗)</p>
+                            
+                            
+                            <p></p>
+                            
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            <p class=" align_justified">本人現核證：本人已依據<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_40"> </inline>年<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_35"> </inline>月<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_40"> </inline>日(<i xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">法官姓名</i>)作出的命令，於(<i xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">訟費評定日期</i>)評定由(<i xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">訴訟一方的姓名或名稱</i>)針對(<i xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">訴訟另一方的姓名或名稱</i>)而提出的訟費單，獲准予的款額如下︰</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            
+                            
+                            <p></p>
+                            
+                            
+                            
+                            <p class="align_center">(<i xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">訟費基準</i>)</p>
+                            <p></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p class="align_justified ">律師服務費用</p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            
+                        </td>
+                        <td colspan="2" class="align_left">
+                            
+                            
+                            
+                            <p>$</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p class="align_justified ">代墊付費用</p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            
+                        </td>
+                        <td colspan="2" class="align_left">
+                            
+                            
+                            
+                            <p>$</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p class="align_justified ">訟費評定的訟費</p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            
+                        </td>
+                        <td colspan="2" class="align_left">
+                            
+                            
+                            
+                            <p>$</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p class="align_justified ">評定費</p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            
+                        </td>
+                        <td colspan="2" class="align_left">
+                            
+                            
+                            
+                            <p>$</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p class="align_justified ">准予款額</p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            
+                        </td>
+                        <td colspan="2" class="align_left">
+                            
+                            
+                            
+                            <p>$</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            
+                            <p>上述經評定的訟費及費用，須從法院儲存金支出予(<i xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">受款人姓名或名稱</i>)，其地址為(<i xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">受款人地址</i>)。</p>
+                            
+                            
+                            <p></p>
+                            
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <p class=" align_center">(簽署)</p>
+                            <p></p>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <p class="align_left">司法常務官</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            
+                            <p>日期：<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"> </inline>年<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"> </inline>月<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"> </inline>日</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table><sourceNote>(<ref href="hk/2015/ln148">2015年第148號法律公告</ref>)<marker role="blank-line"></marker><marker role="blank-line"></marker></sourceNote></text><text class="align_center"><fillIn class=" width_49">_</fillIn><marker role="blank-line"></marker><marker role="blank-line"></marker></text><crossHeading><inline class="not_bold">表格6</inline></crossHeading><note type="inline" class="align_right" role="crossReferences">[<ref href="/hk/cap4B/s11">第11(2)條</ref>]</note><text>
+            <table xmlns="http://www.w3.org/1999/xhtml" width="446">
+                <colgroup>
+                    
+                    <col width="55%"></col>
+                    
+                    <col width="18%"></col>
+                    <col width="27%"></col>
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <td class="align_center" colspan="3">
+                            <p xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"><i>聲明書</i></p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            <p>香港特別行政區<br></br>高等法院</p>
+                            
+                            
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                            
+                            <p>(<i>訟案或事宜的標題。</i><inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_30"> </inline>年第<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"> </inline>宗)</p>
+                            
+                            <p></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            <paragraph xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="align_justified left_indent_0 first_line_indent_24" id="ID_1458199207452_004" name="0" temporalId="sch0_0"><content>本人(<i>申請人姓名及地址</i>)謹以至誠鄭重聲明，本人是(<i>死者姓名</i>)的(<i>親屬關係</i>)，是其最近親或最近親之一，有權取得其遺產的管理及領取根據日期為<inline class="width_40"> </inline>年<inline class="width_25"> </inline>月<inline class="width_25"> </inline>日的命令而指示支付予死者的款項$<inline class="width_80"> </inline>。<marker role="blank-line"></marker><marker role="blank-line"></marker></content></paragraph>
+                            <paragraph xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="align_justified left_indent_0 first_line_indent_24" id="ID_1458199207452_005" name="0-1" temporalId="sch0_0-1"><content>本人謹再聲明，死者的資產連同上述款項在內總值不超逾$5,000，本人並核證死者的臨終及殯殮費用已經清付；而本人謹憑藉《宣誓及聲明條例》(<ref href="/hk/cap11">第11章</ref>)的條文衷誠作此項鄭重聲明，並確信其為真實。</content></paragraph>
+                            <p></p>
+                            <p></p>
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="align_right">
+                            
+                            <p></p>
+                            
+                            <p class="align_right">(申請人簽署)..............................</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            <p></p>
+                            <p class="align_left left_indent_0 first_line_indent_0">此項聲明於<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_40"> </inline>年<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"> </inline>月<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="width_25"> </inline>日在</p>
+                            <p></p>
+                            <p class="align_justified left_indent_0 first_line_indent_24">在本人面前作出。</p>
+                            <p></p>
+                            <p></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="align_right">
+                            <p>(簽署) </p>
+                        </td>
+                        <td colspan="2" class="align_left leaders_."></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td colspan="2" class="align_center">
+                            
+                            <p>獲法律授權根據《宣誓及聲<br></br>明條例》(<ref xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" href="/hk/cap11">第11章</ref>)監理<br></br>及接受聲明的人</p>
+                            
+                            
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </text><sourceNote>(<ref href="/hk/1997/47">1997年第47號第10條</ref>；<ref href="/hk/1998/25">1998年第25號第2條</ref>；<ref href="hk/2015/ln148">2015年第148號法律公告</ref>；<ref href="/hk/2024/er2">2024年第2號編輯修訂紀錄</ref>)</sourceNote></schedule></main></subLeg>

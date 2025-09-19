@@ -1,0 +1,959 @@
+<?xml version="1.0" encoding="UTF-8"?><subLeg xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.xml.gov.hk/schemas/hklm/1.0 https://www.elegislation.gov.hk/schemas/hklm.xsd" xml:lang="zh-Hant-HK"><meta><docName>第4章，附屬法例C</docName><docType>cap</docType><docNumber>4C</docNumber><docStatus>In effect</docStatus><dc:identifier>/hk/cap4C!zh-Hant-HK</dc:identifier><dc:date>2021-04-22</dc:date><dc:subject>legislation</dc:subject><dc:language>zh-Hant-HK</dc:language><dc:publisher>DoJ</dc:publisher><dc:rights>the Government of the Hong Kong Special Administrative Region</dc:rights></meta><main xml:lang="zh-Hant-HK" xsi:schemaLocation="http://www.xml.gov.hk/schemas/hklm/1.0 https://www.elegislation.gov.hk/schemas/hklm.xsd"><docTitle id="ID_1438403279180_002" name="shortTitle" reason="inEffect" status="operational" temporalId="shortTitle" startPeriod="2021-04-22">《高等法院費用(虜獲)令》</docTitle><sourceNote>(<ref href="/hk/1998/25">1998年第25號第2條</ref>)</sourceNote><text class="align_center">(《最高法院條例》(<ref href="/hk/1873/3">1873年第3號</ref>)*<ref>第32條</ref>；<br></br>《1890年殖民地海事法庭法令》<ref><sup>#</sup></ref><ref>第7(1)條</ref>)<marker role="blank-line"></marker><marker role="blank-line"></marker></text><commencementNote>[1940年4月30日]</commencementNote><sourceNote>(格式變更——<ref href="/hk/2021/er2">2021年第2號編輯修訂紀錄</ref>)</sourceNote><editorialNote type="footnote" id="ID_1601884076211_001">
+            <content>編輯附註：</content>
+            
+            
+            <content><inline class="force_orig_font">*</inline> 已廢除——見<ref href="/hk/1975/92">1975年第92號條例第58條</ref>。</content>
+            
+            <content><ref><sup>#</sup></ref>
+                “《1890年殖民地海事法庭法令》”乃“Colonial Courts of Admiralty Act 1890”之譯名。</content>
+        </editorialNote><section id="ID_1438403279196_001" name="s1" reason="inEffect" role="paragraph" startPeriod="2021-04-22" status="operational" temporalId="s1"><num value="1">1.</num><heading>引稱</heading><text>本命令可引稱為《高等法院費用(虜獲)令》。</text><sourceNote><inline class="width_6"> </inline>(<ref href="/hk/1998/25">1998年第25號第2條</ref>)</sourceNote></section><section id="ID_1438403279196_003" name="s2" reason="inEffect" role="paragraph" startPeriod="2021-04-22" status="operational" temporalId="s2"><num value="2">2.</num><heading>須於高等法院的虜獲法庭繳付的費用</heading><text><ref>附表</ref>所分別指明的各項費用為定額費用，並指定須於高等法院的虜獲法庭繳付；該等費用並須以黏貼印花的方式繳付。</text><sourceNote><inline class="width_6"> </inline>(<ref href="/hk/1998/25">1998年第25號第2條</ref>)</sourceNote></section><section id="ID_1438403279211_001" name="s3" reason="inEffect" role="paragraph" startPeriod="2021-04-22" status="operational" temporalId="s3"><num value="3">3.</num><heading>單位字數的涵義</heading><text>就本令而言，一單位字數須當作包含72字，而每個數字作一個字計算。</text></section><section id="ID_1438403279211_003" name="s4" reason="inEffect" role="paragraph" startPeriod="2021-04-22" status="operational" temporalId="s4"><num value="4">4.</num><heading>適用範圍</heading><text>本令適用於所有虜獲訟案及虜獲事宜。</text></section><schedule id="ID_1438403279242_001" name="sch0" reason="inEffect" startPeriod="2021-04-22" status="operational" temporalId="sch0"><num value="0">附表</num><text>
+            
+            <center><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker>傳票、通知書、委任狀及手令</center>
+            
+            
+            <table xmlns="http://www.w3.org/1999/xhtml" class="repeat_header cellpadding_bottom_3 cellpadding_top_3" width="450">
+                
+                <col width="10%"></col>
+                
+                
+                <col width="70%"></col>
+                
+                <col width="5%"></col>
+                
+                
+                <col width="15%"></col>
+                
+                <thead>
+                    <tr>
+                        <td class="align_justified"></td>
+                        <td class="align_justified">
+                            <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        </td>
+                        <th></th>
+                        <td class="align_justified">
+                            <p class="align_right">$<inline xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" class="font_size_8"> </inline>￠</p>
+                        </td>
+                    </tr>
+                </thead>
+                
+                
+                <tr>
+                    
+                    <td class="align_justified">1.</td>
+                    
+                    
+                    <td class="leaders_. align_justified">於展開訟案的令狀上蓋章</td>
+                    
+                    <td class="align_justified"></td>
+                    
+                    
+                    <td class="align_right valign_bottom">24.00</td>
+                </tr>
+                <tr>
+                    
+                    
+                    <td class="align_justified">2.</td>
+                    
+                    
+                    <td class="leaders_. align_justified">於經修訂的展開訟案的令狀上蓋章</td>
+                    
+                    <td class="align_justified"></td>
+                    
+                    
+                    <td class="align_right valign_bottom align_justified">4.00</td>
+                </tr>
+                <tr>
+                    
+                    
+                    <td class="align_justified">3.</td>
+                    
+                    
+                    <td class="leaders_. align_justified">於傳召出庭令上蓋章，每一名證人</td>
+                    
+                    <td class="align_justified"></td>
+                    
+                    
+                    <td class="align_right valign_bottom align_justified">2.00</td>
+                </tr>
+                <tr>
+                    
+                    
+                    <td class="align_justified">4.</td>
+                    
+                    
+                    <td class="leaders_. align_justified">於傳票上蓋章或發出傳票</td>
+                    
+                    <td class="align_justified"></td>
+                    
+                    
+                    <td class="align_right valign_bottom align_justified">4.00</td>
+                </tr>
+                <tr>
+                    
+                    
+                    <td class="align_justified">5.</td>
+                    
+                    
+                    <td class="leaders_. align_justified align_justified">將通知書存檔，以將轉交司法常務官的事宜編入審訊表</td>
+                    
+                    <td class="align_justified"></td>
+                    
+                    
+                    <td class="align_right valign_bottom align_justified">12.00</td>
+                </tr>
+                <tr>
+                    
+                    
+                    <td class="align_justified">6.</td>
+                    
+                    
+                    <td class="leaders_. align_justified">就發出任何以法院印章發出的文書所作的通知</td>
+                    
+                    <td class="align_justified"></td>
+                    
+                    
+                    <td class="align_right valign_bottom align_justified">16.00</td>
+                </tr>
+                <tr>
+                    
+                    
+                    <td class="align_justified">7.</td>
+                    
+                    
+                    <td class="leaders_. align_justified">委任狀或請求書</td>
+                    
+                    <td class="align_justified"></td>
+                    
+                    
+                    <td class="align_right valign_bottom align_justified">32.00</td>
+                </tr>
+                <tr>
+                    
+                    
+                    <td class="align_justified">8.</td>
+                    
+                    
+                    <td class="leaders_. align_justified">將權利呈請書的文本加以標識以作送達</td>
+                    
+                    <td class="align_justified"></td>
+                    
+                    
+                    <td class="align_right valign_bottom align_justified">6.00</td>
+                </tr>
+                <tr>
+                    
+                    
+                    <td class="align_justified">9.</td>
+                    
+                    
+                    <td class="leaders_. align_justified">將登錄或撤回知會備忘的通知書存檔</td>
+                    
+                    <td class="align_justified"></td>
+                    
+                    
+                    <td class="align_right valign_bottom align_justified">6.00</td>
+                </tr>
+                
+                <tr>
+                    <td class="align_justified"></td>
+                    <td class="align_justified">
+                        <center xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"> <marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><br></br>應訴書<br></br> </center>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_justified"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified">10.</td>
+                    <td class="leaders_.">呈交應訴書或修訂應訴書，每一人</td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom">2.00</td>
+                </tr>
+                <tr>
+                    <td class="align_justified"></td>
+                    <td class="align_justified">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        
+                        
+                        <center xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"> <br></br>文本<br></br> </center>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_justified"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified">11.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">證人的書面供詞的文本，以便一方將之印製，每一單位字數</td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom">.40</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">12.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">檢查手寫或印製的文本，並將之標識或蓋章為正式文本，每一單位字數</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">.20</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">13.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">製作文本，並將之標識為正式文本，每一單位字數</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">.50</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">14.</td>
+                    
+                    <td class="align_justified">外語文本——實際費用。</td>
+                    <td class="align_justified"></td>
+                    <td class="align_left"></td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">15.</td>
+                    
+                    <td class="align_justified align_justified">圖則、地圖、地段、繪圖、照片或圖表的文本——實際費用。</td>
+                    <td class="align_justified"></td>
+                    <td class="align_left"></td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">16.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">命令的印本(並非正式文本或經核證的文本者)，每一單位字數</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">.10</td>
+                </tr>
+                
+                
+                
+                <tr>
+                    <td class="align_justified"></td>
+                    <td class="align_justified">
+                        <center xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"> <marker role="blank-line"></marker><br></br>出席<br></br> </center>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_justified"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified">17.</td>
+                    
+                    <td class="cellpadding_bottom_3 leaders_. align_justified align_justified">任何要求任何人員以證人身分出席或交出會提供作為證據的紀錄或文件的申請(不論是否有傳召出庭令)，該名人員有需要離開其職守的每一天或不足一天(該名人員的合理開支另計)</td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom">32.00</td>
+                </tr>
+                <tr>
+                    <td class="align_justified"></td>
+                    <td class="align_justified">
+                        
+                        <p class="align_justified">該名人員可為任何進一步的費用而要求存放印花，並為任何進一步的開支而要求存放款項，而該等費用及開支是頗有可能超出在提出申請時已就費用及開支所支付的款額而成為須予支付者，該名收取所存放的印花及款項的人員或其收取所存放的印花及款項的書記，並須隨即在有關的申請書上就此事作出備忘錄。</p>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_justified"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified"></td>
+                    <td class="align_justified">
+                        <center xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><br></br>宣誓等<br></br> </center>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_justified"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified">18.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">為誓章進行宣誓或作出聲明，每一名作出宣誓或聲明的人</td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom">2.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">19.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">誓章或聲明中所提述並須予標識的證物，每件另加</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">1.00</td>
+                </tr>
+                <tr>
+                    <td class="align_justified"></td>
+                    <td class="align_justified">
+                        <center xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"> <br></br>存檔<br></br> </center>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_justified"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified">20.</td>
+                    <td class="leaders_.">將權利呈請書存檔</td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom">24.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">21.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">除另有規定外，每份文書或文件(不包括證物，或任何先前由登記處或執行官辦事處<ref xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"><sup>#</sup></ref>發出的文書或文件</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">4.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">22.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">申請作翻查，以找尋某份應訴書或誓章，並對之加以查閱</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">1.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">23.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">除任何國會法令、任何條例或本命令另有明文規定外，申請翻查索引及查閱狀書、判決、判令、命令、簡短紀錄或其他紀錄，所花的每小時或不足一小時</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">2.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">24.</td>
+                    
+                    <td class="leaders_. align_justified">不超逾一天</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">8.00</td>
+                </tr>
+                <tr>
+                    <td class="align_justified"></td>
+                    <td class="align_justified">
+                        <center xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"><marker role="blank-line"></marker><marker role="blank-line"></marker> <br></br>訊問證人<br></br> </center>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_right"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified">25.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">發出在法官、司法常務官或訊問員席前進行訊問的命令或發出請求書 <sourceNote xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">(<ref href="/hk/1998/25">1998年第25號第2條</ref>)</sourceNote></td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom">4.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">26.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">口頭訊問證人(由法官或司法常務官進行者除外)，每天或不足一天 <sourceNote xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">(<ref href="/hk/1998/25">1998年第25號第2條</ref>)</sourceNote></td>
+                    <td class="align_justified">
+                        <span class="left_brace align_center">{</span>
+                    </td>
+                    
+                    <td class="align_right valign_bottom align_justified">由33.00<br></br>至65.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">27.</td>
+                    
+                    <td class="align_justified align_justified">如任何訊問員在登記處5公里以外的地方訊問證人，則合理的交通及其他開支另計。
+                            <sourceNote xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">(<ref href="/hk/1984/ln397">1984年第397號法律公告</ref>)</sourceNote></td>
+                    <td class="align_justified"></td>
+                    <td class="align_right"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_justified">
+                        
+                        <p class="left_indent_12 align_justified">有關人員可為有關費用而要求存放印花，並為有關的開支而要求存放款項，而該等費用及開支是頗有可能超出訊問證人時已就費用及開支所支付的任何款額而成為須予支付者，該名收取所存放的印花及款項的人員或其收取所存放的印花及款項的書記須隨即就此事作出備忘錄，並將備忘錄交付作出存放的一方。</p>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_right"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_justified">
+                        
+                        <p class="left_indent_12 align_justified">有關人員亦可要求有關一方作出書面承諾，承諾支付任何可能超出所已如此支付及存放的款額而成為須予支付的進一步費用及開支。</p>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_right"></td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">28.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">由法官或司法常務官訊問證人，不論是否經由傳譯，每一名證人 <sourceNote xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">(<ref href="/hk/1998/25">1998年第25號第2條</ref>)</sourceNote></td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">16.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">29.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">就船舶文件(航空器文件)擬備誓章，每一單位字數</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">2.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">30.</td>
+                    
+                    <td class="leaders_. align_justified">將船舶文件(航空器文件)分類並加上編號</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">8.00</td>
+                </tr>
+                <tr>
+                    <td class="align_justified"></td>
+                    <td class="align_justified">
+                        <center xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"> <marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><br></br>聆訊<br></br> </center>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_right"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified">31.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">將任何訟案或事宜登錄或排期以作聆訊，或再次登錄或再次排期以作聆訊</td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom">32.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">32.</td>
+                    
+                    <td class="leaders_. align_justified">以書面要求裁判委員出席聆訊</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">8.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">33.</td>
+                    
+                    <td class="leaders_. align_justified">將任何呈請或轉交的事宜排期</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">8.00</td>
+                </tr>
+                <tr>
+                    <td class="align_justified"></td>
+                    <td class="align_justified">
+                        <center xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"> <marker role="blank-line"></marker><marker role="blank-line"></marker><br></br>判決、判令及命令<br></br> </center>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_right"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified"></td>
+                    <td class="align_justified">
+                        
+                        <p>擬備及登錄判令及命令——</p>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_right"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified">34.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">如是在聆訊訟案時在法庭上作出者，或是在聆訊呈請時作出者</td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom">32.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">35.</td>
+                    
+                    <td class="leaders_. align_justified">如屬就權利呈請而作出的當然命令</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">8.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">36.</td>
+                    
+                    <td class="leaders_. align_justified">如屬就權利呈請而作出的委任狀命令</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">16.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified"><ref xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"><sup>##</sup></ref>37.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">任何其他依照第XXIII號命令而送交存檔的命令，包括同意書或協議在內，並將之存檔</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">8.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">38.</td>
+                    
+                    <td class="leaders_. align_justified">關於登錄事後補正的命令的備忘錄</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">4.00</td>
+                </tr>
+                <tr>
+                    <td class="align_justified"></td>
+                    <td class="align_justified">
+                        
+                        
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        
+                        
+                        <center xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"> <br></br>在司法常務官席前的轉交的事宜<br></br> </center>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_right"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified">39.</td>
+                    
+                    <td class="align_justified align_justified">將任何事宜轉交司法常務官，包括訊問證人(如有的話)，已顧及有關帳目及其他事宜的性質和重要性，以及所花的時間。</td>
+                    <td class="align_justified">
+                        <span class="left_brace align_center">{</span>
+                    </td>
+                    <td class="align_right valign_bottom">16.00<br></br>至250.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">40.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">如轉交的事宜所花時間多於一天，每多一天或不足一天的進一步費用，不超逾</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">250.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">41.</td>
+                    
+                    <td class="align_justified align_justified">如需要一名或多於一名商人或其他合適的人出席聆訊，每一名商人或上述的人所收取的費用與司法常務官所收取者相同。</td>
+                    <td class="align_justified">
+                        
+                        <span class="left_brace align_center align_justified">{</span>
+                    </td>
+                    
+                    <td class="align_right valign_bottom align_justified">16.00<br></br>至250.00</td>
+                </tr>
+                <tr>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_justified">
+                        
+                        <p class="left_indent_12 align_justified">如屬案情極為複雜或所涉款額極龐大而所花的時間多於一整天者，可收取較高費用。</p>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_right"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified"></td>
+                    <td class="align_justified">
+                        
+                        <p class="left_indent_12 align_justified">第39至41項(首尾兩項包括在內)所開列的費用，初步須由將轉交的事宜排期聆訊的一方按下文所訂定的方式支付：</p>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_right"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified"><ref xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"><sup>###</sup></ref></td>
+                    <td class="align_justified">
+                        
+                        <p class="left_indent_12 align_justified">排期的一方須在第XVII號命令<ref xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">第3條</ref>規則所提述的通知書貼上就轉交的事宜而繳付的印花，而如司法常務官有所規定，並須以印花的形式存放一筆司法常務官認為款額足以支付轉交費用的款項。如就法律程序有任何進一步的款項成為須予支付，該款項須由上述一方在轉交的事宜的結果有報告時支付，或如並無報告作出，則須在就轉交的事宜進行的法律程序結束時支付，或如該等法律程序尚未結束，則須就該等法律程序所已進行的部分支付應付的部分款項，款額由司法常務官決定。該等進一步的款項，須以在述明該等費用是就何事支付的備忘錄蓋上或貼上印花的方式支付。</p>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_right"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified"></td>
+                    <td class="align_justified">
+                        <center xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"> <marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><br></br>執行官辦事處<ref><sup>#</sup></ref><br></br> </center>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified">42.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">執行手令或依據《海軍虜獲法令》<ref xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"><sup>§</sup></ref><ref xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">第16條</ref>取得船舶(航空器)的管有</td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom">32.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">43.</td>
+                    
+                    <td class="leaders_. align_justified">執行扣押，每一名被扣押的人</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">16.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">44.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">執行任何須由執行官<ref xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">^</ref>執行的判令、命令、委任狀或其他文書，但本令有為其作出規定者除外</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">16.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">45.</td>
+                    
+                    <td class="leaders_. align_justified">會晤及委任估價人，並為其進行宣誓</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">16.00</td>
+                </tr>
+                
+                
+                <tr>
+                    <td></td>
+                    <td>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                
+                
+                <tr>
+                    
+                    <td class="align_justified">46.</td>
+                    
+                    <td class="leaders_. align_justified">按清單所示將船舶(航空器)或貨品交付購買人</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">32.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">47.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">看管貨物的卸下，或船舶(航空器)或貨品的出售或移走，每天</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">32.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">48.</td>
+                    
+                    <td class="align_justified align_justified">保留船舶(航空器)的管有，不論是否連同貨物，船舶看守人(航空器看守人)的每天開支。</td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_justified">
+                        
+                        <p class="align_justified">除上述費用外，執行官<ref xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">^</ref>有權獲付其交通、膳食及生活開支的合理開支。</p>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom"></td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">49.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">依照法庭判令或命令將任何船舶(航空器)或貨品出售變現所得的淨收益，每$1,000或不足$1,000之數</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">10.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">50.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">發還任何船舶(航空器)、貨品，使之受免扣押，或釋放任何被逮捕的人</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">32.00</td>
+                </tr>
+                <tr>
+                    <td class="align_justified"></td>
+                    <td class="align_justified">
+                        <center xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"> <marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><marker role="blank-line"></marker><br></br>訟費評定<br></br> </center>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified">51.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">對訟費單作訟費評定，而所准予的款額不超逾$100</td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom">2.50</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">52.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">凡款額超逾$100，所准予的每$100或不足$100之數</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">2.50</td>
+                </tr>
+                
+                
+                <tr>
+                    <td class="align_justified"></td>
+                    <td>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        
+                        
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        
+                        
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom align_justified"></td>
+                </tr>
+                
+                
+                <tr>
+                    <td class="align_justified"></td>
+                    <td class="align_justified">
+                        <center xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"><br></br>在高等法院會計部進行的程序<br></br></center>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified"></td>
+                    <td colspan="3" class="align_right"><sourceNote xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">(<ref href="/hk/1998/25">1998年第25號第2條</ref>)</sourceNote></td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">53.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">發出核證任何款項、儲存金或保證物的款額及類別的證明書，包括就此作出的請求</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">1.50</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">54.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">提供關於每一開立的帳戶的謄本，包括就此作出的請求</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">1.50</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">55.</td>
+                    
+                    <td class="align_justified align_justified">就任何以下目的向審計署署長、司法常務官或其他人員提出請求：在無命令的情況下將款項、儲存金或保證物繳存、交存、撥入或存放於法院，或將附加於命令所指示繳存的款額的款項繳存、交存、撥入或存放於法院；在無命令或訟費評定官證明書的情況下支出任何款項；就任何款項、儲存金或保證物或會計部的任何帳目往來提供書面資料
+                            <sourceNote xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">(<ref href="/hk/1977/ln16">1977年第16號法律公告</ref>；<ref href="/hk/1997/ln362">1997年第362號法律公告</ref>)</sourceNote></td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom"></td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">56.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">請求就存於載於會計師所擬備的訟案及事宜列表的下列訟案或事宜的貸方的任何款項、儲存金或保證物提供資料：存於其貸方的任何款項、儲存金或保證物是15年來未作處理的</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">2.00</td>
+                </tr>
+                
+                
+                <tr>
+                    <td class="align_justified"></td>
+                    <td>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        
+                        
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        <marker xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" role="blank-line"></marker>
+                        
+                        
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom align_justified"></td>
+                </tr>
+                
+                
+                <tr>
+                    
+                    <td class="align_justified">57.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">依據《受託人條例》(<ref xmlns="http://www.xml.gov.hk/schemas/hklm/1.0" href="/hk/cap29">第29章</ref>)為將任何款項、儲存金或保證物繳存、撥入或存放於法院而作出誓章</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">1.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">58.</td>
+                    
+                    <td class="leaders_. align_justified">擬備授權書</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">4.00</td>
+                </tr>
+                <tr>
+                    <td class="align_justified"></td>
+                    <td class="align_justified">
+                        <center xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"> <marker role="blank-line"></marker><marker role="blank-line"></marker><br></br>雜項<br></br> </center>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom"></td>
+                </tr>
+                <tr>
+                    <td class="align_justified">59.</td>
+                    
+                    <td class="leaders_. align_justified">法官的指令 <sourceNote xmlns="http://www.xml.gov.hk/schemas/hklm/1.0">(<ref href="/hk/1998/25">1998年第25號第2條</ref>)</sourceNote>
+                    </td>
+                    <td class="align_justified"></td>
+                    <td class="align_right valign_bottom">4.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">60.</td>
+                    
+                    <td class="leaders_. align_justified">簽署，刊登或批准刊登廣告</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">8.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">61.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">接受擔保或擔保契據，不論具保人或義務人是一名抑或多於一名，亦不論是否由各人在同一時間作出或簽立</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">8.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">62.</td>
+                    
+                    <td class="align_justified">轉讓擔保契據</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">4.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">63.</td>
+                    
+                    <td class="leaders_. align_justified">由專員接受保釋</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">16.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">64.</td>
+                    
+                    <td class="leaders_. align_justified">作出交付羈押</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">4.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">65.</td>
+                    
+                    <td class="leaders_. align_justified align_justified">在登記處登記女皇船舶的一般授權書並為海軍的總會計師<ref xmlns="http://www.xml.gov.hk/schemas/hklm/1.0"><sup>†</sup></ref>提供其文本一份</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">24.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">66.</td>
+                    
+                    <td class="leaders_. align_justified">在登記處登記女皇船舶的特別授權書</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">8.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">67.</td>
+                    
+                    <td class="leaders_. align_justified">由海軍的虜獲事宜的司法常務官製備帳目</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">4.00</td>
+                </tr>
+                <tr>
+                    
+                    <td class="align_justified">68.</td>
+                    
+                    <td class="leaders_. align_justified">由司法常務官查閱保釋的擔保契據</td>
+                    <td class="align_justified"></td>
+                    
+                    <td class="align_right valign_bottom align_justified">1.00</td>
+                </tr>
+                
+            </table>
+            
+        </text><editorialNote type="footnote" id="ID_1600919406205_001">
+            <content>編輯附註：</content>
+            <content><ref><sup>#</sup></ref>
+                “執行官辦事處”乃“Marshal’s office”之譯名。</content>
+            <content><ref><sup>##</sup></ref>
+                第XXIII號命令，見S.R. &amp; O. (<ref href="/hk/1939/1466">1939年第1466號</ref>)。</content>
+            <content><ref><sup>###</sup></ref>
+                第XVII號命令第3條規則，見S.R.
+                &amp; O. (<ref href="/hk/1939/1466">1939年第1466號</ref>)。</content>
+            <content><ref><sup>§</sup></ref>
+                “《海軍虜獲法令》”乃“Naval Prize Act”之譯名。</content>
+            <content><ref>^</ref>
+                “執行官”乃“Marshal”之譯名。</content>
+            <content><ref><sup>†</sup></ref>
+                “海軍的總會計師”乃“accountant general of the Navy”之譯名。</content>
+        </editorialNote></schedule></main></subLeg>
