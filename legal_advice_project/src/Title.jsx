@@ -3,6 +3,8 @@ import './index.css';
 import addPhotoIcon from './assets/addphoto.png';
 import addPhotoIconpdf from './assets/pdffile.png';
 import addPhotoIconscreen from './assets/diaphragm.png';
+import { jsPDF } from 'jspdf';
+
 
 export default function CenterArea({ shrink }) {
   const [file, setFile ] = useState(null);
@@ -10,6 +12,8 @@ export default function CenterArea({ shrink }) {
   const [dragOver, setDragOver] = useState(false);
   const videoRef = useRef(null);
   const [videoOpen, setVideoOpen] = useState(false);
+  const canvasRef = useRef(null);
+
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -52,8 +56,30 @@ export default function CenterArea({ shrink }) {
         startCamera();
   }, []);
 
+  const handleCapture = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (video && canvas) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageDataURL = canvas.toDataURL('image/png');
+      setPreviewURL(imageDataURL);
+      setFile(imageDataURL);
+
+      // 直接轉成 PDF 並下載
+      const pdf = new jsPDF();
+      pdf.addImage(imageDataURL, 'PNG', 10, 10, 180, 160);
+      pdf.save('captured-image.pdf');
+    }
+  };
+
+
 
   return (
+  <div>
+    <canvas ref={canvasRef} style={{ display: 'none' }} />
     <div
       className={`centerarea ${dragOver ? 'drag-over' : ''} ${shrink ? 'shrink' : ''}`}
       onDragOver={(e) => {
@@ -77,6 +103,7 @@ export default function CenterArea({ shrink }) {
       />
       <img className= {videoOpen ? 'cutscreen' : 'cutscreenoff'}
         src={addPhotoIconscreen}
+        onClick={handleCapture}
         style={{
           width: '40px',
           height: '40px',
@@ -106,5 +133,6 @@ export default function CenterArea({ shrink }) {
         )}
       </div>
     </div>
+  </div>
   );
 }
