@@ -15,17 +15,12 @@ app.post('/api/generate-pdf', upload.single('image'), async (req, res) => {
 
   try {
     const text = await tesseract.recognize(imagePath, { lang: 'chi_sim' });
-
+    console.log('PDF 正在生成到：', outputPath);
     // 生成 PDF
+    const timestamp = Date.now();
+    const outputPath = path.join(__dirname, `output_${timestamp}.pdf`);
     const doc = new PDFDocument();
-    const chunks = [];
-    doc.on('data', chunk => chunks.push(chunk));
-    doc.on('end', () => {
-      const pdfBuffer = Buffer.concat(chunks);
-      res.setHeader('Content-Type', 'application/pdf');
-      res.send(pdfBuffer);
-    });
-
+    doc.pipe(fs.createWriteStream(outputPath));
     doc.fontSize(12).text(text);
     doc.end();
   } catch (err) {
