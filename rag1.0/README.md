@@ -62,7 +62,7 @@ pip install -r requirements.txt
 GEMINI_API_KEY=你的_Gemini_API_Key
 
 4️⃣ 初始化資料
-python batch_cap4.py   # 建立向量資料庫 & BM25 索引
+python batch_cap4_1.0.py   # 建立向量資料庫 & BM25 索引
 
 人話就是把.xml的文檔放到laws文件夾，然後運行batch_cap4.py就可以生成一個包含/laws文件夾裡所有數據的向量數據庫（chroma_db）
 
@@ -80,5 +80,6 @@ web_contract_ui_local.py是web ui的本體，有兩個版本，後綴cp 對應 c
 
 .xml文檔轉換.md文檔
 python md.py   （將需要轉換的.xml文檔放入/laws文件夾，輸出的.md文檔會存入/laws_md文件夾）
+
 
 如果使用使用API例如gemini的LLM，記得掛vpn，不然會error
