@@ -10,6 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "multer": "^2.0.2",
+    "node-tesseract-ocr": "^2.2.1",
+    "pdfkit": "^0.17.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },

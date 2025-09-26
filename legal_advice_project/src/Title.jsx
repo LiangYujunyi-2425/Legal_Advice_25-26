@@ -51,6 +51,36 @@ export default function CenterArea({ shrink }) {
 
         startCamera();
   }, []);
+  const handleCapture = async () => {
+    if (!videoRef.current) return;
+
+    // 1. 截取畫面
+    const canvas = document.createElement('canvas');
+    canvas.width = videoRef.current.videoWidth;
+    canvas.height = videoRef.current.videoHeight;
+    canvas.getContext('2d').drawImage(videoRef.current, 0, 0);
+
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+
+    // 2. 上傳到後端
+    const formData = new FormData();
+    formData.append('image', blob);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/generate-pdf', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const fileBlob = await response.blob();
+      const fileURL = URL.createObjectURL(fileBlob);
+
+      // 3. 顯示 PDF
+      window.open(fileURL, '_blank');
+    } catch (err) {
+      console.error('處理失敗：', err);
+    }
+  };
 
 
   return (
@@ -73,19 +103,26 @@ export default function CenterArea({ shrink }) {
           height: '40px',
           cursor: 'pointer',
           marginBottom: '10px',
-        }}
-      />
-      <img className= {videoOpen ? 'cutscreen' : 'cutscreenoff'}
-        src={addPhotoIconscreen}
-        style={{
-          width: '40px',
-          height: '40px',
-          cursor: 'pointer',
-          marginBottom: '10px',
-        }}></img>
+        }}/>
       <div className= {videoOpen ? 'visible' : 'hidden'} style={{ width: '100%', height: '100%'}}>
         <video ref={videoRef} autoPlay muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' , borderRadius: '20px' }}/>
       </div>
+      <button
+  onClick={handleCapture}
+  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+>
+  <img
+    className={videoOpen ? 'cutscreen' : 'cutscreenoff'}
+    src={addPhotoIconscreen}
+    style={{
+      width: '40px',
+      height: '40px',
+      marginBottom: '10px',
+    }}
+    alt="截取畫面"
+  />
+</button>
+
       <div className={videoOpen ? 'infooff' : 'upload-zone'}>
         <input type="file" accept="image/*" onChange={handleFileChange} />
         <p>或將檔案拖曳到此區域</p>
