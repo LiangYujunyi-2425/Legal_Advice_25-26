@@ -48,8 +48,8 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("❌ 請先在 .env 設定 GEMINI_API_KEY")
 
-GEMINI_MODEL = "gemini-1.5-flash"
-GEMINI_ENDPOINT = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+GEMINI_MODEL = "models/gemini-2.5-flash"
+GEMINI_ENDPOINT = f"https://generativelanguage.googleapis.com/v1beta/{GEMINI_MODEL}:generateContent"
 HEADERS = {"Content-Type": "application/json", "x-goog-api-key": GEMINI_API_KEY}
 
 # ================== 檢索 ==================
@@ -109,42 +109,73 @@ def rerank(query, candidates, top_k=3, debug=False):
 # ================== Gemini 回答 ==================
 def call_gemini(prompt):
     body = {
-        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": 0.2, "maxOutputTokens": 512}
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "temperature": 0.2, 
+            "maxOutputTokens": 4096,
+            "topP": 0.8,
+            "topK": 10
+        }
     }
 
-    resp = requests.post(GEMINI_ENDPOINT, headers=HEADERS, json=body)
-    if resp.status_code != 200:
-        return f"⚠️ Gemini 請求失敗: {resp.status_code} {resp.text}"
-
-    resp_data = resp.json()
     try:
-        return resp_data["candidates"][0]["content"]["parts"][0]["text"]
-    except Exception:
-        return str(resp_data)
+        resp = requests.post(GEMINI_ENDPOINT, headers=HEADERS, json=body, timeout=30)
+        
+        if resp.status_code != 200:
+            print(f"❌ HTTP 錯誤 {resp.status_code}: {resp.text}")
+            return f"⚠️ Gemini API 請求失敗: {resp.status_code}"
+
+        resp_data = resp.json()
+        
+        # 檢查是否有錯誤
+        if "error" in resp_data:
+            print(f"❌ API 錯誤: {resp_data['error']}")
+            return f"⚠️ Gemini API 錯誤: {resp_data['error'].get('message', '未知錯誤')}"
+        
+        # 檢查候選回答
+        if "candidates" not in resp_data or not resp_data["candidates"]:
+            print(f"❌ 無候選回答: {resp_data}")
+            return "⚠️ Gemini 未返回任何候選回答"
+        
+        candidate = resp_data["candidates"][0]
+        
+        # 檢查是否被安全過濾器阻擋
+        if "finishReason" in candidate and candidate["finishReason"] != "STOP":
+            print(f"❌ 回答被阻擋: {candidate.get('finishReason')}")
+            return f"⚠️ 回答被安全過濾器阻擋: {candidate.get('finishReason')}"
+        
+        # 提取文字內容
+        if "content" in candidate and "parts" in candidate["content"]:
+            parts = candidate["content"]["parts"]
+            if parts and "text" in parts[0]:
+                return parts[0]["text"]
+        
+        print(f"❌ 無法解析回答: {resp_data}")
+        return "⚠️ 無法解析 Gemini 回答格式"
+        
+    except requests.exceptions.Timeout:
+        return "⚠️ Gemini API 請求超時"
+    except requests.exceptions.RequestException as e:
+        return f"⚠️ 網路請求錯誤: {e}"
+    except Exception as e:
+        print(f"❌ 未預期錯誤: {e}")
+        return f"⚠️ 處理 Gemini 回應時發生錯誤: {e}"
 
 def generate_answer_with_review(query, context_texts, sources):
-    # Step 1: 初稿回答
-    draft_prompt = (
-        "你是一位香港法律輔助助手。根據以下法律條文輔助回答問題。"
-        "⚠️ 請務必使用繁體中文回答。"
-        "請簡潔清楚解釋。這不是法律意見。\n\n"
-        f"法律條文：\n{chr(10).join(context_texts)}\n\n問題：{query}"
+    # 簡化為單次調用，避免 token 過多
+    prompt = (
+        "你是香港法律輔助助手。請根據以下法律條文回答問題。\n"
+        "要求：\n"
+        "1. 使用繁體中文回答\n"
+        "2. 簡潔準確，重點突出\n"
+        "3. 這不是法律意見，僅供參考\n\n"
+        f"相關法律條文：\n{chr(10).join(context_texts[:3])}\n\n"  # 限制條文數量
+        f"問題：{query}\n\n"
+        "請回答："
     )
-    draft_answer = call_gemini(draft_prompt)
-
-    # Step 2: 複核與修正
-    review_prompt = (
-        "以下是另一個模型給出的法律回答草稿。"
-        "請幫我檢查："
-        "1. 是否完整涵蓋法律條文重點？"
-        "2. 是否存在錯誤或幻覺？"
-        "3. 在保持準確性的前提下，請務必以繁體中文輸出最終回答。\n\n"
-        f"問題：{query}\n\n草稿回答：{draft_answer}"
-    )
-    final_answer = call_gemini(review_prompt)
-
-    return f"{final_answer}\n\n📚 來源：\n" + "\n".join(sources)
+    
+    answer = call_gemini(prompt)
+    return f"{answer}\n\n📚 來源：\n" + "\n".join(sources)
 
 # ================== 主程式 ==================
 if __name__ == "__main__":
