@@ -24,16 +24,18 @@ export default function RightBlock({ visible, setVisible }) {
     setInput('');
 
     try {
-      const response = await fetch('https://your-ai-endpoint.com/chat', {
+      const response = await fetch('http://localhost:5000/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
+        body: JSON.stringify({ query: input }),
       });
       const data = await response.json();
-      const aiMessage = { role: 'assistant', content: data.reply };
+      const aiMessage = { role: 'assistant', content: data.answer };
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
       console.error('AI 回覆失敗', error);
+      const errorMessage = { role: 'assistant', content: '❌ 回覆失敗，請稍後再試。' };
+      setMessages(prev => [...prev, errorMessage]);
     }
   };
 
@@ -43,7 +45,6 @@ export default function RightBlock({ visible, setVisible }) {
       <div
         className="hover-zone"
         onMouseEnter={() => {
-          setHoveringZone(true);
           setVisible(true);
         }}
         onMouseLeave={() => {

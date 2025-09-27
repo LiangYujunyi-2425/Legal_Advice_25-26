@@ -60,9 +60,9 @@ button:focus-visible {
   position: fixed;
   right: 0;
   top: 0;
-  width: 400px;
+  width: 1px; /* 窄窄一條邊緣感應區 */
   height: 100vh;
-  z-index: 999;
+  z-index: 1002;
 }
 
 /* 抽屜本體 */
@@ -78,10 +78,10 @@ button:focus-visible {
   transition: right 0.3s ease;
   padding: 20px;
   margin: 20px auto;
-  opacity: 0.7; 
+  opacity: 1; 
   border-radius: 10px;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
-  z-index: 998;
+  z-index: 1001;
 }
 
 .drawer.open {

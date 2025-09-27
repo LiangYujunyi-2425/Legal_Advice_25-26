@@ -16,8 +16,8 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("❌ 請先在 .env 設定 GEMINI_API_KEY")
 
-GEMINI_MODEL = "gemini-1.5-flash"
-GEMINI_ENDPOINT = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+GEMINI_MODEL = "models/gemini-2.5-flash"
+GEMINI_ENDPOINT = f"https://generativelanguage.googleapis.com/v1beta/{GEMINI_MODEL}:generateContent"
 HEADERS = {"Content-Type": "application/json", "x-goog-api-key": GEMINI_API_KEY}
 
 REPORTS_DIR = "./reports"
@@ -37,18 +37,59 @@ contracts_collection = client_chroma.get_or_create_collection(
 # ==========================
 # Gemini API 呼叫
 # ==========================
-def call_gemini(prompt: str, temperature=0.6, max_tokens=800):
+def call_gemini(prompt):
     body = {
-        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": temperature, "maxOutputTokens": max_tokens}
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "temperature": 0.2, 
+            "maxOutputTokens": 4096,
+            "topP": 0.8,
+            "topK": 10
+        }
     }
-    resp = requests.post(GEMINI_ENDPOINT, headers=HEADERS, json=body)
-    if resp.status_code != 200:
-        return f"⚠️ Gemini 請求失敗: {resp.status_code} {resp.text}"
+
     try:
-        return resp.json()["candidates"][0]["content"]["parts"][0]["text"]
-    except Exception:
-        return str(resp.json())
+        resp = requests.post(GEMINI_ENDPOINT, headers=HEADERS, json=body, timeout=30)
+        
+        if resp.status_code != 200:
+            print(f"❌ HTTP 錯誤 {resp.status_code}: {resp.text}")
+            return f"⚠️ Gemini API 請求失敗: {resp.status_code}"
+
+        resp_data = resp.json()
+        
+        # 檢查是否有錯誤
+        if "error" in resp_data:
+            print(f"❌ API 錯誤: {resp_data['error']}")
+            return f"⚠️ Gemini API 錯誤: {resp_data['error'].get('message', '未知錯誤')}"
+        
+        # 檢查候選回答
+        if "candidates" not in resp_data or not resp_data["candidates"]:
+            print(f"❌ 無候選回答: {resp_data}")
+            return "⚠️ Gemini 未返回任何候選回答"
+        
+        candidate = resp_data["candidates"][0]
+        
+        # 檢查是否被安全過濾器阻擋
+        if "finishReason" in candidate and candidate["finishReason"] != "STOP":
+            print(f"❌ 回答被阻擋: {candidate.get('finishReason')}")
+            return f"⚠️ 回答被安全過濾器阻擋: {candidate.get('finishReason')}"
+        
+        # 提取文字內容
+        if "content" in candidate and "parts" in candidate["content"]:
+            parts = candidate["content"]["parts"]
+            if parts and "text" in parts[0]:
+                return parts[0]["text"]
+        
+        print(f"❌ 無法解析回答: {resp_data}")
+        return "⚠️ 無法解析 Gemini 回答格式"
+        
+    except requests.exceptions.Timeout:
+        return "⚠️ Gemini API 請求超時"
+    except requests.exceptions.RequestException as e:
+        return f"⚠️ 網路請求錯誤: {e}"
+    except Exception as e:
+        print(f"❌ 未預期錯誤: {e}")
+        return f"⚠️ 處理 Gemini 回應時發生錯誤: {e}"
 
 # ==========================
 # 雙 Gemini 流程
