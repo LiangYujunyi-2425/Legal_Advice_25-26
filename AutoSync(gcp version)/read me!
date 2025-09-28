@@ -1,0 +1,53 @@
+Hello!
+
+Before using this feature, please ensure that Python 3.9+ is installed on your computer and that "Add Python to PATH" is checked.
+You can check this in your computer's CMD:
+
+python --version
+
+> !! This program will be run locally, so please ensure that you have established a complete file structure.
+
+G(or other hard drive):\HKeL\
+  scripts\
+    fetch_hkel.py
+    xml_to_md.py
+  data\
+    xml\
+      zh-Hant\
+    md\
+      zh-Hant\
+  logs\
+  run_fetch_zhHant.bat
+  run_convert_zhHant.bat
+  run_convert_zhHant_local_and_gcs.bat
+
+> For GCP development: Please ensure that the Google Cloud SDK (gcloud CLI) is installed on your computer; otherwise, you will not be able to use cloud services.
+
+After installation, you can confirm by issuing the following command:
+gcloud --version
+
+Log in to GCP using the command prompt:
+gcloud auth application-default login
+gcloud auth application-default set-quota-project <YOUR_PROJECT_ID>
+
+## Directories
+- scripts\
+- fetch_hkel.py: Downloads, verifies, and clears old files
+- xml_to_md.py: Converts XML to Markdown and clears old files
+- run_fetch_zhHant.bat: Executes the download step
+- run_convert_zhHant.bat: Executes the conversion step
+- data\xml\zh-Hant\: Downloaded XML files will be stored here
+- data\md\zh-Hant\: Converted Markdown files will be stored here
+- logs\: Log output
+- run_convert_zhHant_local_and_gcs.bat: Executes the conversion step and upload to your gcp bucket
+
+## Usage
+1. Double-click `run_fetch_zhHant.bat`. After completion, go to `data\xml\zh-Hant\` to check if the XML is present.
+2. (local)Double-click `run_convert_zhHant.bat` again. After completion, check `data\md\zh-Hant\` to see if the .md file exists.
+3. Both .bat files will clear the old files in the output folder.
+4. (gcp)Re-write(*yourbucket*) and Double-click `run_convert_zhHant_local_and_gcs.bat`, check your bucket.
+
+> Tip: The .bat file uses `%~dp0` to automatically retrieve the current folder path, so you can place the entire package in G:\HKeL\, D:\HKeL\, or the desktop.
+
+
+Enjoy :)

@@ -37,12 +37,12 @@ contracts_collection = client_chroma.get_or_create_collection(
 # ==========================
 # Gemini API 呼叫
 # ==========================
-def call_gemini(prompt):
+def call_gemini(prompt: str, temperature=0.6, max_tokens=2048):
     body = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {
-            "temperature": 0.2, 
-            "maxOutputTokens": 4096,
+            "temperature": temperature, 
+            "maxOutputTokens": max_tokens,
             "topP": 0.8,
             "topK": 10
         }
@@ -70,15 +70,23 @@ def call_gemini(prompt):
         candidate = resp_data["candidates"][0]
         
         # 檢查是否被安全過濾器阻擋
-        if "finishReason" in candidate and candidate["finishReason"] != "STOP":
+        if "finishReason" in candidate and candidate["finishReason"] not in ["STOP", "MAX_TOKENS"]:
             print(f"❌ 回答被阻擋: {candidate.get('finishReason')}")
             return f"⚠️ 回答被安全過濾器阻擋: {candidate.get('finishReason')}"
         
-        # 提取文字內容
-        if "content" in candidate and "parts" in candidate["content"]:
-            parts = candidate["content"]["parts"]
-            if parts and "text" in parts[0]:
-                return parts[0]["text"]
+        # 提取文字內容 - 處理不同的回應格式
+        if "content" in candidate:
+            content = candidate["content"]
+            if "parts" in content and content["parts"]:
+                parts = content["parts"]
+                if parts and "text" in parts[0]:
+                    return parts[0]["text"]
+            elif "text" in content:
+                return content["text"]
+        
+        # 如果是 MAX_TOKENS 但沒有內容，可能是思考過程被截斷
+        if candidate.get("finishReason") == "MAX_TOKENS":
+            return "⚠️ 回答因 token 限制被截斷，請嘗試簡化問題"
         
         print(f"❌ 無法解析回答: {resp_data}")
         return "⚠️ 無法解析 Gemini 回答格式"
@@ -95,51 +103,94 @@ def call_gemini(prompt):
 # 雙 Gemini 流程
 # ==========================
 def dual_gemini_answer(prompt: str):
-    draft = call_gemini(prompt, temperature=0.7, max_tokens=800)
-    review_prompt = f"""
-以下是第一個 Gemini 模型生成的草稿，請你檢查是否完整涵蓋重點、是否有錯誤或幻覺，
-並在保持準確性的前提下，務必使用 **繁體中文** 重新輸出最終回答。
+    # 簡化為單次調用，避免 token 過多和複雜度
+    enhanced_prompt = f"""
+請使用繁體中文回答以下問題，要求：
+1. 回答準確、簡潔
+2. 重點突出
+3. 避免冗長描述
 
-草稿回答：
-{draft}
+{prompt}
 """
-    final = call_gemini(review_prompt, temperature=0.3, max_tokens=800)
-    return final
+    return call_gemini(enhanced_prompt, temperature=0.5, max_tokens=1500)
 
 # ==========================
 # 條款分析
 # ==========================
 def analyze_clause(clause_text: str):
-    law_results = laws_collection.query(query_texts=[clause_text], n_results=3)
-    law_refs = [doc for doc in law_results["documents"][0]]
-    contract_results = contracts_collection.query(query_texts=[clause_text], n_results=2)
-    contract_refs = [doc for doc in contract_results["documents"][0]]
+    try:
+        law_results = laws_collection.query(query_texts=[clause_text], n_results=2)
+        law_refs = law_results["documents"][0][:2]  # 限制參考數量
+        
+        # 嘗試查詢合約集合，如果失敗則跳過
+        try:
+            contract_results = contracts_collection.query(query_texts=[clause_text], n_results=1)
+            contract_refs = contract_results["documents"][0][:1]
+        except:
+            contract_refs = []
 
-    context = "\n".join(law_refs + contract_refs)
+        # 限制上下文長度
+        context_parts = []
+        for ref in (law_refs + contract_refs):
+            if len("\n".join(context_parts)) < 2000:  # 限制上下文長度
+                context_parts.append(ref[:500])  # 每個參考限制長度
+        
+        context = "\n".join(context_parts)
 
-    prompt = f"""
-請閱讀以下合約條款，並分析：
-1. 條款摘要
-2. 潛在風險與爭議
-3. 可能涉及的法律依據
+        prompt = f"""
+分析以下合約條款：
 
 條款內容：
-{clause_text}
+{clause_text[:800]}
 
-相關法律與參考：
+相關法律參考：
 {context}
+
+請提供：
+1. 條款要點
+2. 潛在風險
+3. 法律依據
 """
-    return dual_gemini_answer(prompt)
+        return dual_gemini_answer(prompt)
+    
+    except Exception as e:
+        print(f"❌ 條款分析錯誤: {e}")
+        return f"條款分析失敗: {str(e)}"
 
 # ==========================
 # 全局合約分析
 # ==========================
 def analyze_contract_global(contract_text: str):
-    summary_prompt = f"請閱讀以下合約全文，生成一份摘要，包含合約的主要內容與目的：\n{contract_text[:8000]}"
-    risk_prompt = f"請閱讀以下合約全文，列出可能存在的風險與爭議條款：\n{contract_text[:8000]}"
+    # 限制文本長度避免 token 超限
+    text_limit = min(6000, len(contract_text))
+    limited_text = contract_text[:text_limit]
+    
+    summary_prompt = f"""
+請分析以下合約內容，提供簡潔的摘要：
+1. 合約類型和目的
+2. 主要當事人
+3. 核心條款要點
 
+合約內容：
+{limited_text}
+"""
+    
+    risk_prompt = f"""
+請分析以下合約內容，識別潛在風險：
+1. 法律風險
+2. 商業風險
+3. 執行風險
+
+合約內容：
+{limited_text}
+"""
+
+    print("🔍 生成合約摘要...")
     summary = dual_gemini_answer(summary_prompt)
+    
+    print("⚠️ 分析潛在風險...")
     risks = dual_gemini_answer(risk_prompt)
+    
     return {"summary": summary, "risks": risks}
 
 # ==========================
