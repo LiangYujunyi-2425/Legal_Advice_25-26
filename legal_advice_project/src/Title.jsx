@@ -5,14 +5,15 @@ import addPhotoIcon from "./assets/addphoto.png";
 import addPhotoIconpdf from "./assets/pdffile.png";
 import addPhotoIconscreen from "./assets/diaphragm.png";
 import "./index.css";
+>>>>>>> b7456c85cbe1afcfb714c485e52db11be4c675ae
 
 export default function Title({ shrink }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-
   const [videoOpen, setVideoOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [recognizedText, setRecognizedText] = useState("");
+
 
   useEffect(() => {
     const startCamera = async () => {
@@ -125,5 +126,6 @@ export default function Title({ shrink }) {
 
       {loading && <p>文字識別中，請稍候...</p>}
     </div>
+  </div>
   );
 }
