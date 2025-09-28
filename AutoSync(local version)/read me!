@@ -1,0 +1,40 @@
+Hello!
+
+Before using this feature, please ensure that Python 3.9+ is installed on your computer and that "Add Python to PATH" is checked.
+You can check this in your computer's CMD:
+
+python --version
+
+> !! This program will be run locally, so please ensure that you have established a complete file structure.
+
+G(or other hard drive):\HKeL\
+  scripts\
+    fetch_hkel.py
+    xml_to_md.py
+  data\
+    xml\
+      zh-Hant\
+    md\
+      zh-Hant\
+  logs\
+  run_fetch_zhHant.bat
+  run_convert_zhHant.bat
+
+## Directories
+- scripts\
+- fetch_hkel.py: Downloads, verifies, and clears old files
+- xml_to_md.py: Converts XML to Markdown and clears old files
+- run_fetch_zhHant.bat: Executes the download step
+- run_convert_zhHant.bat: Executes the conversion step
+- data\xml\zh-Hant\: Downloaded XML files will be stored here
+- data\md\zh-Hant\: Converted Markdown files will be stored here
+- logs\: Log output
+
+## Usage
+1. Double-click `run_fetch_zhHant.bat`. After completion, go to `data\xml\zh-Hant\` to check if the XML is present.
+2. Double-click `run_convert_zhHant.bat` again. After completion, check `data\md\zh-Hant\` to see if the .md file exists.
+3. Both .bat files will clear the old files in the output folder.
+
+> Tip: The .bat file uses `%~dp0` to automatically retrieve the current folder path, so you can place the entire package in G:\HKeL\, D:\HKeL\, or the desktop.
+
+Enjoy :)
