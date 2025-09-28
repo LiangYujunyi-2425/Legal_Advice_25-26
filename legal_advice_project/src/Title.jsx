@@ -43,7 +43,7 @@ export default function Title({ shrink }) {
     try {
       const { data: { text } } = await Tesseract.recognize(
         canvas,
-        "eng+chi_sim", 
+        "eng+chi_sim",
         { logger: (m) => console.log(m) }
       );
 
@@ -53,11 +53,25 @@ export default function Title({ shrink }) {
       const pdf = new jsPDF();
       pdf.setFont("Helvetica");
       pdf.setFontSize(12);
-
       const lines = pdf.splitTextToSize(text || "未識別到文字", 180);
       pdf.text(lines, 10, 10);
 
+      // ✅ 本地下載
       pdf.save("scanned_text.pdf");
+
+      // ✅ 上傳到後端（修正 MIME 類型）
+      const pdfBlob = pdf.output("blob", { type: "application/pdf" });
+      const pdfFile = new File([pdfBlob], "scanned_text.pdf", { type: "application/pdf" });
+
+      const formData = new FormData();
+      formData.append("file", pdfFile);
+
+      await fetch("http://localhost:5000/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      console.log("✅ PDF 已成功上傳到後端！");
     } catch (err) {
       console.error("OCR 失敗：", err);
     } finally {
@@ -67,18 +81,12 @@ export default function Title({ shrink }) {
 
   return (
     <div className={`centerarea ${shrink ? "shrink" : ""}`}>
-      {/* 打开/关闭摄像头按钮 */}
       <img
         className="openbutt"
         src={videoOpen ? addPhotoIconpdf : addPhotoIcon}
         alt={videoOpen ? "隱藏攝像頭" : "顯示攝像頭"}
         onClick={() => setVideoOpen(!videoOpen)}
-        style={{
-          width: "40px",
-          height: "40px",
-          cursor: "pointer",
-          marginBottom: "10px",
-        }}
+        style={{ width: "40px", height: "40px", cursor: "pointer", marginBottom: "10px" }}
       />
 
       {videoOpen && (
@@ -87,36 +95,23 @@ export default function Title({ shrink }) {
           src={addPhotoIconscreen}
           alt="拍照"
           onClick={captureToPdf}
-          style={{
-            width: "40px",
-            height: "40px",
-            cursor: "pointer",
-            marginBottom: "10px",
-          }}
+          style={{ width: "40px", height: "40px", cursor: "pointer", marginBottom: "10px" }}
         />
       )}
 
-      <div
-        className={videoOpen ? "visible" : "hidden"}
-        style={{ width: "100%", height: "100%" }}
-      >
+      <div className={videoOpen ? "visible" : "hidden"} style={{ width: "100%", height: "100%" }}>
         <video
           ref={videoRef}
           autoPlay
           muted
           playsInline
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            borderRadius: "20px",
-          }}
+          style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "20px" }}
         />
       </div>
 
       <canvas ref={canvasRef} style={{ display: "none" }} />
 
-      {recognizedText && ( //ocr识别结果,但是排版有问题，我调整起来有些难度，不过我们都是post给ai应该不重要,到时候直接弄原版给user看就行，或者看你们要不要弄webai搞进来
+      {recognizedText && (
         <div className="ocr-result">
           <h3>OCR 辨識結果：</h3>
           <pre>{recognizedText}</pre>
