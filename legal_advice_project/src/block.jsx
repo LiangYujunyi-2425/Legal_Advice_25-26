@@ -3,10 +3,13 @@ import './index.css';
 
 
 export default function RightBlock({ visible, setVisible }) {
-  const [hoveringZone, setHoveringZone] = useState(false);
   const [hoveringDrawer, setHoveringDrawer] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+
+  const toggleDrawer = () => {
+    setVisible(prev => !prev);
+  };
 
   const checkLeave = () => {
     setTimeout(() => {
@@ -44,18 +47,11 @@ export default function RightBlock({ visible, setVisible }) {
     <>
       <div
         className="hover-zone"
-        onMouseEnter={() => {
-          setVisible(true);
-        }}
-        onMouseLeave={() => {
-          setHoveringZone(false);
-          setVisible(false);
-        }}
+        onMouseEnter={toggleDrawer}
       ></div>
 
       <div
         className={`drawer ${visible ? 'open' : 'closed'}`}
-        onMouseEnter={() => setHoveringDrawer(true)}
         onMouseLeave={() => {
           setHoveringDrawer(false);
           checkLeave();

@@ -1,131 +1,110 @@
-import React, { useRef, useState, useEffect } from "react";
-import { jsPDF } from "jspdf";
-import Tesseract from "tesseract.js";
-import addPhotoIcon from "./assets/addphoto.png";
-import addPhotoIconpdf from "./assets/pdffile.png";
-import addPhotoIconscreen from "./assets/diaphragm.png";
-import "./index.css";
->>>>>>> b7456c85cbe1afcfb714c485e52db11be4c675ae
+import React, { useState, useRef, useEffect  } from 'react';
+import './index.css';
+import addPhotoIcon from './assets/addphoto.png';
+import addPhotoIconpdf from './assets/pdffile.png';
+import addPhotoIconscreen from './assets/diaphragm.png';
 
-export default function Title({ shrink }) {
+export default function CenterArea({ shrink }) {
+  const [file, setFile ] = useState(null);
+  const [previewURL, setPreviewURL] = useState(null);
+  const [dragOver, setDragOver] = useState(false);
   const videoRef = useRef(null);
-  const canvasRef = useRef(null);
   const [videoOpen, setVideoOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [recognizedText, setRecognizedText] = useState("");
 
-
-  useEffect(() => {
-    const startCamera = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (err) {
-        console.error("無法取得攝像頭串流：", err);
-      }
-    };
-
-    if (videoOpen) startCamera();
-  }, [videoOpen]);
-
-  const captureToPdf = async () => {
-    if (!videoRef.current) return;
-
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
-    canvas.width = videoRef.current.videoWidth;
-    canvas.height = videoRef.current.videoHeight;
-    context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-
-    setLoading(true);
-
-    try {
-      const { data: { text } } = await Tesseract.recognize(
-        canvas,
-        "eng+chi_sim", 
-        { logger: (m) => console.log(m) }
-      );
-
-      console.log("識別結果：", text);
-      setRecognizedText(text);
-
-      const pdf = new jsPDF();
-      pdf.setFont("Helvetica");
-      pdf.setFontSize(12);
-
-      const lines = pdf.splitTextToSize(text || "未識別到文字", 180);
-      pdf.text(lines, 10, 10);
-
-      pdf.save("scanned_text.pdf");
-    } catch (err) {
-      console.error("OCR 失敗：", err);
-    } finally {
-      setLoading(false);
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setPreviewURL(URL.createObjectURL(selectedFile));
     }
   };
 
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    const droppedFile = e.dataTransfer.files[0];
+    if (droppedFile) {
+      setFile(droppedFile);
+      setPreviewURL(URL.createObjectURL(droppedFile));
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setFile(null);
+    if (previewURL) {
+      URL.revokeObjectURL(previewURL); // 釋放記憶體
+      setPreviewURL(null);
+    }
+  };
+
+  useEffect(() => {
+      const startCamera = async () => {
+      try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          }} 
+          catch (err) {
+          console.error('無法取得攝像頭串流：', err);
+          }
+      };
+
+        startCamera();
+  }, []);
+
+
   return (
-    <div className={`centerarea ${shrink ? "shrink" : ""}`}>
-      {/* 打开/关闭摄像头按钮 */}
-      <img
-        className="openbutt"
+    <div
+      className={`centerarea ${dragOver ? 'drag-over' : ''} ${shrink ? 'shrink' : ''}`}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragOver(true);
+      }}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={handleDrop}
+    >
+      {/* 圖片按鈕 */}
+      <img className='openbutt'
         src={videoOpen ? addPhotoIconpdf : addPhotoIcon}
-        alt={videoOpen ? "隱藏攝像頭" : "顯示攝像頭"}
+        alt={videoOpen ? '隱藏攝像頭' : '顯示攝像頭'}
         onClick={() => setVideoOpen(!videoOpen)}
         style={{
-          width: "40px",
-          height: "40px",
-          cursor: "pointer",
-          marginBottom: "10px",
+          width: '40px',
+          height: '40px',
+          cursor: 'pointer',
+          marginBottom: '10px',
         }}
       />
-
-      {videoOpen && (
-        <img
-          className="cutscreen"
-          src={addPhotoIconscreen}
-          alt="拍照"
-          onClick={captureToPdf}
-          style={{
-            width: "40px",
-            height: "40px",
-            cursor: "pointer",
-            marginBottom: "10px",
-          }}
-        />
-      )}
-
-      <div
-        className={videoOpen ? "visible" : "hidden"}
-        style={{ width: "100%", height: "100%" }}
-      >
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          playsInline
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            borderRadius: "20px",
-          }}
-        />
+      <img className= {videoOpen ? 'cutscreen' : 'cutscreenoff'}
+        src={addPhotoIconscreen}
+        style={{
+          width: '40px',
+          height: '40px',
+          cursor: 'pointer',
+          marginBottom: '10px',
+        }}></img>
+      <div className= {videoOpen ? 'visible' : 'hidden'} style={{ width: '100%', height: '100%'}}>
+        <video ref={videoRef} autoPlay muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' , borderRadius: '20px' }}/>
       </div>
+      <div className={videoOpen ? 'infooff' : 'upload-zone'}>
+        <input type="file" accept="image/*" onChange={handleFileChange} />
+        <p>或將檔案拖曳到此區域</p>
 
-      <canvas ref={canvasRef} style={{ display: "none" }} />
+        {file && (
+          <div className="file-info">
+            <p>已選擇檔案：{file.name}</p>
+            <button className="remove-btn" onClick={handleRemoveFile}>
+              移除檔案
+            </button>
+          </div>
+        )}
 
-      {recognizedText && ( //ocr识别结果,但是排版有问题，我调整起来有些难度，不过我们都是post给ai应该不重要,到时候直接弄原版给user看就行，或者看你们要不要弄webai搞进来
-        <div className="ocr-result">
-          <h3>OCR 辨識結果：</h3>
-          <pre>{recognizedText}</pre>
-        </div>
-      )}
-
-      {loading && <p>文字識別中，請稍候...</p>}
+        {previewURL && (
+          <div className="preview-area">
+            <img src={previewURL} alt="預覽圖片" className="preview-img" />
+          </div>
+        )}
+      </div>
     </div>
-  </div>
   );
 }
