@@ -147,8 +147,8 @@ button:focus-visible {
       top: 50%;
       left: 3%;
       transform: translateY(-50%);
-      width: 80%;
-      max-width: 1700px;
+      width: 87%;
+      max-width: 2000px;
       min-width: 300px;     /* 最小寬度限制，避免在小螢幕上太窄 */
       height: 85%;
       background-color: #001e1d;
