@@ -14,15 +14,11 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 5000;
 
-// ✅ 添加 CORS 支持，允许前端跨域访问
-app.use(cors({
-  origin: "*", // 或指定你的前端地址以增强安全性
-}));
+// ✅ 添加 CORS 支持
+app.use(cors());
 
 // ✅ 指定 PDF 保存路径
 const targetFolder = path.join(__dirname, "rag1.0", "contracts");
-
-// ✅ 确保文件夹存在
 if (!fs.existsSync(targetFolder)) {
   fs.mkdirSync(targetFolder, { recursive: true });
 }
@@ -51,14 +47,6 @@ app.post("/upload", upload.single("file"), (req, res) => {
     message: "PDF uploaded successfully",
     filename: req.file.filename,
     path: req.file.path,
-  });
-});
-
-// ✅ 可选：查看 contracts 文件夹中的文件
-app.get("/contracts", (req, res) => {
-  fs.readdir(targetFolder, (err, files) => {
-    if (err) return res.status(500).send("讀取失敗");
-    res.json({ files });
   });
 });
 

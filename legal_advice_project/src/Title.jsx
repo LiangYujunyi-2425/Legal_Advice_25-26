@@ -66,10 +66,11 @@ export default function Title({ shrink }) {
       const formData = new FormData();
       formData.append("file", pdfFile);
 
-      await fetch("https://opulent-orbit-q7p746q7w5rrh97gp-5000.app.github.dev/upload", {
+      await fetch("http://localhost:5000/upload", {
         method: "POST",
         body: formData,
       });
+
 
       console.log("✅ PDF 已成功上傳到後端！");
     } catch (err) {
