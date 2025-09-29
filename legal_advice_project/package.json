@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "express": "^5.1.0",
     "jspdf": "^3.0.3",
+    "multer": "^2.0.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "tesseract.js": "^6.0.1"
