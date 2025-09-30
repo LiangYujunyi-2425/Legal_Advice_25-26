@@ -1,11 +1,17 @@
-import { useState } from 'react';
+import { useState, forwardRef, useImperativeHandle } from 'react';
 import './index.css';
 
-
-export default function RightBlock({ visible, setVisible }) {
+const RightBlock = forwardRef(({ visible, setVisible }, ref) => {
   const [hoveringDrawer, setHoveringDrawer] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+
+  // ✅ 暴露方法給父層
+  useImperativeHandle(ref, () => ({
+    addMessage(role, content) {
+      setMessages(prev => [...prev, { role, content }]);
+    }
+  }));
 
   const toggleDrawer = () => {
     setVisible(prev => !prev);
@@ -42,14 +48,9 @@ export default function RightBlock({ visible, setVisible }) {
     }
   };
 
-
   return (
     <>
-      <div
-        className="hover-zone"
-        onMouseEnter={toggleDrawer}
-      ></div>
-
+      <div className="hover-zone" onMouseEnter={toggleDrawer}></div>
       <div
         className={`drawer ${visible ? 'open' : 'closed'}`}
         onMouseLeave={() => {
@@ -57,28 +58,28 @@ export default function RightBlock({ visible, setVisible }) {
           checkLeave();
         }}
       >
-      <div className="chat-container">
-        <div className="chat-messages">
-          {messages.map((msg, index) => (
-            <div key={index} className={`message ${msg.role}`}>
-              {msg.content}
-            </div>
-          ))}
+        <div className="chat-container">
+          <div className="chat-messages">
+            {messages.map((msg, index) => (
+              <div key={index} className={`message ${msg.role}`}>
+                {msg.content}
+              </div>
+            ))}
+          </div>
+          <div className="chat-input">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+              placeholder="輸入訊息..."
+            />
+            <button onClick={sendMessage}>送出</button>
+          </div>
         </div>
-        <div className="chat-input">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-            placeholder="輸入訊息..."
-          />
-          <button onClick={sendMessage}>送出</button>
-        </div>
-      </div>
       </div>
     </>
   );
-}
+});
 
-
+export default RightBlock;

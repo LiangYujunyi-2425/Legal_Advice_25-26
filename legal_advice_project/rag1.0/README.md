@@ -68,10 +68,10 @@ python batch_cap4_1.0.py   # 建立向量資料庫 & BM25 索引
 
 🖥 使用方式
 啟動 RAG 查詢 （法律咨詢部分）
-python rag_pipeline2.0.py  #根據輸入的問題去數據庫裡尋找相關切片並一同丟給第一個LLM進行初次回答，然後將回答丟給第二個LLM進行完善再輸出
+python rag_pipelinev2.py  #根據輸入的問題去數據庫裡尋找相關切片並一同丟給第一個LLM進行初次回答，然後將回答丟給第二個LLM進行完善再輸出
 
 啟動合約檢測
-python contract_pipeline2.0 #對/contracts文件夾內所有文檔進行分析，並且將分析報告輸出到/reports文件夾
+python contract_pipeline2.0.py #對/contracts文件夾內所有文檔進行分析，並且將分析報告輸出到/reports文件夾
 
 使用啟動器啟動web ui 
 streamlit run launcher.py / 如果error就運行streamlit run launcher_cp.py

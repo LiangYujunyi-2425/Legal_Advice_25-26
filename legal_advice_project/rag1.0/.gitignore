@@ -1,3 +1,6 @@
 .venv
 .env
 chroma_db
+contracts
+reports
+bm25_index.pkl

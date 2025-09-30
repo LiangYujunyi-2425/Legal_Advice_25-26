@@ -1,7 +1,7 @@
 import { useState } from 'react'
 // import reactLogo from './assets/react.svg'
 // import viteLogo from '/vite.svg'
-import CenterArea from './Title'
+import Title from './Title'
 //import './App.css'
 //component名称需要大写
 import RightBlock from './block'
@@ -17,7 +17,7 @@ function App() {
       <RightBlock visible={drawerVisible} setVisible={setDrawerVisible} />
 
       <div>
-        <CenterArea shrink={drawerVisible} />
+        <Title shrink={drawerVisible} />
       </div>  
 
     </>
