@@ -6,7 +6,7 @@ import addPhotoIconpdf from "./assets/pdffile.png";
 import addPhotoIconscreen from "./assets/diaphragm.png";
 import "./index.css";
 
-export default function Title({ shrink }) {
+export default function Title({ shrink, onAnalysisResult }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -56,25 +56,28 @@ export default function Title({ shrink }) {
       const lines = pdf.splitTextToSize(text || "未識別到文字", 180);
       pdf.text(lines, 10, 10);
 
-      // ✅ 本地下載
-      pdf.save("scanned_text.pdf");
-
-      // ✅ 上傳到後端（修正 MIME 類型）
       const pdfBlob = pdf.output("blob", { type: "application/pdf" });
       const pdfFile = new File([pdfBlob], "scanned_text.pdf", { type: "application/pdf" });
 
       const formData = new FormData();
       formData.append("file", pdfFile);
 
-      await fetch("http://localhost:5000/upload", {
+      // ✅ 呼叫後端 /analyze API
+      const res = await fetch("http://localhost:5000/analyze", {
         method: "POST",
         body: formData,
       });
+      const data = await res.json();
 
+      console.log("✅ 分析結果：", data);
 
-      console.log("✅ PDF 已成功上傳到後端！");
+      // ✅ 把結果傳給父層 (App → RightBlock)
+      if (onAnalysisResult) {
+        onAnalysisResult(data);
+      }
+
     } catch (err) {
-      console.error("OCR 失敗：", err);
+      console.error("OCR 或分析失敗：", err);
     } finally {
       setLoading(false);
     }
