@@ -73,6 +73,9 @@ python rag_pipelinev2.py  #根據輸入的問題去數據庫裡尋找相關切�
 啟動合約檢測
 python contract_pipeline2.0.py #對/contracts文件夾內所有文檔進行分析，並且將分析報告輸出到/reports文件夾
 
+啟動API
+python app.py   #確保你在 ~/Legal_Advice_25-26/legal_advice_project/rag1.0
+
 使用啟動器啟動web ui 
 streamlit run launcher.py / 如果error就運行streamlit run launcher_cp.py
 
@@ -83,3 +86,4 @@ python md.py   （將需要轉換的.xml文檔放入/laws文件夾，輸出的.m
 
 
 如果使用使用API例如gemini的LLM，記得掛vpn，不然會error
+
