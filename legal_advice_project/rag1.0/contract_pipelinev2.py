@@ -1,170 +1,116 @@
 import os
+import re
 import json
-import requests
-import chromadb
-from io import BytesIO
 from datetime import datetime
 from docx import Document
 from dotenv import load_dotenv
-from contract_ingest import load_contract, split_into_clauses, GTEEmbeddingFunction
+
+from contract_ingest import load_contract, split_into_clauses
+from vertexai import rag
+from vertexai.generative_models import Tool, GenerativeModel
 
 # ==========================
 # 環境變數
 # ==========================
 load_dotenv()
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    raise ValueError("❌ 請先在 .env 設定 GEMINI_API_KEY")
+PROJECT_ID = os.getenv("GCP_PROJECT")
+LOCATION = os.getenv("GCP_LOCATION", "us-central1")
+RAG_CORPUS_NAME = os.getenv("RAG_CORPUS_NAME")  # 你要在 .env 設定這個值
 
-GEMINI_MODEL = "models/gemini-2.5-flash"
-GEMINI_ENDPOINT = f"https://generativelanguage.googleapis.com/v1beta/{GEMINI_MODEL}:generateContent"
-HEADERS = {"Content-Type": "application/json", "x-goog-api-key": GEMINI_API_KEY}
+if not PROJECT_ID or not RAG_CORPUS_NAME:
+    raise ValueError("❌ 請在 .env 設定 GCP_PROJECT 與 RAG_CORPUS_NAME")
 
 REPORTS_DIR = "./reports"
-os.makedirs(REPORTS_DIR, exist_ok=True)  # 如果沒有資料夾就建立
+os.makedirs(REPORTS_DIR, exist_ok=True)
 
 # ==========================
-# 初始化向量資料庫
+# 初始化 Vertex AI RAG
 # ==========================
-client_chroma = chromadb.PersistentClient(path="./chroma_db")
-laws_collection = client_chroma.get_collection(
-    name="hk_cap4_laws", embedding_function=GTEEmbeddingFunction("thenlper/gte-large-zh")
-)
-contracts_collection = client_chroma.get_or_create_collection(
-    name="contracts", embedding_function=GTEEmbeddingFunction("thenlper/gte-large-zh")
+rag_retrieval_config = rag.RagRetrievalConfig(
+    top_k=3,
+    filter=rag.Filter(vector_distance_threshold=0.5)
 )
 
-# ==========================
-# Gemini API 呼叫
-# ==========================
-def call_gemini(prompt: str, temperature=0.6, max_tokens=2048):
-    body = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {
-            "temperature": temperature, 
-            "maxOutputTokens": max_tokens,
-            "topP": 0.8,
-            "topK": 10
-        }
-    }
+rag_tool = Tool.from_retrieval(
+    retrieval=rag.Retrieval(
+        source=rag.VertexRagStore(
+            rag_resources=[rag.RagResource(rag_corpus=RAG_CORPUS_NAME)],
+            rag_retrieval_config=rag_retrieval_config
+        )
+    )
+)
 
-    try:
-        resp = requests.post(GEMINI_ENDPOINT, headers=HEADERS, json=body, timeout=30)
-        
-        if resp.status_code != 200:
-            print(f"❌ HTTP 錯誤 {resp.status_code}: {resp.text}")
-            return f"⚠️ Gemini API 請求失敗: {resp.status_code}"
+# 第一層 Gemini（生成初稿）
+rag_model_primary = GenerativeModel(
+    model_name="gemini-2.0-flash-001",
+    tools=[rag_tool]
+)
 
-        resp_data = resp.json()
-        
-        # 檢查是否有錯誤
-        if "error" in resp_data:
-            print(f"❌ API 錯誤: {resp_data['error']}")
-            return f"⚠️ Gemini API 錯誤: {resp_data['error'].get('message', '未知錯誤')}"
-        
-        # 檢查候選回答
-        if "candidates" not in resp_data or not resp_data["candidates"]:
-            print(f"❌ 無候選回答: {resp_data}")
-            return "⚠️ Gemini 未返回任何候選回答"
-        
-        candidate = resp_data["candidates"][0]
-        
-        # 檢查是否被安全過濾器阻擋
-        if "finishReason" in candidate and candidate["finishReason"] not in ["STOP", "MAX_TOKENS"]:
-            print(f"❌ 回答被阻擋: {candidate.get('finishReason')}")
-            return f"⚠️ 回答被安全過濾器阻擋: {candidate.get('finishReason')}"
-        
-        # 提取文字內容 - 處理不同的回應格式
-        if "content" in candidate:
-            content = candidate["content"]
-            if "parts" in content and content["parts"]:
-                parts = content["parts"]
-                if parts and "text" in parts[0]:
-                    return parts[0]["text"]
-            elif "text" in content:
-                return content["text"]
-        
-        # 如果是 MAX_TOKENS 但沒有內容，可能是思考過程被截斷
-        if candidate.get("finishReason") == "MAX_TOKENS":
-            return "⚠️ 回答因 token 限制被截斷，請嘗試簡化問題"
-        
-        print(f"❌ 無法解析回答: {resp_data}")
-        return "⚠️ 無法解析 Gemini 回答格式"
-        
-    except requests.exceptions.Timeout:
-        return "⚠️ Gemini API 請求超時"
-    except requests.exceptions.RequestException as e:
-        return f"⚠️ 網路請求錯誤: {e}"
-    except Exception as e:
-        print(f"❌ 未預期錯誤: {e}")
-        return f"⚠️ 處理 Gemini 回應時發生錯誤: {e}"
+# 第二層 Gemini（複核答案）
+rag_model_reviewer = GenerativeModel(
+    model_name="gemini-2.0-flash-001"
+)
 
 # ==========================
-# 雙 Gemini 流程
+# 清理輸出，移除冗餘字眼
 # ==========================
-def dual_gemini_answer(prompt: str):
-    # 簡化為單次調用，避免 token 過多和複雜度
-    enhanced_prompt = f"""
-請使用繁體中文回答以下問題，要求：
-1. 回答準確、簡潔
-2. 重點突出
-3. 避免冗長描述
-
-{prompt}
-"""
-    return call_gemini(enhanced_prompt, temperature=0.5, max_tokens=1500)
+def clean_output(text: str) -> str:
+    if not text:
+        return ""
+    # 移除常見開頭
+    text = re.sub(r"^以下是.*\n?", "", text)
+    text = re.sub(r"^好的，我來.*\n?", "", text)
+    # 移除「修正說明」、「修正後」等字眼
+    text = text.replace("修正說明及理由：", "")
+    text = text.replace("修正後的風險分析：", "")
+    text = text.replace("修正後的摘要：", "")
+    text = text.replace("修正後的分析：", "")
+    return text.strip()
 
 # ==========================
-# 條款分析
+# 條款分析（使用 RAG + 複核）
 # ==========================
 def analyze_clause(clause_text: str):
     try:
-        law_results = laws_collection.query(query_texts=[clause_text], n_results=2)
-        law_refs = law_results["documents"][0][:2]  # 限制參考數量
-        
-        # 嘗試查詢合約集合，如果失敗則跳過
-        try:
-            contract_results = contracts_collection.query(query_texts=[clause_text], n_results=1)
-            contract_refs = contract_results["documents"][0][:1]
-        except:
-            contract_refs = []
-
-        # 限制上下文長度
-        context_parts = []
-        for ref in (law_refs + contract_refs):
-            if len("\n".join(context_parts)) < 2000:  # 限制上下文長度
-                context_parts.append(ref[:500])  # 每個參考限制長度
-        
-        context = "\n".join(context_parts)
-
-        prompt = f"""
-分析以下合約條款：
+        # 初稿
+        prompt_primary = f"""
+請分析以下合約條款：
 
 條款內容：
 {clause_text[:800]}
-
-相關法律參考：
-{context}
 
 請提供：
 1. 條款要點
 2. 潛在風險
 3. 法律依據
 """
-        return dual_gemini_answer(prompt)
-    
+        draft = rag_model_primary.generate_content(prompt_primary).text.strip()
+
+        # 複核（要求乾淨輸出）
+        prompt_review = f"""
+你是一位嚴謹的法律審核助手。請直接輸出最終分析內容，不要包含「以下是」、「修正說明」、「修正後」等字眼，也不要描述審核過程。
+
+條款內容：
+{clause_text[:800]}
+
+初步分析：
+{draft}
+
+請輸出乾淨、正式的最終分析：
+"""
+        final = rag_model_reviewer.generate_content(prompt_review).text.strip()
+        return clean_output(final)
+
     except Exception as e:
         print(f"❌ 條款分析錯誤: {e}")
         return f"條款分析失敗: {str(e)}"
 
 # ==========================
-# 全局合約分析
+# 全局合約分析（使用 RAG + 複核）
 # ==========================
 def analyze_contract_global(contract_text: str):
-    # 限制文本長度避免 token 超限
-    text_limit = min(6000, len(contract_text))
-    limited_text = contract_text[:text_limit]
-    
+    limited_text = contract_text[:6000]
+
     summary_prompt = f"""
 請分析以下合約內容，提供簡潔的摘要：
 1. 合約類型和目的
@@ -174,7 +120,6 @@ def analyze_contract_global(contract_text: str):
 合約內容：
 {limited_text}
 """
-    
     risk_prompt = f"""
 請分析以下合約內容，識別潛在風險：
 1. 法律風險
@@ -186,11 +131,37 @@ def analyze_contract_global(contract_text: str):
 """
 
     print("🔍 生成合約摘要...")
-    summary = dual_gemini_answer(summary_prompt)
-    
+    draft_summary = rag_model_primary.generate_content(summary_prompt).text.strip()
+    summary_review_prompt = f"""
+你是一位嚴謹的法律審核助手。請直接輸出最終摘要，不要包含「以下是」、「修正說明」、「修正後」等字眼。
+
+合約內容：
+{limited_text[:1000]}...
+
+初稿摘要：
+{draft_summary}
+
+請輸出乾淨、正式的最終摘要：
+"""
+    summary = rag_model_reviewer.generate_content(summary_review_prompt).text.strip()
+    summary = clean_output(summary)
+
     print("⚠️ 分析潛在風險...")
-    risks = dual_gemini_answer(risk_prompt)
-    
+    draft_risks = rag_model_primary.generate_content(risk_prompt).text.strip()
+    risks_review_prompt = f"""
+你是一位嚴謹的法律審核助手。請直接輸出最終風險分析，不要包含「以下是」、「修正說明」、「修正後」等字眼。
+
+合約內容：
+{limited_text[:1000]}...
+
+初稿風險分析：
+{draft_risks}
+
+請輸出乾淨、正式的最終風險分析：
+"""
+    risks = rag_model_reviewer.generate_content(risks_review_prompt).text.strip()
+    risks = clean_output(risks)
+
     return {"summary": summary, "risks": risks}
 
 # ==========================
@@ -221,7 +192,6 @@ def generate_word_report(filename, summary, risks, clause_analyses):
     out_path = os.path.join(REPORTS_DIR, out_name)
     doc.save(out_path)
     return out_path
-
 
 def save_json_report(filename, summary, risks, clause_analyses):
     data = {
