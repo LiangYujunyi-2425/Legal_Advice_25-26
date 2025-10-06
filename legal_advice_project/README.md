@@ -24,7 +24,7 @@ If you are developing a production application, we recommend using TypeScript wi
 
 5. cd rag1.0  然後看rag1.0內的README.md來啟動AI和API
 
-6. cd..
+6. 開一個新的terminal並 cd legal_advice_25-26/legal_advice_project 
 
 7. npm run dev
 
