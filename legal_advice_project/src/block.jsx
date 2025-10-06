@@ -47,6 +47,34 @@ const RightBlock = forwardRef(({ visible, setVisible }, ref) => {
       setMessages(prev => [...prev, errorMessage]);
     }
   };
+  const uploadFile = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("http://localhost:5000/analyze", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      // 把 AI 分析結果顯示在對話框
+      setMessages(prev => [
+        ...prev,
+        { role: "assistant", content: `📄 合同分析完成：\n\n摘要：${data.summary}\n\n風險：${data.risks.join("、")}` }
+        ]);
+      } catch (error) {
+        console.error("上傳失敗", error);
+        setMessages(prev => [
+        ...prev,
+        { role: "assistant", content: "❌ 文件分析失敗，請稍後再試。" }
+      ]);
+    }
+  };
 
   return (
     <>
@@ -75,6 +103,7 @@ const RightBlock = forwardRef(({ visible, setVisible }, ref) => {
               placeholder="輸入訊息..."
             />
             <button onClick={sendMessage}>送出</button>
+            <input type="file" accept="application/pdf" onChange={uploadFile} />
           </div>
         </div>
       </div>
