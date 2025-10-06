@@ -53,7 +53,7 @@ python -m venv .venv
 source .venv/bin/activate # macOS/Linux
 
 2️⃣ 安裝依賴
-pip install -r requirements.txt  #請在 ~/legal_Advice_25-26/legal_advice_project 安裝
+pip install -r requirements.txt
 
 3️⃣ 設定環境變數
 
