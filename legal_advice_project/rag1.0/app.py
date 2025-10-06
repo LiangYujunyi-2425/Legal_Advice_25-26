@@ -39,18 +39,19 @@ def analyze():
     file.save(save_path)
 
     # 呼叫你原本的流程
-    result_paths = analyze_contract_file(save_path)
-    word_name = os.path.basename(result_paths["word"])
-    json_name = os.path.basename(result_paths["json"])
+    result = analyze_contract_file(save_path)  # 這裡要回傳 dict
+    word_name = os.path.basename(result["word"])
+    json_name = os.path.basename(result["json"])
 
     return jsonify({
         "message": "分析完成",
         "word_report": f"/reports/{word_name}",
         "json_report": f"/reports/{json_name}",
-        "summary": result["summary"],
-        "risks": result["risks"],
-        "clauses": result["clauses"]
+        "summary": result.get("summary", ""),
+        "risks": result.get("risks", "").split("\n") if isinstance(result.get("risks"), str) else result.get("risks", []),
+        "clauses": [{"clause": c, "analysis": a} for c, a in result.get("clauses", [])]
     })
+
 
 
 if __name__ == "__main__":
