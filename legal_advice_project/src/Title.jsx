@@ -43,7 +43,7 @@ export default function Title({ shrink, onAnalysisResult }) {
     try {
       const { data: { text } } = await Tesseract.recognize(
         canvas,
-        "eng+chi_sim",
+        "eng+chi_tra",
         { logger: (m) => console.log(m) }
       );
 
@@ -63,7 +63,7 @@ export default function Title({ shrink, onAnalysisResult }) {
       formData.append("file", pdfFile);
 
       // ✅ 呼叫後端 /analyze API
-      const res = await fetch("http://localhost:5000/analyze", {
+      const res = await fetch(`${API_URL}/analyze`, {
         method: "POST",
         body: formData,
       });
