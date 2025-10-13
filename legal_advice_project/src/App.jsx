@@ -5,23 +5,29 @@ import Title from './Title'
 //import './App.css'
 //component名称需要大写
 import RightBlock from './block'
-import Banner from './banner';
+import RightDecor from './RightDecor'
+
 
 
 function App() {
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
 
   return (
     <>
-      <Banner/>
-      <RightBlock visible={drawerVisible} setVisible={setDrawerVisible} />
+      {/* aria-live for screen readers (updated by RightBlock) */}
+      <div id="aria-live" className="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <RightBlock visible={drawerVisible} setVisible={setDrawerVisible} videoOpen={videoOpen} />
+
+  {/* 视觉平衡的右侧装饰 */}
+  <RightDecor />
 
       <div>
-        <Title shrink={drawerVisible} />
-      </div>  
+        <Title shrink={drawerVisible} videoOpen={videoOpen} setVideoOpen={setVideoOpen} />
+      </div>
 
     </>
-    
   )
 }
 
