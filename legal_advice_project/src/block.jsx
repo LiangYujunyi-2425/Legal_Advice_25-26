@@ -33,21 +33,48 @@ const RightBlock = forwardRef(({ visible, setVisible }, ref) => {
     setMessages(prev => [...prev, userMessage]);
     setInput('');
 
+    const formattedPrompt = `
+        <instruction>
+        你是AI法律助手，擅長回答關於法律諮詢的問題。
+        </instruction>
+        <question>
+        ${input}
+        </question>
+        `;
+
     try {
-      const response = await fetch(`${API_URL}/ask`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: input }),
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${import.meta.env.VITE_GCP_TOKEN}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          instances: [{ text: formattedPrompt }]
+        })
       });
+
       const data = await response.json();
-      const aiMessage = { role: 'assistant', content: data.answer };
+      console.log("AI 回傳資料:", data, "狀態碼:", response.status);
+
+      let content = "❌ 沒有回覆";
+      if (data.predictions && data.predictions.length > 0) {
+        content = data.predictions[0].output || JSON.stringify(data.predictions[0]);
+      }
+
+
+
+      const aiMessage = { role: 'assistant', content };
       setMessages(prev => [...prev, aiMessage]);
+
     } catch (error) {
       console.error('AI 回覆失敗', error);
       const errorMessage = { role: 'assistant', content: '❌ 回覆失敗，請稍後再試。' };
       setMessages(prev => [...prev, errorMessage]);
     }
   };
+  
+
   const uploadFile = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
