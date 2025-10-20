@@ -77,8 +77,11 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
   };
 
   // Provide a compact left panel UI for uploads/camera
+  // only expand the left-panel for camera when videoOpen is true and the center bubble is not shrunk/open
+  const leftPanelClass = `left-panel ${shrink ? 'collapsed' : ''} ${videoOpen && !shrink ? 'expanded' : ''}`;
+
   return (
-    <aside className={`left-panel ${shrink ? 'collapsed' : ''} ${videoOpen ? 'expanded' : ''}`} aria-label="上傳與掃描面板">
+    <aside className={leftPanelClass} aria-label="上傳與掃描面板">
       <div className="left-controls">
         <button className="icon-btn" aria-pressed={videoOpen} onClick={() => setVideoOpen(!videoOpen)} aria-label={videoOpen ? '隱藏攝像頭' : '顯示攝像頭'}>
           <img className="left-icon" src={videoOpen ? addPhotoIconpdf : addPhotoIcon} alt="" aria-hidden="true" />
