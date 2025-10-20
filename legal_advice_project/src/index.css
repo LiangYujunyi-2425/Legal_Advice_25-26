@@ -923,6 +923,60 @@ button:focus-visible {
   100% { transform: translateY(0) rotate(0.0deg); }
 }
 
+/* Bubble flow animations when message sent */
+.bubbles-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2500;
+  --origin-x: 50%;
+  --origin-y: 50%;
+}
+.bubbles-container {
+  position: absolute;
+  left: var(--origin-x);
+  top: var(--origin-y);
+  transform: translate(-50%, -50%);
+}
+.bubble-agent {
+  position: absolute;
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  display:flex; align-items:center; justify-content:center;
+  background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.92));
+  box-shadow: 0 12px 36px rgba(0,0,0,0.28);
+  transform-origin: center;
+  opacity: 0;
+}
+.bubble-agent img{ width:48px; height:48px; border-radius:8px }
+.bubble-agent .btext{ position:absolute; bottom:-26px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.66); color:#fff; padding:6px 10px; border-radius:14px; font-size:12px; white-space:nowrap; opacity:0 }
+
+/* launch: pop out from center and orbit then swoop away */
+@keyframes bubble-launch {
+  0% { transform: translate(0,0) scale(0.2); opacity: 0 }
+  20% { transform: translate(0,0) scale(1); opacity: 1 }
+  60% { transform: translate(var(--tx, 0px), var(--ty, 0px)) scale(1); opacity: 1 }
+  100% { transform: translate(calc(var(--tx, 0px) * 1.6), calc(var(--ty, 0px) * 1.6)) scale(0.6); opacity: 0 }
+}
+
+@keyframes bubble-orbit {
+  0% { transform: rotate(0deg) translateX(0) rotate(0deg) }
+  50% { transform: rotate(180deg) translateX(8px) rotate(-180deg) }
+  100%{ transform: rotate(360deg) translateX(0) rotate(-360deg) }
+}
+
+.bubble-agent.show {
+  animation: bubble-launch 10s cubic-bezier(.2,.9,.3,1) forwards;
+}
+.bubble-agent.show .btext{ animation: fade-in-out 10s ease forwards 0.3s }
+
+@keyframes fade-in-out{ 0%{ opacity:0 } 10%{ opacity:1 } 85%{ opacity:1 } 100%{ opacity:0 } }
+
+/* small orbital wobble while visible */
+.bubble-agent .orb { animation: bubble-orbit 2.8s linear infinite }
+
+
 /* 右侧装饰 */
 .right-decor{
   position: fixed;
