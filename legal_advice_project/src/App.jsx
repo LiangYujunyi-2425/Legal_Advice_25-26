@@ -10,7 +10,7 @@ import RightDecor from './RightDecor'
 
 
 function App() {
-  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(true);
   const [videoOpen, setVideoOpen] = useState(false);
 
   return (
