@@ -22,6 +22,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   const [aiMoodLocal, setAiMoodLocal] = useState('neutral'); // fallback local mood
   const aiMood = propAiMood || aiMoodLocal;
   const setAiMood = propSetAiMood || setAiMoodLocal;
+  const [facePop, setFacePop] = useState(false);
   const toggleVisible = () => {
     setVisible(prev => !prev);
     // 当弹窗打开时聚焦输入框并展开灵动岛
@@ -34,6 +35,20 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       }
     }, 120);
   };
+
+  // 映射簡單 emoji，用於小表情泡泡
+  const emoji = aiMood === 'happy' ? '😊'
+    : aiMood === 'sad' ? '😢'
+    : aiMood === 'thinking' ? '🤔'
+    : aiMood === 'excited' ? '🤩'
+    : '😐';
+
+  // 每當 aiMood 變更時觸發短暫的 pop 動畫
+  useEffect(() => {
+    setFacePop(true);
+    const t = setTimeout(() => setFacePop(false), 700);
+    return () => clearTimeout(t);
+  }, [aiMood]);
 
   useEffect(() => {
     // banner 波动 - 每当有新消息时触发一次波动动画
@@ -184,7 +199,18 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       {/* AI 表情（跟隨對話情緒變化），若拍照模式中則隱藏 */}
       <div className="ai-face-outer" aria-hidden={!visible || videoOpen}>
         {!videoOpen && (
-          <img src={xiaojinglin} alt="AI 表情" style={{ position: 'fixed', width: '120px', height: '120px' , left: '22%' ,top: '50px' }}/>
+          <div
+            className={`ai-face ${facePop ? 'pop' : ''} ${aiMood}`}
+            ref={eyesRef}
+            style={{ position: 'fixed', left: '22%', top: '50px' }}
+          >
+            <img
+              src={xiaojinglin}
+              alt="AI 表情"
+              style={{ width: '96px', height: '96px', objectFit: 'cover', display: 'block' }}
+            />
+            <span className="expression" aria-hidden="true">{emoji}</span>
+          </div>
         )}
       </div>
     </>
