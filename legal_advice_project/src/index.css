@@ -950,3 +950,24 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Intro sprite overlay */
+.intro-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45); /* dim the page */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index: 3000;
+  animation: intro-fade-in 240ms ease;
+}
+
+.intro-sprite{ text-align:center; color:#fff; max-width:420px; padding:18px; border-radius:16px }
+.sprite-img{ width:140px; animation: sprite-float 3s ease-in-out infinite; cursor:pointer; transition: transform 260ms ease }
+.sprite-img.clicked{ transform: scale(1.12) rotate(6deg) }
+.sprite-message{ margin-top:14px; font-size:18px; line-height:1.4; font-weight:600; color:#fff; text-shadow:0 6px 20px rgba(0,0,0,0.6) }
+
+@keyframes sprite-float{ 0%{ transform: translateY(0) } 50%{ transform: translateY(-18px) } 100%{ transform: translateY(0) } }
+@keyframes intro-fade-in{ from{ opacity:0 } to{ opacity:1 } }
+
