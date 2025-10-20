@@ -1,5 +1,6 @@
 import { useState, forwardRef, useImperativeHandle, useRef, useEffect } from 'react';
 import './index.css';
+import xiaojinglin from './assets/xiaojinglin.webp';
 
 // 居中泡泡聊天（保留 API / 上傳 邏輯），帶 banner 波動與右側 AI 表情互動
 const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiMood, setAiMood: propSetAiMood }, ref) => {
@@ -180,50 +181,10 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           </div>
         </div>
       </div>
-      {/* 右側 AI 表情（跟隨對話情緒變化），若拍照模式中則隱藏 */}
+      {/* AI 表情（跟隨對話情緒變化），若拍照模式中則隱藏 */}
       <div className="ai-face-outer" aria-hidden={!visible || videoOpen}>
         {!videoOpen && (
-          <svg className={`ai-face-svg cyberpunk mood-${aiMood}`} viewBox="0 0 200 200" width="120" height="120" role="img" aria-label={`賽博風女AI 表情 ${aiMood}`}>
-            <defs>
-              <linearGradient id="neon1" x1="0" x2="1">
-                <stop offset="0" stopColor="#72f0ff" />
-                <stop offset="1" stopColor="#8affc7" />
-              </linearGradient>
-              <linearGradient id="neon2" x1="0" x2="1">
-                <stop offset="0" stopColor="#ff7bda" />
-                <stop offset="1" stopColor="#9b7bff" />
-              </linearGradient>
-              <filter id="glow"><feGaussianBlur stdDeviation="4" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-            </defs>
-
-            <g className="cp-background">
-              <rect x="0" y="0" width="200" height="200" rx="40" fill="#061019" />
-              <rect x="6" y="6" width="188" height="188" rx="34" fill="url(#neon1)" opacity="0.04" />
-            </g>
-
-            <g transform="translate(0,8)">
-              {/* visor / hairband */}
-              <rect x="32" y="34" width="136" height="26" rx="12" fill="url(#neon2)" opacity="0.18" filter="url(#glow)" />
-
-              {/* face base */}
-              <ellipse cx="100" cy="106" rx="44" ry="46" fill="#08121a" stroke="#0ff8d6" strokeOpacity="0.08" />
-
-              {/* cyber eyes - with inner glow and pulse rects */}
-              <g className="cp-eyes" ref={eyesRef}>
-                <rect className="cp-eye left" x="70" y="86" width="20" height="12" rx="3" fill="#00f6ff" opacity="0.95" />
-                <rect className="cp-eye right" x="110" y="86" width="20" height="12" rx="3" fill="#9b7bff" opacity="0.95" />
-                <rect className="cp-eye-core left" x="76" y="88" width="6" height="6" rx="2" fill="#001" opacity="0.85" />
-                <rect className="cp-eye-core right" x="118" y="88" width="6" height="6" rx="2" fill="#001" opacity="0.85" />
-              </g>
-
-              {/* mouth - thin neon bar that can pulse */}
-              <rect className="cp-mouth" x="86" y="128" width="28" height="6" rx="3" fill="#ff6bdb" opacity="0.96" />
-
-              {/* little HUD accents */}
-              <rect x="44" y="60" width="6" height="6" rx="1" fill="#72f0ff" opacity="0.7" />
-              <rect x="150" y="60" width="6" height="6" rx="1" fill="#ff7bda" opacity="0.7" />
-            </g>
-          </svg>
+          <img src={xiaojinglin} alt="AI 表情" style={{ position: 'fixed', width: '120px', height: '120px' , left: '22%' ,top: '50px' }}/>
         )}
       </div>
     </>
