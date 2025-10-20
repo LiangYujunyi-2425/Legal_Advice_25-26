@@ -1,6 +1,11 @@
 import { useState, forwardRef, useImperativeHandle, useRef, useEffect } from 'react';
 import './index.css';
 import xiaojinglin from './assets/xiaojinglin.webp';
+import judgeAvatar from './assets/judge.webp';
+import lawyerAvatar from './assets/lawyer.webp';
+import ownerAvatar from './assets/owner.webp';
+import managerAvatar from './assets/property_manager.webp';
+import leaseMessages from './data/leaseMessages';
 
 // 居中泡泡聊天（保留 API / 上傳 邏輯），帶 banner 波動與右側 AI 表情互動
 const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiMood, setAiMood: propSetAiMood }, ref) => {
@@ -18,7 +23,11 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
 
   const eyesRef = useRef(null);
   const overlayRef = useRef(null);
+  const overlayScrollRef = useRef(null);
+  const chatMessagesRef = useRef(null);
   const bubbleTimerRef = useRef(null);
+  const playTimersRef = useRef([]);
+  const [overlayMessagesState, setOverlayMessagesState] = useState([]);
 
   const [squash, setSquash] = useState(false);
   const [aiMoodLocal, setAiMoodLocal] = useState('neutral'); // fallback local mood
@@ -36,6 +45,72 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
         setIsIslandExpanded(false);
       }
     }, 120);
+  };
+
+  // compose a concrete final reply based on the conversation (simple template)
+  const composeFinalReply = (conversation) => {
+    const lines = [];
+    lines.push('基於剛才四方的討論，給你一份具體且可執行的建議：');
+    lines.push('1) 租期與租金：在合約寫明租期起訖日、租金金額、繳付日期與逾期利息。');
+    lines.push('2) 押金：建議押金為兩個月租金，並約定業主在確認物業無損後於十個工作日內退還（可扣除合理維修費）。');
+    lines.push('3) 入伙/點交：合約應附入伙點交表（Inventory & Condition Report），雙方簽名並拍照存證。');
+    lines.push('4) 修繕責任：明確區分重大結構性維修（業主負責）與日常小修（租客負責）。');
+    lines.push('5) 轉租/改裝/養寵物：若允許需在合約列明條件、押金或恢復原狀責任。');
+    lines.push('6) 提前終止與違約：列明嚴重違約情形（如連續拖欠租金兩個月）、寬限期（例如14天）與賠償機制。');
+    lines.push('7) 爭議解決：先行協商/調解，並約定香港法院管轄或仲裁條款以加速處理。');
+    lines.push('8) 保存證據：保留簽署合約原件、點交表、所有收據與通訊記錄。');
+    lines.push('如需，我可以把上述要點轉成合約可用的條款範本，或以繁體/英文輸出。');
+    return lines.join('\n');
+  };
+
+  // play conversation into the center overlay (自动触发于 sendMessage)
+  const playConversation = (conversation = leaseMessages, speed = 900) => {
+    // clear existing timers
+    playTimersRef.current.forEach(t => clearTimeout(t));
+    playTimersRef.current = [];
+    setOverlayMessagesState([]);
+    setAiMood('thinking');
+
+    // hide/缩小中央泡泡以呈现中间对话
+    setVisible(false);
+
+    conversation.messages.forEach((m, idx) => {
+      const t = setTimeout(() => {
+        // trigger flying bubble agents for visual effect
+        if (['lawyer','judge','property_manager','owner'].includes(m.role)) {
+          startBubblesFlow(m.text);
+        }
+  setOverlayMessagesState(prev => [...prev, { id: m.id, speaker: m.speakerName, role: m.role, text: m.text, avatarKey: m.avatarKey }]);
+        setAiMood(idx % 2 === 0 ? 'thinking' : 'happy');
+        setTimeout(() => setAiMood('neutral'), 700);
+      }, idx * speed);
+      playTimersRef.current.push(t);
+    });
+
+    // restore central bubble after conversation finished
+    const total = conversation.messages.length * speed;
+    const endT = setTimeout(() => {
+      setAiMood('neutral');
+      setOverlayMessagesState([]);
+      // compose and append final concrete reply into central messages
+      try {
+        const finalReply = composeFinalReply(conversation);
+        setMessages(prev => [...prev, { role: 'assistant', content: finalReply }]);
+      } catch (e) {
+        // fallback simple reply
+        setMessages(prev => [...prev, { role: 'assistant', content: '已完成討論，請參考上方要點。' }]);
+      }
+      setVisible(true);
+      playTimersRef.current = [];
+    }, total + 800);
+    playTimersRef.current.push(endT);
+  };
+
+  const avatarMap = {
+    judge: judgeAvatar,
+    lawyer: lawyerAvatar,
+    owner: ownerAvatar,
+    manager: managerAvatar,
   };
 
   // 映射簡單 emoji，用於小表情泡泡
@@ -60,6 +135,26 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     const t = setTimeout(() => banner.classList.remove('wave'), 700);
     return () => clearTimeout(t);
   }, [messages.length]);
+
+  // auto-scroll main chat to latest message
+  useEffect(() => {
+    try {
+      const el = chatMessagesRef.current;
+      if (el) el.scrollTop = el.scrollHeight;
+    } catch (e) {
+      // ignore
+    }
+  }, [messages.length]);
+
+  // auto-scroll overlay chat to latest message
+  useEffect(() => {
+    try {
+      const el = overlayScrollRef.current;
+      if (el) el.scrollTop = el.scrollHeight;
+    } catch (e) {
+      // ignore
+    }
+  }, [overlayMessagesState.length]);
 
   // Random blink: add `blink` class to eyes group at random intervals
   useEffect(() => {
@@ -99,28 +194,10 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     setTimeout(() => setSquash(false), 160);
 
     // collapse 中央泡泡并启动背景泡泡动画流程
-    setVisible(false);
+    // play built-in conversation sequence centered on screen
+    // for now, use full leaseMessages as demonstration; later can send to API to generate dynamic replies
     startBubblesFlow(text);
-
-    try {
-      const response = await fetch(`${API_URL}/ask`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: text }),
-      });
-      const data = await response.json();
-      const answer = data?.answer || data?.reply || JSON.stringify(data || '');
-      // 在对话动画过程中可以让泡泡显示部分回答
-      setBubbles(prev => prev.map((b, i) => ({ ...b, text: answer.slice(0, Math.max(30, 30 + i * 10)) })));
-      setMessages(prev => [...prev, { role: 'assistant', content: answer }]);
-      setAiMood('happy');
-      setTimeout(() => setAiMood('neutral'), 1200);
-    } catch (error) {
-      console.error('AI 回覆失敗', error);
-      setMessages(prev => [...prev, { role: 'assistant', content: '❌ 回覆失敗，請稍後再試。' }]);
-      setAiMood('sad');
-      setTimeout(() => setAiMood('neutral'), 1200);
-    }
+    playConversation(leaseMessages);
   };
 
   // Start bubble animation flow: create bubbles, position origin near latest user message,
@@ -131,12 +208,14 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   const startBubblesFlow = (text) => {
     // create simple bubble placeholders
     const count = 5;
+    const avatarKeys = Object.keys(avatarMap);
     const arr = Array.from({ length: count }).map((_, i) => ({
       id: Date.now() + i,
       text: '思考…',
       delay: i * 0.12,
       angle: Math.random() * Math.PI * 2,
       dist: 80 + Math.random() * 120,
+      avatarKey: avatarKeys[Math.floor(Math.random() * avatarKeys.length)],
     }));
     setBubbles(arr);
     setBubblesActive(true);
@@ -174,6 +253,14 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   useEffect(() => {
     return () => {
       if (bubbleTimerRef.current) clearTimeout(bubbleTimerRef.current);
+    };
+  }, []);
+
+  // cleanup play timers on unmount
+  useEffect(() => {
+    return () => {
+      playTimersRef.current.forEach(t => clearTimeout(t));
+      playTimersRef.current = [];
     };
   }, []);
 
@@ -229,11 +316,13 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             <div className="avatar-bubble" />
             <div className="title">法律助理</div>
           </div>
-          <div className="header-right">{messages.length} 訊息</div>
+          <div className="header-right">
+            {messages.length} 訊息
+          </div>
         </div>
 
         <div className="chat-container">
-          <div className="chat-messages">
+          <div className="chat-messages" ref={chatMessagesRef}>
             {messages.map((msg, index) => (
               <div key={index} className={`message ${msg.role}`}>
                 {msg.content}
@@ -275,6 +364,26 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           </div>
         )}
       </div>
+      {/* 中央对话 overlay（WeChat 风格） */}
+      <div className={`center-overlay-chat`} style={{ display: overlayMessagesState.length ? 'flex' : 'none' }} aria-hidden={!overlayMessagesState.length}>
+        <div className="chat-card">
+          <div className="chat-card-header">法律精靈四方會議</div>
+          <div className="chat-card-messages" ref={overlayScrollRef}>
+            {overlayMessagesState.map((m, i) => (
+              <div key={m.id} className={`overlay-message ${m.role === 'user' ? 'user' : 'agent'}`}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                  <img src={avatarMap[m.avatarKey] || xiaojinglin} alt={m.speaker} style={{ width: 36, height: 36, borderRadius: 8 }} />
+                  <div style={{ flex: 1 }}>
+                    <div className="overlay-sender">{m.speaker}</div>
+                    <div className="overlay-text" style={{ animationDelay: `${i * 120}ms` }}>{m.text}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* 泡泡动画覆盖层（发送消息时触发） */}
       <div className="bubbles-overlay" ref={overlayRef} aria-hidden={!bubblesActive} style={{ display: bubblesActive ? 'block' : 'none' }}>
         <div className="bubbles-container">
@@ -284,9 +393,9 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             const style = { '--tx': `${tx}px`, '--ty': `${ty}px`, left: 0, top: 0 };
             return (
               <div key={b.id} className={`bubble-agent ${bubblesActive ? 'show' : ''}`} style={style}>
-                <div className="orb">
-                  <img src={xiaojinglin} alt="agent" />
-                </div>
+                  <div className="orb">
+                    <img src={avatarMap[b.avatarKey] || xiaojinglin} alt="agent" />
+                  </div>
                 <div className="btext">{b.text}</div>
               </div>
             );
