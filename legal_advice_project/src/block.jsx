@@ -17,6 +17,8 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   }));
 
   const eyesRef = useRef(null);
+  const overlayRef = useRef(null);
+  const bubbleTimerRef = useRef(null);
 
   const [squash, setSquash] = useState(false);
   const [aiMoodLocal, setAiMoodLocal] = useState('neutral'); // fallback local mood
@@ -96,6 +98,10 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     setSquash(true);
     setTimeout(() => setSquash(false), 160);
 
+    // collapse 中央泡泡并启动背景泡泡动画流程
+    setVisible(false);
+    startBubblesFlow(text);
+
     try {
       const response = await fetch(`${API_URL}/ask`, {
         method: 'POST',
@@ -104,6 +110,8 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       });
       const data = await response.json();
       const answer = data?.answer || data?.reply || JSON.stringify(data || '');
+      // 在对话动画过程中可以让泡泡显示部分回答
+      setBubbles(prev => prev.map((b, i) => ({ ...b, text: answer.slice(0, Math.max(30, 30 + i * 10)) })));
       setMessages(prev => [...prev, { role: 'assistant', content: answer }]);
       setAiMood('happy');
       setTimeout(() => setAiMood('neutral'), 1200);
@@ -114,6 +122,60 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       setTimeout(() => setAiMood('neutral'), 1200);
     }
   };
+
+  // Start bubble animation flow: create bubbles, position origin near latest user message,
+  // keep them animating for 10s, then dismiss and re-open the dialog.
+  const [bubblesActive, setBubblesActive] = useState(false);
+  const [bubbles, setBubbles] = useState([]);
+
+  const startBubblesFlow = (text) => {
+    // create simple bubble placeholders
+    const count = 5;
+    const arr = Array.from({ length: count }).map((_, i) => ({
+      id: Date.now() + i,
+      text: '思考…',
+      delay: i * 0.12,
+      angle: Math.random() * Math.PI * 2,
+      dist: 80 + Math.random() * 120,
+    }));
+    setBubbles(arr);
+    setBubblesActive(true);
+
+    // allow DOM 更新后找出刚发的 user 消息位置作为动画中心
+    setTimeout(() => {
+      try {
+        const msgs = document.querySelectorAll('.chat-messages .message.user');
+        const last = msgs[msgs.length - 1];
+        let x = window.innerWidth / 2;
+        let y = window.innerHeight / 2;
+        if (last) {
+          const r = last.getBoundingClientRect();
+          x = r.left + r.width / 2;
+          y = r.top + r.height / 2;
+        }
+        if (overlayRef.current) {
+          overlayRef.current.style.setProperty('--origin-x', `${x}px`);
+          overlayRef.current.style.setProperty('--origin-y', `${y}px`);
+        }
+      } catch (e) {
+        // ignore
+      }
+    }, 80);
+
+    // 10 秒后结束动画并恢复对话框
+    if (bubbleTimerRef.current) clearTimeout(bubbleTimerRef.current);
+    bubbleTimerRef.current = setTimeout(() => {
+      setBubblesActive(false);
+      setBubbles([]);
+      setVisible(true);
+    }, 10000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (bubbleTimerRef.current) clearTimeout(bubbleTimerRef.current);
+    };
+  }, []);
 
   const uploadFile = async (event) => {
     const file = event.target.files?.[0];
@@ -212,6 +274,24 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             <span className="expression" aria-hidden="true">{emoji}</span>
           </div>
         )}
+      </div>
+      {/* 泡泡动画覆盖层（发送消息时触发） */}
+      <div className="bubbles-overlay" ref={overlayRef} aria-hidden={!bubblesActive} style={{ display: bubblesActive ? 'block' : 'none' }}>
+        <div className="bubbles-container">
+          {bubbles.map((b, i) => {
+            const tx = Math.cos(b.angle) * b.dist;
+            const ty = Math.sin(b.angle) * b.dist;
+            const style = { '--tx': `${tx}px`, '--ty': `${ty}px`, left: 0, top: 0 };
+            return (
+              <div key={b.id} className={`bubble-agent ${bubblesActive ? 'show' : ''}`} style={style}>
+                <div className="orb">
+                  <img src={xiaojinglin} alt="agent" />
+                </div>
+                <div className="btext">{b.text}</div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </>
   );
