@@ -862,6 +862,67 @@ button:focus-visible {
 .ai-face-outer[aria-hidden="true"]{ opacity: 0; transform: translateY(-8px) scale(0.9); pointer-events: none; transition: all 260ms ease }
 .ai-face-outer{ transition: all 260ms ease }
 
+/* Additional AI face animations and small emoji bubble */
+.ai-face {
+  transform-origin: center;
+}
+.ai-face.pop {
+  animation: ai-pop 420ms cubic-bezier(.2,.9,.3,1);
+}
+.ai-face .expression {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  min-width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.95);
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+  font-size: 14px;
+  padding: 4px;
+  transform-origin: center;
+  animation: float 2.6s ease-in-out infinite;
+  pointer-events: none;
+}
+.ai-face.happy .expression { background: #fffbe6; }
+.ai-face.sad .expression { background: #eef6ff; }
+.ai-face.thinking .expression { background: #fff7f0; }
+.ai-face.excited .expression { background: #fff0ff; }
+
+/* blink effect controlled by .blink on the container */
+.ai-face.blink img {
+  transform: scaleY(0.14);
+  transition: transform 120ms ease;
+}
+
+.ai-face img {
+  border-radius: 8px;
+  will-change: transform;
+  animation: subtle-bob 6s ease-in-out infinite;
+}
+
+@keyframes ai-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.12); }
+  70% { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes subtle-bob {
+  0% { transform: translateY(0) rotate(0.0deg); }
+  50% { transform: translateY(-3px) rotate(0.2deg); }
+  100% { transform: translateY(0) rotate(0.0deg); }
+}
+
 /* 右侧装饰 */
 .right-decor{
   position: fixed;
