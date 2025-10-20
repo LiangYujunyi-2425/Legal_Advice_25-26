@@ -29,3 +29,6 @@ If you are developing a production application, we recommend using TypeScript wi
 7. npm run dev
 
 記得要確保你開著VPN 在美國
+
+**如果pip版本出现outdated情况，请运行以下指令：
+python3 -m pip install --upgrade pip
