@@ -1086,3 +1086,53 @@ button:focus-visible {
 @keyframes sprite-float{ 0%{ transform: translateY(0) } 50%{ transform: translateY(-18px) } 100%{ transform: translateY(0) } }
 @keyframes intro-fade-in{ from{ opacity:0 } to{ opacity:1 } }
 
+
+/* Center overlay chat (WeChat-like) */
+.center-overlay-chat {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2001;
+  pointer-events: none; /* allow clicks through except card */
+}
+.center-overlay-chat .chat-card {
+  pointer-events: auto;
+  width: 480px;
+  max-width: calc(100% - 48px);
+  background: rgba(10,12,18,0.9);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+}
+.center-overlay-chat .chat-card-messages { max-height: 60vh; overflow-y: auto; display:flex; flex-direction:column; gap:8px; }
+.chat-messages, .center-overlay-chat .chat-card-messages { scroll-behavior: smooth; }
+.overlay-message { display: flex; flex-direction: column; max-width: 78%; }
+.overlay-message.user { align-self: flex-end; text-align: right; }
+.overlay-message.agent { align-self: flex-start; text-align: left; }
+.overlay-sender { font-size: 12px; color: #9aa5b1; margin-bottom: 4px; }
+.overlay-text { padding: 10px 12px; border-radius: 14px; font-size: 14px; line-height: 1.4; transform-origin: center; animation: pop-in 320ms cubic-bezier(.2,.9,.3,1) both; }
+.overlay-message.user .overlay-text { background: linear-gradient(135deg,#3b82f6,#2563eb); color: #fff; }
+.overlay-message.agent .overlay-text { background: rgba(255,255,255,0.06); color: #e6eef6; }
+
+@media (max-width: 520px) {
+  .center-overlay-chat .chat-card { width: calc(100% - 24px); }
+}
+
+/* pop-in animation for overlay texts */
+@keyframes pop-in {
+  0% { transform: translateY(8px) scale(.98); opacity: 0 }
+  60% { transform: translateY(-6px) scale(1.02); opacity: 1 }
+  100% { transform: translateY(0) scale(1); opacity: 1 }
+}
+
+.center-overlay-chat .chat-card-header {
+  font-weight: 700;
+  color: #e6f7ff;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  margin-bottom: 8px;
+}
+
