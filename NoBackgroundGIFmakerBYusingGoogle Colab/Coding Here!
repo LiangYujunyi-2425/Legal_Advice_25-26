@@ -1,0 +1,89 @@
+#第一格程式碼：
+# 安裝依賴
+!pip install -q imageio imageio[pyav] pillow
+
+#第二格程式碼：
+# 上傳全部圖片（PNG，背景透明）
+from google.colab import files
+uploaded = files.upload()
+
+list(uploaded.keys())
+
+#第三格程式碼：
+import imageio.v3 as iio
+
+# 依你的順序排列
+frame_files = ["yourPic1.png", "yourPic2.png", "yourPic3.png", "yourPic4.png"]
+
+# 讀入 RGBA
+frames = [iio.imread(f) for f in frame_files]
+
+# 設定每幀持續時間（毫秒），loop=0 表示無限循環
+duration_ms = 120  # 調整眨眼速度：數值越小越快
+
+# 輸出 GIF（imageio 會自動把 RGBA 轉成 GIF 並保留透明索引）
+iio.imwrite(
+    "blink.gif",
+    frames,
+    plugin="pillow",        # 使用 pillow backend，透明兼容度較好
+    duration=duration_ms/1000.0,  # 秒
+    loop=0
+)
+
+# 下載到本地
+from google.colab import files
+files.download("blink.gif")
+
+
+
+
+#如果你想某張圖片停留的時間久一點，而不是統一速度
+# 安裝與載入
+!pip install -q pillow
+from PIL import Image, ImageSequence
+import os
+from google.colab import files
+from IPython.display import Image as DispImage, display
+
+# 幀順序（依你的檔名）
+frame_files = ["yourPic1.png", "yourPic2.png", "yourPic3.png", "yourPic4.png", "yourPic5.png"]
+
+# 讀入為 RGBA（保留透明）
+frames = [Image.open(f).convert("RGBA") for f in frame_files]
+
+# 每幀毫秒（ms）：可自行設定，數值越大停留時間越長
+durations_ms = [600, 120, 160, 120, 600]
+
+# 讓 Pillow 自動處理透明（簡化路線）
+# 若遇到透明不生效，再改用「手動透明索引（進階）」版本
+first = frames[0]
+rest = frames[1:]
+
+# 關鍵參數說明：
+# - save_all=True：儲存多幀 GIF
+# - duration=durations_ms：每幀不同時間
+# - loop=0：無限循環
+# - disposal=2：每幀後清回背景，避免殘影
+# - optimize=False：有時 True 會重建調色盤導致透明不如預期；先用 False
+# - transparency：GIF 透明索引（此簡化路線不強制指定，交由 Pillow 嘗試處理）
+out_path = "blink.gif"
+first.save(
+    out_path,
+    save_all=True,
+    append_images=rest,
+    loop=0,
+    duration=durations_ms,
+    disposal=2,
+    optimize=False
+)
+
+# 檔案檢查
+assert os.path.exists(out_path), "GIF 檔案未生成，請檢查檔名或寫入權限。"
+size = os.path.getsize(out_path)
+print(f"輸出檔案：{out_path}, 大小：{size} bytes")
+
+# 在 Notebook 內嵌顯示（確認透明與節奏）
+display(DispImage(filename=out_path))
+
+# 提供下載
+files.download(out_path)
