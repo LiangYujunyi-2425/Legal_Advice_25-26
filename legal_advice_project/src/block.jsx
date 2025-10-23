@@ -429,8 +429,8 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           .roundtable-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 80; pointer-events: auto; }
           .roundtable-card {position: absolute; top: -50px;border-radius: 20%; background: rgba(255, 255, 255, 0.96); width: min(760px, 92%); max-height: 86vh; position: relative; display: flex; align-items: center; justify-content: center; }
           .center-title{border-radius: 20%; background: rgba(255, 255, 255, 0.96)}
-          .roundtable-center {position: absolute;top: -335px;left: 0px;width: 800px; height: 750px; border-radius: 50%;  display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; }
-          .roundtable-center .center-text {border-radius: 10%; background: rgba(255, 255, 255, 0.96);box-shadow: 0 10px 40px rgba(0,0,0,0.18); width: 80%; height: 80%; overflow:auto; padding:8px; text-align:left; }
+          .roundtable-center {position: absolute;top: -340px;left: 7px;width: 790px; height: 745px; border-radius: 50%;  display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; }
+          .roundtable-center .center-text {border-radius: 10%; background: rgba(200, 200, 200, 0.1); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); width: 80%; height: 80%; overflow:auto; padding:8px; text-align:left; }
           /* hide scrollbar but keep scroll functionality */
           .roundtable-center .center-text::-webkit-scrollbar { width: 0; height: 0; }
           .roundtable-center .center-text { -ms-overflow-style: none; scrollbar-width: none; }
@@ -461,8 +461,8 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           .agent-node { position: absolute; width: 84px; height: 84px; border-radius: 50%; display:flex; align-items:center; justify-content:center; transition: transform 300ms cubic-bezier(.2,.9,.2,1), box-shadow 300ms; pointer-events: auto; }
           .agent-node img { width: 64px; height:64px; border-radius:50%; object-fit:cover; }
           .agent-node .name { position: absolute; top: 92px; width: 120px; left: 50%; transform: translateX(-50%); text-align:center; font-size:12px; color:#222; }
-          .agent-speaking { transform: scale(1.18) translateY(-6px); box-shadow: 0 12px 30px rgba(0,0,0,0.25); }
-          .agent-stretch { transition: transform 420ms cubic-bezier(.2,.9,.2,1); transform: scaleX(1.22) scaleY(1.02); }
+          .agent-speaking { transform: scale(1.18) translateY(-6px);background: rgba(255, 255, 255, 0.15); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3);}
+          .agent-stretch { transition: transform 420ms cubic-bezier(.2,.9,.2,1); transform: scaleX(1.22) scaleY(1.22); }
           .center-message { background: rgba(250,250,250,0.9); padding:10px 12px; border-radius:12px; display:inline-block; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
         `}</style>
         <div className="roundtable-card">
@@ -470,7 +470,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             {overlayParticipants.map((p, i) => {
               // position agents evenly around circle
               const angle = (i / overlayParticipants.length) * Math.PI * 2 - Math.PI / 2;
-              const radius = 380;
+              const radius = 385;
               const left = `calc(50% + ${Math.cos(angle) * radius}px)`;
               const top = `calc(50% + ${Math.sin(angle) * radius}px)`;
               const isSpeaking = speakingAgentId === p.id;
