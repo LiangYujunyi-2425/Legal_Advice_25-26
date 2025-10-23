@@ -6,6 +6,7 @@ import lawyerAvatar from './assets/lawyer.webp';
 import ownerAvatar from './assets/owner.webp';
 import managerAvatar from './assets/property_manager.webp';
 import leaseMessages from './data/leaseMessages';
+import welcomeSound from './assets/welcome.mp3';
 
 // 居中泡泡聊天（保留 API / 上傳 邏輯），帶 banner 波動與右側 AI 表情互動
 const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiMood, setAiMood: propSetAiMood }, ref) => {
@@ -36,6 +37,9 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   const aiMood = propAiMood || aiMoodLocal;
   const setAiMood = propSetAiMood || setAiMoodLocal;
   const [facePop, setFacePop] = useState(false);
+  const [welcomeAudioAllowed, setWelcomeAudioAllowed] = useState(false);
+  const [welcomeAudioError, setWelcomeAudioError] = useState(null);
+  const welcomeAudioRef = useRef(null);
   const toggleVisible = () => {
     setVisible(prev => !prev);
     // 当弹窗打开时聚焦输入框并展开灵动岛
@@ -48,6 +52,37 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       }
     }, 120);
   };
+
+  // try auto-playing welcome audio on mount; if blocked, show a small play button
+  useEffect(() => {
+    let mounted = true;
+    try {
+      // use imported module path (Vite will resolve to correct URL)
+      const a = new Audio(welcomeSound);
+      a.preload = 'auto';
+      welcomeAudioRef.current = a;
+      const p = a.play();
+      if (p && typeof p.then === 'function') {
+        p.then(() => {
+          if (!mounted) return;
+          setWelcomeAudioAllowed(true);
+        }).catch((err) => {
+          if (!mounted) return;
+          // autoplay blocked by browser policy
+          setWelcomeAudioAllowed(false);
+          setWelcomeAudioError(err?.message || 'blocked');
+        });
+      }
+    } catch (e) {
+      setWelcomeAudioAllowed(false);
+      setWelcomeAudioError(e?.message || 'err');
+    }
+
+    return () => {
+      mounted = false;
+      try { welcomeAudioRef.current?.pause(); welcomeAudioRef.current = null; } catch (e) {}
+    };
+  }, []);
 
   // compose a concrete final reply based on the conversation (simple template)
   const composeFinalReply = (conversation) => {
@@ -423,6 +458,25 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           </div>
         )}
       </div>
+      {/* welcome 音頻手動播放按鈕（在 autoplay 被阻止時顯示） */}
+      {!welcomeAudioAllowed && (
+        <button
+          className="welcome-play"
+          onClick={async (e) => {
+            e.stopPropagation();
+            try {
+              await welcomeAudioRef.current?.play();
+              setWelcomeAudioAllowed(true);
+              setWelcomeAudioError(null);
+            } catch (err) {
+              setWelcomeAudioError(err?.message || 'play failed');
+            }
+          }}
+          style={{ position: 'fixed', right: 18, top: 18, zIndex: 200 }}
+        >
+          ▶︎ 播放歡迎語音
+        </button>
+      )}
       {/* 圆桌会话 overlay（Round-table） */}
       <div className="roundtable-overlay" style={{ display: overlayMessagesState.length ? 'flex' : 'none' }} aria-hidden={!overlayMessagesState.length}>
         <style>{`
