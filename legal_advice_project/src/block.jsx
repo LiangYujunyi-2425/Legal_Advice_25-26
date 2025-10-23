@@ -426,9 +426,10 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       <div className="roundtable-overlay" style={{ display: overlayMessagesState.length ? 'flex' : 'none' }} aria-hidden={!overlayMessagesState.length}>
         <style>{`
           .roundtable-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 80; pointer-events: auto; }
-          .roundtable-card { width: min(760px, 92%); max-height: 86vh; position: relative; display: flex; align-items: center; justify-content: center; }
-          .roundtable-center { width: 700px; height: 700px; border-radius: 50%; background: rgba(255, 255, 255, 0.96); box-shadow: 0 10px 40px rgba(0,0,0,0.18); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; }
-          .roundtable-center .center-text { width: 100%; height: 60%; overflow:auto; padding:8px; text-align:left; }
+          .roundtable-card {position: absolute; top: -50px;border-radius: 20%; background: rgba(255, 255, 255, 0.96); width: min(760px, 92%); max-height: 86vh; position: relative; display: flex; align-items: center; justify-content: center; }
+          .center-title{border-radius: 20%; background: rgba(255, 255, 255, 0.96)}
+          .roundtable-center {position: absolute;top: -320px;left: 50px;width: 700px; height: 700px; border-radius: 50%;  display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; }
+          .roundtable-center .center-text {border-radius: 10%; background: rgba(255, 255, 255, 0.96);box-shadow: 0 10px 40px rgba(0,0,0,0.18); width: 80%; height: 80%; overflow:auto; padding:8px; text-align:left; }
           .roundtable-agents { position: absolute; inset: 0; pointer-events: none; }
           .agent-node { position: absolute; width: 84px; height: 84px; border-radius: 50%; display:flex; align-items:center; justify-content:center; transition: transform 300ms cubic-bezier(.2,.9,.2,1), box-shadow 300ms; pointer-events: auto; }
           .agent-node img { width: 64px; height:64px; border-radius:50%; object-fit:cover; }
@@ -442,7 +443,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             {overlayParticipants.map((p, i) => {
               // position agents evenly around circle
               const angle = (i / overlayParticipants.length) * Math.PI * 2 - Math.PI / 2;
-              const radius = 220;
+              const radius = 360;
               const left = `calc(50% + ${Math.cos(angle) * radius}px)`;
               const top = `calc(50% + ${Math.sin(angle) * radius}px)`;
               const isSpeaking = speakingAgentId === p.id;
