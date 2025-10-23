@@ -430,7 +430,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           .roundtable-card {position: absolute; top: -50px;border-radius: 20%; background: rgba(255, 255, 255, 0.96); width: min(760px, 92%); max-height: 86vh; position: relative; display: flex; align-items: center; justify-content: center; }
           .center-title{border-radius: 20%; background: rgba(255, 255, 255, 0.96)}
           .roundtable-center {position: absolute;top: -340px;left: 7px;width: 790px; height: 745px; border-radius: 50%;  display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; }
-          .roundtable-center .center-text {border-radius: 10%; background: rgba(200, 200, 200, 0.1); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); width: 80%; height: 80%; overflow:auto; padding:8px; text-align:left; }
+          .roundtable-center .center-text {border-radius: 10%; background: rgba(200, 200, 200, 0.6); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); width: 80%; height: 80%; overflow:auto; padding:8px; text-align:left; }
           /* hide scrollbar but keep scroll functionality */
           .roundtable-center .center-text::-webkit-scrollbar { width: 0; height: 0; }
           .roundtable-center .center-text { -ms-overflow-style: none; scrollbar-width: none; }
