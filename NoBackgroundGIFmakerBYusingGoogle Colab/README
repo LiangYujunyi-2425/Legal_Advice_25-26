@@ -1,0 +1,14 @@
+Halo!
+Nowadays, even if your image is a PNG without background, 
+the gif produced by the online gif maker still has a white background, 
+which will cause great trouble to users.
+
+This code can be run using Google Colab(online!!), which is quick and easy!
+
+Instructions:
+1. Open https://colab.research.google.com/
+2. Create a New Notebook
+3. In the Files panel on the left, click File, then Upload. Upload all your grid images.
+4. In a new code window, paste the following code and run it.
+
+enjoy:)

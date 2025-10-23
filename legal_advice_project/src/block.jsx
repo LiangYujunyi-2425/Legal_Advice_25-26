@@ -6,6 +6,7 @@ import lawyerAvatar from './assets/lawyer.webp';
 import ownerAvatar from './assets/owner.webp';
 import managerAvatar from './assets/property_manager.webp';
 import leaseMessages from './data/leaseMessages';
+import welcomeSound from './assets/welcome.mp3';
 
 // 居中泡泡聊天（保留 API / 上傳 邏輯），帶 banner 波動與右側 AI 表情互動
 const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiMood, setAiMood: propSetAiMood }, ref) => {
@@ -28,12 +29,17 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   const bubbleTimerRef = useRef(null);
   const playTimersRef = useRef([]);
   const [overlayMessagesState, setOverlayMessagesState] = useState([]);
+  const [overlayParticipants, setOverlayParticipants] = useState([]);
+  const [speakingAgentId, setSpeakingAgentId] = useState(null);
 
   const [squash, setSquash] = useState(false);
   const [aiMoodLocal, setAiMoodLocal] = useState('neutral'); // fallback local mood
   const aiMood = propAiMood || aiMoodLocal;
   const setAiMood = propSetAiMood || setAiMoodLocal;
   const [facePop, setFacePop] = useState(false);
+  const [welcomeAudioAllowed, setWelcomeAudioAllowed] = useState(false);
+  const [welcomeAudioError, setWelcomeAudioError] = useState(null);
+  const welcomeAudioRef = useRef(null);
   const toggleVisible = () => {
     setVisible(prev => !prev);
     // 当弹窗打开时聚焦输入框并展开灵动岛
@@ -46,6 +52,37 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       }
     }, 120);
   };
+
+  // try auto-playing welcome audio on mount; if blocked, show a small play button
+  useEffect(() => {
+    let mounted = true;
+    try {
+      // use imported module path (Vite will resolve to correct URL)
+      const a = new Audio(welcomeSound);
+      a.preload = 'auto';
+      welcomeAudioRef.current = a;
+      const p = a.play();
+      if (p && typeof p.then === 'function') {
+        p.then(() => {
+          if (!mounted) return;
+          setWelcomeAudioAllowed(true);
+        }).catch((err) => {
+          if (!mounted) return;
+          // autoplay blocked by browser policy
+          setWelcomeAudioAllowed(false);
+          setWelcomeAudioError(err?.message || 'blocked');
+        });
+      }
+    } catch (e) {
+      setWelcomeAudioAllowed(false);
+      setWelcomeAudioError(e?.message || 'err');
+    }
+
+    return () => {
+      mounted = false;
+      try { welcomeAudioRef.current?.pause(); welcomeAudioRef.current = null; } catch (e) {}
+    };
+  }, []);
 
   // compose a concrete final reply based on the conversation (simple template)
   const composeFinalReply = (conversation) => {
@@ -65,45 +102,102 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
 
   // play conversation into the center overlay (自动触发于 sendMessage)
   const playConversation = (conversation = leaseMessages, speed = 900) => {
-    // clear existing timers
+    // clear existing timers/intervals
     playTimersRef.current.forEach(t => clearTimeout(t));
     playTimersRef.current = [];
     setOverlayMessagesState([]);
     setAiMood('thinking');
 
-    // hide/缩小中央泡泡以呈现中间对话
+    // hide/缩小中央泡泡以呈现中间对话（圆桌）
     setVisible(false);
 
-    conversation.messages.forEach((m, idx) => {
-      const t = setTimeout(() => {
-        // trigger flying bubble agents for visual effect
+    // build participants from conversation (unique speakers)
+    const parts = [];
+    const seen = new Set();
+    conversation.messages.forEach(m => {
+      const key = (m.avatarKey || m.role || m.speakerName || 'guest') + '::' + (m.speakerName || '');
+      if (!seen.has(key)) {
+        seen.add(key);
+        parts.push({ id: Date.now() + Math.random(), avatarKey: m.avatarKey || m.role || 'lawyer', name: m.speakerName || m.role });
+      }
+    });
+    setOverlayParticipants(parts);
+
+    // helper: type one message char-by-char and animate speaker
+    const typeMessage = (m, idx, perChar = 28) => {
+      return new Promise((resolve) => {
+        // add message entry with empty display text and alternating side (left/right)
+        const side = (idx % 2 === 0) ? 'left' : 'right';
+        setOverlayMessagesState(prev => [...prev, { id: m.id || Date.now() + idx, speaker: m.speakerName, role: m.role, text: '', avatarKey: m.avatarKey, side }]);
+        // find participant id to map speaking animation
+        const p = parts.find(p => (p.avatarKey === m.avatarKey) || (p.name === m.speakerName));
+        const speakingId = p?.id || null;
+        if (speakingId) setSpeakingAgentId(speakingId);
+
+        // optionally trigger bubbles flow for certain roles
         if (['lawyer','judge','property_manager','owner'].includes(m.role)) {
           startBubblesFlow(m.text);
         }
-  setOverlayMessagesState(prev => [...prev, { id: m.id, speaker: m.speakerName, role: m.role, text: m.text, avatarKey: m.avatarKey }]);
-        setAiMood(idx % 2 === 0 ? 'thinking' : 'happy');
-        setTimeout(() => setAiMood('neutral'), 700);
-      }, idx * speed);
-      playTimersRef.current.push(t);
-    });
 
-    // restore central bubble after conversation finished
-    const total = conversation.messages.length * speed;
-    const endT = setTimeout(() => {
-      setAiMood('neutral');
-      setOverlayMessagesState([]);
-      // compose and append final concrete reply into central messages
-      try {
-        const finalReply = composeFinalReply(conversation);
-        setMessages(prev => [...prev, { role: 'assistant', content: finalReply }]);
-      } catch (e) {
-        // fallback simple reply
-        setMessages(prev => [...prev, { role: 'assistant', content: '已完成討論，請參考上方要點。' }]);
+        // gradually append characters
+        const chars = Array.from(m.text || '');
+        chars.forEach((ch, ci) => {
+          const t = setTimeout(() => {
+            setOverlayMessagesState(prev => {
+              const copy = [...prev];
+              const idxIn = copy.findIndex(x => x.id === (m.id || Date.now() + idx));
+              if (idxIn !== -1) {
+                copy[idxIn] = { ...copy[idxIn], text: copy[idxIn].text + ch };
+              }
+              return copy;
+            });
+            // small mood flicker
+            setAiMood(ci % 2 === 0 ? 'thinking' : 'happy');
+            // keep speaking animation active during typing
+          }, ci * perChar);
+          playTimersRef.current.push(t);
+        });
+
+        // finish after all chars
+        const finishT = setTimeout(() => {
+          setSpeakingAgentId(null);
+          setAiMood('neutral');
+          resolve();
+        }, (chars.length * perChar) + 120);
+        playTimersRef.current.push(finishT);
+      });
+    };
+
+    // play messages sequentially
+    (async () => {
+      for (let i = 0; i < conversation.messages.length; i++) {
+        const m = conversation.messages[i];
+        try {
+          await typeMessage(m, i, Math.max(20, Math.floor(speed / 30)));
+        } catch (e) {
+          // continue on error
+        }
+        // small pause between messages
+        const pauseT = setTimeout(() => {}, 220);
+        playTimersRef.current.push(pauseT);
+        await new Promise(res => setTimeout(res, 220));
       }
-      setVisible(true);
-      playTimersRef.current = [];
-    }, total + 800);
-    playTimersRef.current.push(endT);
+
+      // done: compose final reply and restore
+      setAiMood('neutral');
+      const finalReply = (() => {
+        try { return composeFinalReply(conversation); } catch { return '已完成討論，請參考上方要點。'; }
+      })();
+      setMessages(prev => [...prev, { role: 'assistant', content: finalReply }]);
+      // short delay then restore central bubble
+      const endDelay = setTimeout(() => {
+        setOverlayMessagesState([]);
+        setOverlayParticipants([]);
+        setVisible(true);
+        playTimersRef.current = [];
+      }, 800);
+      playTimersRef.current.push(endDelay);
+    })();
   };
 
   const avatarMap = {
@@ -353,7 +447,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           <div
             className={`ai-face ${facePop ? 'pop' : ''} ${aiMood}`}
             ref={eyesRef}
-            style={{ position: 'fixed', left: '22%', top: '50px' }}
+            style={{ position: 'fixed', left: '15%', top: '50px' }}
           >
             <img
               src={xiaojinglin}
@@ -364,22 +458,102 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           </div>
         )}
       </div>
-      {/* 中央对话 overlay（WeChat 风格） */}
-      <div className={`center-overlay-chat`} style={{ display: overlayMessagesState.length ? 'flex' : 'none' }} aria-hidden={!overlayMessagesState.length}>
-        <div className="chat-card">
-          <div className="chat-card-header">法律精靈四方會議</div>
-          <div className="chat-card-messages" ref={overlayScrollRef}>
-            {overlayMessagesState.map((m, i) => (
-              <div key={m.id} className={`overlay-message ${m.role === 'user' ? 'user' : 'agent'}`}>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-                  <img src={avatarMap[m.avatarKey] || xiaojinglin} alt={m.speaker} style={{ width: 36, height: 36, borderRadius: 8 }} />
-                  <div style={{ flex: 1 }}>
-                    <div className="overlay-sender">{m.speaker}</div>
-                    <div className="overlay-text" style={{ animationDelay: `${i * 120}ms` }}>{m.text}</div>
+      {/* welcome 音頻手動播放按鈕（在 autoplay 被阻止時顯示） */}
+      {!welcomeAudioAllowed && (
+        <button
+          className="welcome-play"
+          onClick={async (e) => {
+            e.stopPropagation();
+            try {
+              await welcomeAudioRef.current?.play();
+              setWelcomeAudioAllowed(true);
+              setWelcomeAudioError(null);
+            } catch (err) {
+              setWelcomeAudioError(err?.message || 'play failed');
+            }
+          }}
+          style={{ position: 'fixed', right: 18, top: 18, zIndex: 200 }}
+        >
+          ▶︎ 播放歡迎語音
+        </button>
+      )}
+      {/* 圆桌会话 overlay（Round-table） */}
+      <div className="roundtable-overlay" style={{ display: overlayMessagesState.length ? 'flex' : 'none' }} aria-hidden={!overlayMessagesState.length}>
+        <style>{`
+          .roundtable-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 80; pointer-events: auto; }
+          .roundtable-card {position: absolute; top: -50px;border-radius: 20%; background: rgba(255, 255, 255, 0.96); width: min(760px, 92%); max-height: 86vh; position: relative; display: flex; align-items: center; justify-content: center; }
+          .center-title{border-radius: 20%; background: rgba(255, 255, 255, 0.96)}
+          .roundtable-center {position: absolute;top: -340px;left: 7px;width: 790px; height: 745px; border-radius: 50%;  display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; }
+          .roundtable-center .center-text {border-radius: 10%; background: rgba(200, 200, 200, 0.6); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); width: 80%; height: 80%; overflow:auto; padding:8px; text-align:left; }
+          /* hide scrollbar but keep scroll functionality */
+          .roundtable-center .center-text::-webkit-scrollbar { width: 0; height: 0; }
+          .roundtable-center .center-text { -ms-overflow-style: none; scrollbar-width: none; }
+
+          /* message layout and entrance animations */
+          .rt-message { display:flex; align-items:flex-start; gap:8px; width:100%; max-width:720px; box-sizing:border-box; }
+          .rt-avatar { width:40px; flex-shrink:0; }
+          .rt-body { flex:1; display:flex; flex-direction:column; align-items:flex-start; }
+          .rt-sender { font-size:12px; color:#333; margin-bottom:6px; }
+
+          /* floating sender name near avatar */
+          .rt-sender-floating { position: absolute; font-size:12px; color:#222; background: rgba(255,255,255,0.92); padding:4px 8px; border-radius:8px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); pointer-events: none; }
+          .msg-left .rt-sender-floating { transform-origin:left center; left: 56px; top: -6px; animation: nameSlideLeft 420ms cubic-bezier(.2,.9,.2,1) both; }
+          .msg-right .rt-sender-floating { transform-origin:right center; right: 56px; top: -6px; animation: nameSlideRight 420ms cubic-bezier(.2,.9,.2,1) both; }
+
+          @keyframes nameSlideLeft { from { opacity:0; transform: translateX(-10px) scale(.98); } to { opacity:1; transform: translateX(0) scale(1); } }
+          @keyframes nameSlideRight { from { opacity:0; transform: translateX(10px) scale(.98); } to { opacity:1; transform: translateX(0) scale(1); } }
+
+          .center-message { background: rgba(250,250,250,0.9); padding:10px 12px; border-radius:12px; display:inline-block; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
+
+          /* left / right variants */
+          .msg-left { justify-content:flex-start; transform-origin:left center; animation: slideInLeft 360ms cubic-bezier(.2,.9,.2,1) both; }
+          .msg-right { justify-content:flex-end; flex-direction:row-reverse; transform-origin:right center; animation: slideInRight 360ms cubic-bezier(.2,.9,.2,1) both; }
+
+          @keyframes slideInLeft { from { opacity:0; transform: translateX(-26px) scale(0.98); } to { opacity:1; transform: translateX(0) scale(1); } }
+          @keyframes slideInRight { from { opacity:0; transform: translateX(26px) scale(0.98); } to { opacity:1; transform: translateX(0) scale(1); } }
+          .roundtable-agents { position: absolute; inset: 0; pointer-events: none; }
+          .agent-node { position: absolute; width: 84px; height: 84px; border-radius: 50%; display:flex; align-items:center; justify-content:center; transition: transform 300ms cubic-bezier(.2,.9,.2,1), box-shadow 300ms; pointer-events: auto; }
+          .agent-node img { width: 64px; height:64px; border-radius:50%; object-fit:cover; }
+          .agent-node .name { position: absolute; top: 92px; width: 120px; left: 50%; transform: translateX(-50%); text-align:center; font-size:12px; color:#222; }
+          .agent-speaking { transform: scale(1.18) translateY(-6px);background: rgba(255, 255, 255, 0.15); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3);}
+          .agent-stretch { transition: transform 420ms cubic-bezier(.2,.9,.2,1); transform: scaleX(1.22) scaleY(1.22); }
+          .center-message { background: rgba(250,250,250,0.9); padding:10px 12px; border-radius:12px; display:inline-block; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
+          .name{border-radius: 40%; background: rgba(206, 206, 206, 0.9); }
+        `}</style>
+        <div className="roundtable-card">
+          <div className="roundtable-agents" aria-hidden="false">
+            {overlayParticipants.map((p, i) => {
+              // position agents evenly around circle
+              const angle = (i / overlayParticipants.length) * Math.PI * 2 - Math.PI / 2;
+              const radius = 385;
+              const left = `calc(50% + ${Math.cos(angle) * radius}px)`;
+              const top = `calc(50% + ${Math.sin(angle) * radius}px)`;
+              const isSpeaking = speakingAgentId === p.id;
+              return (
+                <div key={p.id} className={`agent-node ${isSpeaking ? 'agent-speaking' : ''} ${isSpeaking ? 'agent-stretch' : ''}`} style={{ left, top }}>
+                  <img src={avatarMap[p.avatarKey] || xiaojinglin} alt={p.name} />
+                  <div className="name">{p.name}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="roundtable-center" role="dialog" aria-label="圓桌會議">
+            <div className="center-title">法律精靈圓桌會議</div>
+            <div className="center-text" ref={overlayScrollRef}>
+              {overlayMessagesState.map((m, mi) => (
+                <div key={m.id} className={`rt-message ${m.side === 'left' ? 'msg-left' : 'msg-right'}`} style={{ marginBottom: 10 }}>
+                  <div className={`rt-avatar`}>
+                    <img src={avatarMap[m.avatarKey] || xiaojinglin} alt={m.speaker} style={{ width: 36, height: 36, borderRadius: 18 }} />
+                  </div>
+                  {/* floating sender name placed near avatar and animated per-side */}
+                  <div className="rt-sender-floating">{m.speaker}</div>
+                  <div className={`rt-body`}>
+                    <div className={`center-message`}>{m.text}</div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
