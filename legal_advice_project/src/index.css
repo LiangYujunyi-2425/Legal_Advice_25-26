@@ -346,11 +346,11 @@ button:focus-visible {
 
 .center-bubble {
   position: fixed;
-  left: 55%;
+  left: 50%;
   top: 50%;
   transform: translate(-50%, -50%) scale(0.9);
-  width: min(1000px, 92%);
-  max-width: 1000px;
+  width: min(1100px, 92%);
+  max-width: 1200px;
   height: min(78vh, 720px);
   /* stronger frosted glass base */
   background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.28));
@@ -552,7 +552,7 @@ button:focus-visible {
 /* 右側 AI 小表情 */
 .ai-face{
   position: fixed;
-  right: 40px;
+  right: 50px;
   top: 18%;
   width: 84px;
   height: 84px;
