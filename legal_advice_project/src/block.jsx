@@ -91,8 +91,9 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     // helper: type one message char-by-char and animate speaker
     const typeMessage = (m, idx, perChar = 28) => {
       return new Promise((resolve) => {
-        // add message entry with empty display text
-        setOverlayMessagesState(prev => [...prev, { id: m.id || Date.now() + idx, speaker: m.speakerName, role: m.role, text: '', avatarKey: m.avatarKey }]);
+        // add message entry with empty display text and alternating side (left/right)
+        const side = (idx % 2 === 0) ? 'left' : 'right';
+        setOverlayMessagesState(prev => [...prev, { id: m.id || Date.now() + idx, speaker: m.speakerName, role: m.role, text: '', avatarKey: m.avatarKey, side }]);
         // find participant id to map speaking animation
         const p = parts.find(p => (p.avatarKey === m.avatarKey) || (p.name === m.speakerName));
         const speakingId = p?.id || null;
@@ -428,8 +429,26 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           .roundtable-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 80; pointer-events: auto; }
           .roundtable-card {position: absolute; top: -50px;border-radius: 20%; background: rgba(255, 255, 255, 0.96); width: min(760px, 92%); max-height: 86vh; position: relative; display: flex; align-items: center; justify-content: center; }
           .center-title{border-radius: 20%; background: rgba(255, 255, 255, 0.96)}
-          .roundtable-center {position: absolute;top: -320px;left: 50px;width: 700px; height: 700px; border-radius: 50%;  display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; }
+          .roundtable-center {position: absolute;top: -335px;left: 0px;width: 800px; height: 750px; border-radius: 50%;  display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; }
           .roundtable-center .center-text {border-radius: 10%; background: rgba(255, 255, 255, 0.96);box-shadow: 0 10px 40px rgba(0,0,0,0.18); width: 80%; height: 80%; overflow:auto; padding:8px; text-align:left; }
+          /* hide scrollbar but keep scroll functionality */
+          .roundtable-center .center-text::-webkit-scrollbar { width: 0; height: 0; }
+          .roundtable-center .center-text { -ms-overflow-style: none; scrollbar-width: none; }
+
+          /* message layout and entrance animations */
+          .rt-message { display:flex; align-items:flex-start; gap:8px; width:100%; max-width:720px; box-sizing:border-box; }
+          .rt-avatar { width:40px; flex-shrink:0; }
+          .rt-body { flex:1; display:flex; flex-direction:column; align-items:flex-start; }
+          .rt-sender { font-size:12px; color:#333; margin-bottom:6px; }
+
+          .center-message { background: rgba(250,250,250,0.9); padding:10px 12px; border-radius:12px; display:inline-block; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
+
+          /* left / right variants */
+          .msg-left { justify-content:flex-start; transform-origin:left center; animation: slideInLeft 360ms cubic-bezier(.2,.9,.2,1) both; }
+          .msg-right { justify-content:flex-end; flex-direction:row-reverse; transform-origin:right center; animation: slideInRight 360ms cubic-bezier(.2,.9,.2,1) both; }
+
+          @keyframes slideInLeft { from { opacity:0; transform: translateX(-26px) scale(0.98); } to { opacity:1; transform: translateX(0) scale(1); } }
+          @keyframes slideInRight { from { opacity:0; transform: translateX(26px) scale(0.98); } to { opacity:1; transform: translateX(0) scale(1); } }
           .roundtable-agents { position: absolute; inset: 0; pointer-events: none; }
           .agent-node { position: absolute; width: 84px; height: 84px; border-radius: 50%; display:flex; align-items:center; justify-content:center; transition: transform 300ms cubic-bezier(.2,.9,.2,1), box-shadow 300ms; pointer-events: auto; }
           .agent-node img { width: 64px; height:64px; border-radius:50%; object-fit:cover; }
@@ -443,7 +462,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             {overlayParticipants.map((p, i) => {
               // position agents evenly around circle
               const angle = (i / overlayParticipants.length) * Math.PI * 2 - Math.PI / 2;
-              const radius = 360;
+              const radius = 380;
               const left = `calc(50% + ${Math.cos(angle) * radius}px)`;
               const top = `calc(50% + ${Math.sin(angle) * radius}px)`;
               const isSpeaking = speakingAgentId === p.id;
@@ -459,14 +478,14 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           <div className="roundtable-center" role="dialog" aria-label="圓桌會議">
             <div className="center-title">法律精靈圓桌會議</div>
             <div className="center-text" ref={overlayScrollRef}>
-              {overlayMessagesState.map((m) => (
-                <div key={m.id} style={{ marginBottom: 10, display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-                  <div style={{ width: 40, flexShrink: 0 }}>
+              {overlayMessagesState.map((m, mi) => (
+                <div key={m.id} className={`rt-message ${m.side === 'left' ? 'msg-left' : 'msg-right'}`} style={{ marginBottom: 10 }}>
+                  <div className={`rt-avatar`}>
                     <img src={avatarMap[m.avatarKey] || xiaojinglin} alt={m.speaker} style={{ width: 36, height: 36, borderRadius: 18 }} />
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 12, color: '#333', marginBottom: 4 }}>{m.speaker}</div>
-                    <div className="center-message">{m.text}</div>
+                  <div className={`rt-body`}>
+                    <div className="rt-sender">{m.speaker}</div>
+                    <div className={`center-message`}>{m.text}</div>
                   </div>
                 </div>
               ))}
