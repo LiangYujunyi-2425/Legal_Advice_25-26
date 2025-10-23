@@ -441,6 +441,14 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           .rt-body { flex:1; display:flex; flex-direction:column; align-items:flex-start; }
           .rt-sender { font-size:12px; color:#333; margin-bottom:6px; }
 
+          /* floating sender name near avatar */
+          .rt-sender-floating { position: absolute; font-size:12px; color:#222; background: rgba(255,255,255,0.92); padding:4px 8px; border-radius:8px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); pointer-events: none; }
+          .msg-left .rt-sender-floating { transform-origin:left center; left: 56px; top: -6px; animation: nameSlideLeft 420ms cubic-bezier(.2,.9,.2,1) both; }
+          .msg-right .rt-sender-floating { transform-origin:right center; right: 56px; top: -6px; animation: nameSlideRight 420ms cubic-bezier(.2,.9,.2,1) both; }
+
+          @keyframes nameSlideLeft { from { opacity:0; transform: translateX(-10px) scale(.98); } to { opacity:1; transform: translateX(0) scale(1); } }
+          @keyframes nameSlideRight { from { opacity:0; transform: translateX(10px) scale(.98); } to { opacity:1; transform: translateX(0) scale(1); } }
+
           .center-message { background: rgba(250,250,250,0.9); padding:10px 12px; border-radius:12px; display:inline-block; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
 
           /* left / right variants */
@@ -483,8 +491,9 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
                   <div className={`rt-avatar`}>
                     <img src={avatarMap[m.avatarKey] || xiaojinglin} alt={m.speaker} style={{ width: 36, height: 36, borderRadius: 18 }} />
                   </div>
+                  {/* floating sender name placed near avatar and animated per-side */}
+                  <div className="rt-sender-floating">{m.speaker}</div>
                   <div className={`rt-body`}>
-                    <div className="rt-sender">{m.speaker}</div>
                     <div className={`center-message`}>{m.text}</div>
                   </div>
                 </div>
