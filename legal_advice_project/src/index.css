@@ -337,11 +337,11 @@ button:focus-visible {
 
 .center-bubble {
   position: fixed;
-  left: 50%;
+  left: 55%;
   top: 50%;
   transform: translate(-50%, -50%) scale(0.9);
-  width: min(720px, 92%);
-  max-width: 900px;
+  width: min(1000px, 92%);
+  max-width: 1000px;
   height: min(78vh, 720px);
   /* stronger frosted glass base */
   background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.28));

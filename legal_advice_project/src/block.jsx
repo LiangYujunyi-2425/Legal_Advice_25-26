@@ -464,6 +464,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           .agent-speaking { transform: scale(1.18) translateY(-6px);background: rgba(255, 255, 255, 0.15); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3);}
           .agent-stretch { transition: transform 420ms cubic-bezier(.2,.9,.2,1); transform: scaleX(1.22) scaleY(1.22); }
           .center-message { background: rgba(250,250,250,0.9); padding:10px 12px; border-radius:12px; display:inline-block; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
+          .name{border-radius: 40%; background: rgba(206, 206, 206, 0.9); }
         `}</style>
         <div className="roundtable-card">
           <div className="roundtable-agents" aria-hidden="false">
