@@ -277,9 +277,9 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     };
   }, []);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
-    const text = input.trim();
+  const sendMessage = async (textArg) => {
+    const text = (typeof textArg === 'string' ? textArg : input).trim();
+    if (!text) return;
     const userMessage = { role: 'user', content: text };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
@@ -389,6 +389,81 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     }
   };
 
+  // --- Web Speech API: 语音识别 (兼容 webkit) ---
+  const [recognizing, setRecognizing] = useState(false);
+  const [selectedLang, setSelectedLang] = useState('yue-HK'); // 默认粤语
+  const recognitionRef = useRef(null);
+  const supportsSpeech = typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition);
+
+  useEffect(() => {
+    if (!supportsSpeech) return;
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const rec = new SR();
+    rec.lang = selectedLang;
+    rec.interimResults = true;
+    rec.continuous = false;
+    rec.maxAlternatives = 1;
+
+    rec.onresult = (ev) => {
+      try {
+        let interim = '';
+        let finalTrans = '';
+        for (let i = ev.resultIndex; i < ev.results.length; ++i) {
+          const res = ev.results[i];
+          const t = (res[0] && res[0].transcript) ? res[0].transcript : '';
+          if (res.isFinal) finalTrans += t;
+          else interim += t;
+        }
+        if (finalTrans) {
+          const combined = (input ? input + ' ' : '') + finalTrans;
+          setInput(combined);
+          // small delay to ensure state update then send
+          setTimeout(() => sendMessage(combined), 80);
+        } else {
+          const combined = (input ? input + ' ' : '') + interim;
+          setInput(combined);
+        }
+      } catch (e) {
+        console.warn('speech onresult error', e);
+      }
+    };
+
+    rec.onerror = (e) => {
+      console.warn('SpeechRecognition error', e);
+      setRecognizing(false);
+    };
+
+    rec.onend = () => {
+      setRecognizing(false);
+    };
+
+    recognitionRef.current = rec;
+    return () => {
+      try { recognitionRef.current?.abort(); } catch (e) {}
+      recognitionRef.current = null;
+    };
+  }, [selectedLang]);
+
+  const startRecognition = () => {
+    if (!supportsSpeech) {
+      setWelcomeAudioError('語音辨識不支援於此瀏覽器');
+      return;
+    }
+    try {
+      recognitionRef.current.lang = selectedLang;
+      recognitionRef.current.start();
+      setRecognizing(true);
+    } catch (e) {
+      // try to recover
+      try { recognitionRef.current?.abort(); recognitionRef.current?.start(); setRecognizing(true); } catch (e2) { setWelcomeAudioError(e2?.message || String(e2)); }
+    }
+  };
+
+  const stopRecognition = () => {
+    try { recognitionRef.current?.stop(); } catch (e) {}
+    setRecognizing(false);
+  };
+
   return (
     <>
       {/* 浮動右下開關 */}
@@ -424,7 +499,27 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             ))}
           </div>
 
-          <div className="chat-input">
+          <div className="chat-input" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button
+              className={`mic-button ${recognizing ? 'recording' : ''}`}
+              onMouseDown={(e) => { e.preventDefault(); startRecognition(); }}
+              onMouseUp={(e) => { e.preventDefault(); stopRecognition(); }}
+              onTouchStart={(e) => { e.preventDefault(); startRecognition(); }}
+              onTouchEnd={(e) => { e.preventDefault(); stopRecognition(); }}
+              onClick={(e) => { e.preventDefault(); if (!recognizing) startRecognition(); else stopRecognition(); }}
+              title={supportsSpeech ? `按住說話 (或點擊開始/停止)。語言: ${selectedLang}` : '瀏覽器不支援語音辨識'}
+              style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.08)', background: recognizing ? '#e74c3c' : undefined, color: recognizing ? '#fff' : undefined }}
+            >
+              {recognizing ? '● 錄音中…' : '🎤 語音'}
+            </button>
+
+            <select value={selectedLang} onChange={(e) => setSelectedLang(e.target.value)} aria-label="選擇語言" style={{ padding: 6, borderRadius: 6 }}>
+              <option value="yue-HK">粤语 (yue-HK)</option>
+              <option value="zh-HK">繁中-香港 (zh-HK)</option>
+              <option value="zh-CN">普通话 (zh-CN)</option>
+              <option value="en-US">English (en-US)</option>
+            </select>
+
             <input
               ref={inputRef}
               type="text"
@@ -432,9 +527,12 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
               placeholder="問我有關合同或法律的問題..."
+              style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.08)' }}
             />
-            <button onClick={sendMessage}>送出</button>
-            <label className="file-label">
+
+            <button onClick={() => sendMessage()} style={{ padding: '6px 10px', borderRadius: 8 }}>送出</button>
+
+            <label className="file-label" style={{ marginLeft: 4 }}>
               📎
               <input className="file-input" type="file" accept="application/pdf" onChange={uploadFile} />
             </label>
