@@ -464,6 +464,64 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     setRecognizing(false);
   };
 
+  // --- Text-to-Speech: 用於讀出 assistant 回覆，優先選擇廣東話/HK 聲音 ---
+  const [ttsEnabled, setTtsEnabled] = useState(true);
+  const ttsVoicesRef = useRef([]);
+  const ttsVoiceRef = useRef(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    const loadVoices = () => {
+      try {
+        const vs = window.speechSynthesis.getVoices() || [];
+        ttsVoicesRef.current = vs;
+        // prefer voices that indicate Cantonese or Hong Kong
+        const pref = vs.find(v => (v.lang && v.lang.toLowerCase().includes('yue')) || (v.lang && v.lang.toLowerCase().includes('hk')) || (v.name && v.name.toLowerCase().includes('canton')));
+        const zhPref = vs.find(v => v.lang && v.lang.toLowerCase().startsWith('zh'));
+        ttsVoiceRef.current = pref || zhPref || vs[0] || null;
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    loadVoices();
+    // some browsers load voices asynchronously
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    return () => { try { window.speechSynthesis.onvoiceschanged = null; } catch (e) {} };
+  }, []);
+
+  const speakText = (text) => {
+    if (!ttsEnabled) return;
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      const v = ttsVoiceRef.current;
+      if (v) u.voice = v;
+      // ensure language hints; some voices require correct lang
+      u.lang = (v && v.lang) ? v.lang : 'zh-HK';
+      u.rate = 1;
+      u.pitch = 1;
+      u.onstart = () => { try { setAiMood('excited'); } catch (e) {} };
+      u.onend = () => { try { setAiMood('neutral'); } catch (e) {} };
+      u.onerror = () => { try { setAiMood('neutral'); } catch (e) {} };
+      window.speechSynthesis.speak(u);
+    } catch (e) {
+      // ignore TTS errors
+      console.warn('TTS error', e);
+    }
+  };
+
+  // 当有新的 assistant 消息时自动读出（粤语优先）
+  useEffect(() => {
+    if (!messages || !messages.length) return;
+    const last = messages[messages.length - 1];
+    if (last && last.role === 'assistant' && last.content) {
+      // small delay to avoid racing with animations
+      setTimeout(() => speakText(last.content), 120);
+    }
+  }, [messages.length]);
+
   return (
     <>
       {/* 浮動右下開關 */}
