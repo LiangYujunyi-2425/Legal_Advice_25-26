@@ -465,7 +465,22 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   };
 
   // --- Text-to-Speech: 用於讀出 assistant 回覆，優先選擇廣東話/HK 聲音 ---
-  const [ttsEnabled, setTtsEnabled] = useState(true);
+  // 默认允许 TTS，但从 localStorage 读取用户偏好以便记住开关状态
+  const [ttsEnabled, setTtsEnabled] = useState(() => {
+    try {
+      const v = localStorage.getItem('ttsEnabled');
+      return v === null ? true : v === 'true';
+    } catch (e) {
+      return true;
+    }
+  });
+  const toggleTts = () => {
+    setTtsEnabled(prev => {
+      const next = !prev;
+      try { localStorage.setItem('ttsEnabled', String(next)); } catch (e) {}
+      return next;
+    });
+  };
   const ttsVoicesRef = useRef([]);
   const ttsVoiceRef = useRef(null);
 
@@ -589,6 +604,21 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             />
 
             <button onClick={() => sendMessage()} style={{ padding: '6px 10px', borderRadius: 8 }}>送出</button>
+
+            {/* TTS 开关：默认开启，点击可关闭/开启并持久化 */}
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleTts(); }}
+              title={ttsEnabled ? '語音播報：開啟（點擊關閉）' : '語音播報：關閉（點擊開啟）'}
+              style={{
+                marginLeft: 6,
+                padding: '6px 10px',
+                borderRadius: 8,
+                border: '1px solid rgba(0,0,0,0.08)',
+                background: ttsEnabled ? '#f0f8ff' : undefined
+              }}
+            >
+              {ttsEnabled ? '🔊 語音開' : '🔇 語音關'}
+            </button>
 
             <label className="file-label" style={{ marginLeft: 4 }}>
               📎
