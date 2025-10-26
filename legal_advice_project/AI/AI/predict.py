@@ -85,8 +85,8 @@ def format_responses_for_judge(responses: Dict[str, str]) -> str:
 def lawyer_template(user_question: str) -> str:
     return f"""
 <instruction>
-你是一名辯護律師，請用專業角度回答，並解釋你的回答。
-如果有控方律師意見。請針對控方律師的回答提出同意或反對，並解釋你的回答。
+你是一名辯護律師，請用專業角度回答用戶的問題，並解釋你的回答。
+如果有控方律師意見。請根據用戶的問題來對控方律師的回答提出同意或反對意見，並解釋你的回答。
 限制:
 - 不超過100字
 </instruction>
@@ -112,7 +112,8 @@ def contract_template(user_question: str, ) -> str:
 def prosecutor_template(user_question: str) -> str:
     return f"""
 <instruction>
-你是一名控方律師，請針對辯護律師的回答提出同意或反對，並解釋你的回答。
+你是一名控方律師，請根據用戶的問題來對辯護律師的回答提出同意或反對意見，並解釋你的回答。
+如果你同意辯護律師的回答，則必須回覆:法官閣下，我沒有意見。
 限制:
 - 不超過100字
 </instruction>
@@ -138,11 +139,11 @@ def Guide_template(user_question: str, memory: Memory) -> str:
     history = "\n".join([f"{m['role']}: {m['content']}" for m in memory.messages[-6:]])
     return f"""
 <instruction>
-你是一名法律顧問助手:小律。
+你是一名法律顧問助手:「小律」。
 當用戶問的問題與法律無關時，請友善地向用戶打招呼和自我介紹，
 並友善地提醒他聚焦在法律或合約相關的問題。
 限制:
-- 在回答最後加上:非專業法律意見，如需要法律援助請尋求專門人士協助。
+- 必須在回答最後加上:「非專業法律意見，如需要法律援助請尋求專門人士協助。」
 </instruction>
 <question>
 對話歷史：{history}
@@ -257,14 +258,7 @@ def orchestrate(text: str, memory: Memory) -> Dict[str, Any]:
     elapsed = round(time.time() - start, 3)
     return {"agent_used": agent_name, "result": result, "latency_sec": elapsed}
 
-def text_overlap_ratio(a: str, b: str) -> float:
-    a_set = set(a.split())
-    b_set = set(b.split())
-    inter = a_set & b_set
-    union = a_set | b_set
-    return len(inter) / max(len(union), 1)
-
-def negotiate_stream(user_question: str, memory: Memory, max_rounds: int = 4, tolerance: float = 0.6):
+def negotiate_stream(user_question: str, memory: Memory, max_rounds: int = 5):
     responses: Dict[str, str] = {}
 
     # 第一輪
@@ -286,7 +280,7 @@ def negotiate_stream(user_question: str, memory: Memory, max_rounds: int = 4, to
         responses[f"prosecutor_r{r}"] = prosecutor_reply
         yield f"data: {json.dumps({'agent': 'Prosecutor', 'round': r, 'output': prosecutor_reply}, ensure_ascii=False)}\n\n"
 
-        if text_overlap_ratio(responses[f"lawyer_r{r}"], responses[f"prosecutor_r{r}"]) >= tolerance:
+        if "沒有意見" in prosecutor_reply or "同意" in prosecutor_reply:
             break
 
     # 法官總結
