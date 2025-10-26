@@ -16,6 +16,8 @@ model = Gemma3ForConditionalGeneration.from_pretrained(
 print("🔹 套用 LoRA adapter...")
 model = PeftModel.from_pretrained(model, adapter_model_path)
 
+adapter_model_path = "./smelts/checkpoint-26000"
+
 print("🔹 合併 LoRA 權重...")
 model = model.merge_and_unload()
 
