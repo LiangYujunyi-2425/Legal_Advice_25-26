@@ -32,3 +32,19 @@ If you are developing a production application, we recommend using TypeScript wi
 
 **如果pip版本出现outdated情况，请运行以下指令：
 python3 -m pip install --upgrade pip
+
+语音控制功能
+---------------
+
+项目内置一个可选的「語音指令控制」功能，支持在浏览器中通过说中文命令来触发页面动作。当前支持的命令示例：
+
+- 「打开合同上传」「上传合同」「打开上传」 → 会打开聊天右下的附件上传对话并弹出文件选择。
+- 「启动AI助手」「打开AI助手」 → 会展开 AI 聊天窗口（法律助理）。
+
+使用方法：在页面右下角点击「語音：關」切换为「語音：開」后，浏览器会开始监听命令。
+
+注意事项：
+- 语音识别依赖浏览器的 Web Speech API（部分浏览器/平台不支援）。建议使用 Chrome / Edge 的最新版本以获得最佳体验。
+- 该功能会要求麦克风权限，用户需允许浏览器访问麦克风。
+- 当前默认识别语言设为粤语 (yue-HK)。如果你的浏览器不支持粤语识别，Hook 会使用所提供的语言设置；在不支持时可能需要切换为普通话 `zh-HK` / `zh-CN` 或英文 `en-US`。
+- 若功能不工作，请确认浏览器支持 SpeechRecognition（可在 DevTools 控制台查看错误）。

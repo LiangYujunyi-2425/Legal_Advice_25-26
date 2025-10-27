@@ -464,6 +464,17 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     setRecognizing(false);
   };
 
+  // 当中央泡泡（visible）打开时，自动启动语音识别；关闭时停止。
+  // 注意：某些浏览器要求用户手势才能开启麦克风访问，若被浏览器阻止，用户需手动点击语音按钮。
+  useEffect(() => {
+    if (visible) {
+      try { startRecognition(); } catch (e) { /* ignore */ }
+    } else {
+      try { stopRecognition(); } catch (e) { /* ignore */ }
+    }
+    // 仅在 visible 变化时触发
+  }, [visible]);
+
   // --- Text-to-Speech: 用於讀出 assistant 回覆，優先選擇廣東話/HK 聲音 ---
   // 默认允许 TTS，但从 localStorage 读取用户偏好以便记住开关状态
   const [ttsEnabled, setTtsEnabled] = useState(() => {
@@ -536,6 +547,44 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       setTimeout(() => speakText(last.content), 120);
     }
   }, [messages.length]);
+
+  // 监听全局语音命令事件（由 useVoiceCommands 发出）
+  useEffect(() => {
+    const onOpenUpload = (e) => {
+      try {
+        // 确保中央泡泡打开并放大以便使用者看到上传区域
+        try { setVisible(true); } catch (err) {}
+        try { setIsIslandExpanded(true); } catch (err) {}
+        // 等待短暫時間讓 DOM 更新並聚焦，再觸發檔案輸入
+        setTimeout(() => {
+          try {
+            const inp = document.getElementById('rb-file-input') || document.querySelector('.file-input');
+            if (inp) inp.click();
+          } catch (e) { /* ignore */ }
+        }, 140);
+      } catch (err) { /* ignore */ }
+    };
+    const onOpenAi = (e) => {
+      try {
+        setVisible(true);
+        // focus input when opening
+        setTimeout(() => {
+          const el = document.querySelector('.chat-input input[type="text"]');
+          if (el) el.focus();
+        }, 120);
+      } catch (err) { /* ignore */ }
+    };
+    const onGoHome = (e) => { try { window.location.hash = '#/'; } catch (err) {} };
+
+    window.addEventListener('voice:open-upload', onOpenUpload);
+    window.addEventListener('voice:open-ai', onOpenAi);
+    window.addEventListener('voice:go-home', onGoHome);
+    return () => {
+      window.removeEventListener('voice:open-upload', onOpenUpload);
+      window.removeEventListener('voice:open-ai', onOpenAi);
+      window.removeEventListener('voice:go-home', onGoHome);
+    };
+  }, [setVisible]);
 
   return (
     <>
@@ -622,7 +671,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
 
             <label className="file-label" style={{ marginLeft: 4 }}>
               📎
-              <input className="file-input" type="file" accept="application/pdf" onChange={uploadFile} />
+              <input id="rb-file-input" className="file-input" type="file" accept="application/pdf" onChange={uploadFile} />
             </label>
           </div>
         </div>
