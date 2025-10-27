@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 // import reactLogo from './assets/react.svg'
 // import viteLogo from '/vite.svg'
 import Title from './Title'
@@ -19,6 +19,16 @@ function App() {
 
   // start/stop global voice command listener (默认使用粤语 yue-HK)
   useVoiceCommands(voiceEnabled, { lang: 'yue-HK' });
+
+  // 当语音触发打开拍摄功能时，使摄像头模块显示并关闭中央泡泡
+  useEffect(() => {
+    const onOpenCamera = () => {
+      try { setVideoOpen(true); } catch (e) {}
+      try { setDrawerVisible(false); } catch (e) {}
+    };
+    window.addEventListener('voice:open-camera', onOpenCamera);
+    return () => window.removeEventListener('voice:open-camera', onOpenCamera);
+  }, []);
 
   return (
     <>

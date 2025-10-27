@@ -541,8 +541,16 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   useEffect(() => {
     const onOpenUpload = (e) => {
       try {
-        const inp = document.getElementById('rb-file-input') || document.querySelector('.file-input');
-        if (inp) inp.click();
+        // 确保中央泡泡打开并放大以便使用者看到上传区域
+        try { setVisible(true); } catch (err) {}
+        try { setIsIslandExpanded(true); } catch (err) {}
+        // 等待短暫時間讓 DOM 更新並聚焦，再觸發檔案輸入
+        setTimeout(() => {
+          try {
+            const inp = document.getElementById('rb-file-input') || document.querySelector('.file-input');
+            if (inp) inp.click();
+          } catch (e) { /* ignore */ }
+        }, 140);
       } catch (err) { /* ignore */ }
     };
     const onOpenAi = (e) => {

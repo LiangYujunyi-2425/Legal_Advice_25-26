@@ -33,7 +33,13 @@ export default function useVoiceCommands(enabled = false, opts = {}) {
       ];
       const goHomePhrases = ['回到首頁', '回到首页', '回首頁', '返主頁', '返首頁'];
 
+      // 新增：拍攝/相機相關語音指令
+      const openCameraPhrases = [
+        '打開拍攝功能', '打开拍摄功能', '打开拍摄', '打開拍攝', '打开相机', '打開相機', '打开拍照', '打開拍照', '開啟拍攝', '開啟相機'
+      ];
+
       if (openUploadPhrases.some(p => t.includes(p))) return 'open-upload';
+      if (openCameraPhrases.some(p => t.includes(p))) return 'open-camera';
       if (openAIPhrases.some(p => t.includes(p))) return 'open-ai';
       if (goHomePhrases.some(p => t.includes(p))) return 'go-home';
       return null;
