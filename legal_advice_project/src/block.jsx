@@ -464,6 +464,17 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     setRecognizing(false);
   };
 
+  // 当中央泡泡（visible）打开时，自动启动语音识别；关闭时停止。
+  // 注意：某些浏览器要求用户手势才能开启麦克风访问，若被浏览器阻止，用户需手动点击语音按钮。
+  useEffect(() => {
+    if (visible) {
+      try { startRecognition(); } catch (e) { /* ignore */ }
+    } else {
+      try { stopRecognition(); } catch (e) { /* ignore */ }
+    }
+    // 仅在 visible 变化时触发
+  }, [visible]);
+
   // --- Text-to-Speech: 用於讀出 assistant 回覆，優先選擇廣東話/HK 聲音 ---
   // 默认允许 TTS，但从 localStorage 读取用户偏好以便记住开关状态
   const [ttsEnabled, setTtsEnabled] = useState(() => {
