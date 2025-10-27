@@ -793,6 +793,8 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     if (!ttsEnabled) return;
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
     try {
+      // stop any ongoing recognition to avoid mic feedback during TTS
+      try { stopRecognition(); } catch (e) { /* ignore */ }
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
       const v = ttsVoiceRef.current;
@@ -802,7 +804,18 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       u.rate = 1;
       u.pitch = 1;
       u.onstart = () => { try { setAiMood('excited'); } catch (e) {} };
-      u.onend = () => { try { setAiMood('neutral'); } catch (e) {} };
+      u.onend = () => {
+        try { setAiMood('neutral'); } catch (e) {}
+        // After speech finished, attempt to restart recognition if supported
+        try {
+          if (supportsSpeech && visible) {
+            // small delay to avoid racing with other UI updates
+            setTimeout(() => {
+              try { startRecognition(); } catch (e) { /* ignore start errors (may require user gesture) */ }
+            }, 260);
+          }
+        } catch (e) { /* ignore */ }
+      };
       u.onerror = () => { try { setAiMood('neutral'); } catch (e) {} };
       window.speechSynthesis.speak(u);
     } catch (e) {
