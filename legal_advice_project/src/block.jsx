@@ -537,6 +537,36 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     }
   }, [messages.length]);
 
+  // 监听全局语音命令事件（由 useVoiceCommands 发出）
+  useEffect(() => {
+    const onOpenUpload = (e) => {
+      try {
+        const inp = document.getElementById('rb-file-input') || document.querySelector('.file-input');
+        if (inp) inp.click();
+      } catch (err) { /* ignore */ }
+    };
+    const onOpenAi = (e) => {
+      try {
+        setVisible(true);
+        // focus input when opening
+        setTimeout(() => {
+          const el = document.querySelector('.chat-input input[type="text"]');
+          if (el) el.focus();
+        }, 120);
+      } catch (err) { /* ignore */ }
+    };
+    const onGoHome = (e) => { try { window.location.hash = '#/'; } catch (err) {} };
+
+    window.addEventListener('voice:open-upload', onOpenUpload);
+    window.addEventListener('voice:open-ai', onOpenAi);
+    window.addEventListener('voice:go-home', onGoHome);
+    return () => {
+      window.removeEventListener('voice:open-upload', onOpenUpload);
+      window.removeEventListener('voice:open-ai', onOpenAi);
+      window.removeEventListener('voice:go-home', onGoHome);
+    };
+  }, [setVisible]);
+
   return (
     <>
       {/* 浮動右下開關 */}
@@ -622,7 +652,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
 
             <label className="file-label" style={{ marginLeft: 4 }}>
               📎
-              <input className="file-input" type="file" accept="application/pdf" onChange={uploadFile} />
+              <input id="rb-file-input" className="file-input" type="file" accept="application/pdf" onChange={uploadFile} />
             </label>
           </div>
         </div>

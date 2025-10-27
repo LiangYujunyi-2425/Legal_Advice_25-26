@@ -7,6 +7,7 @@ import IntroSprite from './IntroSprite'
 //component名称需要大写
 import RightBlock from './block'
 import RightDecor from './RightDecor'
+import useVoiceCommands from './hooks/useVoiceCommands';
 
 
 
@@ -14,6 +15,10 @@ function App() {
   const [drawerVisible, setDrawerVisible] = useState(true);
   const [videoOpen, setVideoOpen] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+
+  // start/stop global voice command listener (默认使用粤语 yue-HK)
+  useVoiceCommands(voiceEnabled, { lang: 'yue-HK' });
 
   return (
     <>
@@ -29,6 +34,38 @@ function App() {
       <div>
         <Title shrink={drawerVisible} videoOpen={videoOpen} setVideoOpen={setVideoOpen} />
       </div>
+
+      {/* 语音控制开关 (固定在右下角) */}
+      <button
+        onClick={() => {
+          // prefer starting/stopping recognition from the actual click (user gesture)
+          if (!voiceEnabled) {
+            if (typeof window !== 'undefined' && window.startVoiceRecognition) {
+              try { window.startVoiceRecognition(); } catch (e) {}
+            }
+            setVoiceEnabled(true);
+          } else {
+            if (typeof window !== 'undefined' && window.stopVoiceRecognition) {
+              try { window.stopVoiceRecognition(); } catch (e) {}
+            }
+            setVoiceEnabled(false);
+          }
+        }}
+        aria-pressed={voiceEnabled}
+        title="切換語音控制"
+        style={{
+          position: 'fixed',
+          right: 18,
+          bottom: 18,
+          zIndex: 240,
+          padding: '8px 12px',
+          borderRadius: 12,
+          border: '1px solid rgba(0,0,0,0.12)',
+          background: voiceEnabled ? '#4ade80' : '#fff'
+        }}
+      >
+        {voiceEnabled ? '語音：開' : '語音：關'}
+      </button>
 
     </>
   )
