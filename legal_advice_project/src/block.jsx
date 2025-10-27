@@ -389,6 +389,279 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     }
   };
 
+  // ---------------- Camera Scanner (边框引导 + 边缘检测 + 防抖自动拍摄) ----------------
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const scannerVideoRef = useRef(null);
+  const scannerOverlayRef = useRef(null);
+  const scannerHiddenCanvasRef = useRef(null);
+  const scannerProcessRef = useRef({ running: false, raf: null, prevPoly: null, stableCount: 0 });
+
+  const waitForCv = () => new Promise((resolve) => {
+    if (window.cv && window.cv.Mat) return resolve(window.cv);
+    const timer = setInterval(() => {
+      if (window.cv && window.cv.Mat) {
+        clearInterval(timer);
+        resolve(window.cv);
+      }
+    }, 100);
+    // fallback timeout after 8s
+    setTimeout(() => resolve(window.cv), 8000);
+  });
+
+  const openScanner = async () => {
+    setScannerOpen(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+      if (scannerVideoRef.current) {
+        scannerVideoRef.current.srcObject = stream;
+        scannerVideoRef.current.play().catch(() => {});
+      }
+      // start processing loop after cv ready
+      const cv = await waitForCv();
+      startProcessing(cv);
+    } catch (e) {
+      console.warn('无法打开摄像头', e);
+      setMessages(prev => [...prev, { role: 'assistant', content: '❌ 无法访问摄像头，请检查权限或设备。' }]);
+      setScannerOpen(false);
+    }
+  };
+
+  const closeScanner = () => {
+    setScannerOpen(false);
+    stopProcessing();
+    try {
+      const v = scannerVideoRef.current;
+      if (v && v.srcObject) {
+        const tracks = v.srcObject.getTracks();
+        tracks.forEach(t => t.stop());
+        v.srcObject = null;
+      }
+    } catch (e) {}
+  };
+
+  const stopProcessing = () => {
+    const s = scannerProcessRef.current;
+    s.running = false;
+    if (s.raf) cancelAnimationFrame(s.raf);
+    s.raf = null;
+    s.prevPoly = null;
+    s.stableCount = 0;
+  };
+
+  const startProcessing = (cv) => {
+    const s = scannerProcessRef.current;
+    if (s.running) return;
+    s.running = true;
+
+    const process = () => {
+      try {
+        const video = scannerVideoRef.current;
+        const overlay = scannerOverlayRef.current;
+        if (!video || video.readyState < 2) {
+          s.raf = requestAnimationFrame(process);
+          return;
+        }
+
+        const w = video.videoWidth;
+        const h = video.videoHeight;
+        if (!w || !h) { s.raf = requestAnimationFrame(process); return; }
+
+        // draw frame to hidden canvas
+        let hc = scannerHiddenCanvasRef.current;
+        if (!hc) {
+          hc = document.createElement('canvas');
+          scannerHiddenCanvasRef.current = hc;
+        }
+        hc.width = w; hc.height = h;
+        const ctx = hc.getContext('2d');
+        ctx.drawImage(video, 0, 0, w, h);
+        const imgData = ctx.getImageData(0, 0, w, h);
+
+        // OpenCV processing
+        const src = cv.matFromImageData(imgData);
+        const gray = new cv.Mat();
+        cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+        const blurred = new cv.Mat();
+        cv.GaussianBlur(gray, blurred, new cv.Size(5,5), 0);
+        const edges = new cv.Mat();
+        cv.Canny(blurred, edges, 75, 200);
+
+        // find contours
+        const contours = new cv.MatVector();
+        const hierarchy = new cv.Mat();
+        cv.findContours(edges, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
+
+        let bestQuad = null;
+        let bestArea = 0;
+        for (let i = 0; i < contours.size(); i++) {
+          const cnt = contours.get(i);
+          const peri = cv.arcLength(cnt, true);
+          const approx = new cv.Mat();
+          cv.approxPolyDP(cnt, approx, 0.02 * peri, true);
+          if (approx.rows === 4) {
+            const area = Math.abs(cv.contourArea(approx));
+            if (area > bestArea) {
+              bestArea = area;
+              // extract points
+              const pts = [];
+              for (let r = 0; r < 4; r++) {
+                pts.push({ x: approx.intPtr(r,0)[0], y: approx.intPtr(r,0)[1] });
+              }
+              bestQuad = pts;
+            }
+          }
+          approx.delete(); cnt.delete();
+        }
+
+        // cleanup
+        src.delete(); gray.delete(); blurred.delete(); edges.delete(); contours.delete(); hierarchy.delete();
+
+        // draw overlay
+        if (!overlay || !overlay.getContext) {
+          s.raf = requestAnimationFrame(process);
+          return;
+        }
+        const octx = overlay.getContext('2d');
+        // ensure overlay internal size matches video frame size (1:1 mapping)
+        // and CSS size matches displayed video rect so drawing aligns visually
+        const vRect = video.getBoundingClientRect();
+        try {
+          overlay.style.width = `${Math.max(1, Math.round(vRect.width))}px`;
+          overlay.style.height = `${Math.max(1, Math.round(vRect.height))}px`;
+        } catch (e) {}
+        overlay.width = w;
+        overlay.height = h;
+        octx.clearRect(0,0,overlay.width,overlay.height);
+        octx.save();
+        // scale video->overlay (usually 1 if overlay.width===w)
+        const scaleX = overlay.width / w; const scaleY = overlay.height / h;
+        octx.strokeStyle = 'lime'; octx.lineWidth = 3; octx.fillStyle = 'rgba(0,0,0,0)';
+
+        if (bestQuad && bestArea > (w*h*0.05)) {
+          // draw polygon
+          octx.beginPath();
+          bestQuad.forEach((p,idx) => {
+            const x = p.x * scaleX; const y = p.y * scaleY;
+            if (idx===0) octx.moveTo(x,y); else octx.lineTo(x,y);
+          });
+          octx.closePath(); octx.stroke();
+
+          // compute centroid to check stability
+          const cx = bestQuad.reduce((s,p)=>s+p.x,0)/4;
+          const cy = bestQuad.reduce((s,p)=>s+p.y,0)/4;
+          const prev = s.prevPoly;
+          let stable = false;
+          if (prev) {
+            const dx = Math.hypot(prev.cx - cx, prev.cy - cy);
+            const da = Math.abs(prev.area - bestArea);
+            if (dx < Math.max(w,h)*0.01 && da < w*h*0.01) {
+              s.stableCount++;
+            } else {
+              s.stableCount = 0;
+            }
+          } else s.stableCount = 0;
+          s.prevPoly = { cx, cy, area: bestArea };
+
+          // show stability hint
+          octx.fillStyle = 'rgba(0,0,0,0.35)';
+          octx.font = '14px sans-serif';
+          octx.fillText(`检测到纸张 (稳定帧: ${s.stableCount})`, 12, 20);
+
+          // auto-capture when stable for several frames
+          if (s.stableCount >= 6) {
+            // perform capture
+            captureFromHiddenCanvas(hc, bestQuad, w, h);
+            s.stableCount = 0;
+            // small pause
+            setTimeout(() => {}, 400);
+          }
+        } else {
+          // draw guidance rectangle center (use CSS-visible area scaled from internal pixels)
+          const gw = overlay.width * 0.78; const gh = overlay.height * 0.6;
+          const gx = (overlay.width - gw)/2; const gy = (overlay.height - gh)/2;
+          octx.strokeStyle = 'rgba(255,255,255,0.8)'; octx.lineWidth = Math.max(2, 2 * Math.max(scaleX, scaleY));
+          octx.setLineDash([6,6]);
+          octx.strokeRect(gx, gy, gw, gh);
+          octx.setLineDash([]);
+          octx.fillStyle = 'rgba(255,255,255,0.95)'; octx.font = `${14 * Math.max(1, Math.min(scaleX, scaleY))}px sans-serif`;
+          // draw label at top-left of overlay (ensure visible)
+          octx.fillText('将纸张尽量放入虚线框内，保持相机稳定', 12 * Math.max(1, scaleX), 22 * Math.max(1, scaleY));
+        }
+
+        octx.restore();
+      } catch (e) {
+        console.warn('scanner process err', e);
+      }
+      s.raf = requestAnimationFrame(process);
+    };
+
+    process();
+  };
+
+  const captureFromHiddenCanvas = async (hiddenCanvas, quad, vw, vh) => {
+    try {
+      // warp perspective to rectangle
+      const dstW = 1200, dstH = 1600; // target output size (portrait)
+      const cv = window.cv;
+      const src = cv.imread(hiddenCanvas);
+      const dst = new cv.Mat();
+      // source points in correct order: convert quad to [tl,tr,br,bl]
+      // naive ordering by y then x
+      const sorted = quad.slice().sort((a,b)=>a.y-b.y);
+      const top = sorted.slice(0,2).sort((a,b)=>a.x-b.x);
+      const bot = sorted.slice(2,4).sort((a,b)=>a.x-b.x);
+      const srcPts = cv.matFromArray(4,1,cv.CV_32FC2,[top[0].x,top[0].y, top[1].x,top[1].y, bot[1].x,bot[1].y, bot[0].x,bot[0].y]);
+      const dstPts = cv.matFromArray(4,1,cv.CV_32FC2,[0,0, dstW,0, dstW,dstH, 0,dstH]);
+      const M = cv.getPerspectiveTransform(srcPts, dstPts);
+      cv.warpPerspective(src, dst, M, new cv.Size(dstW, dstH));
+
+      // convert dst to blob via canvas
+      const outCanvas = document.createElement('canvas');
+      outCanvas.width = dstW; outCanvas.height = dstH;
+      cv.imshow(outCanvas, dst);
+      dst.delete(); src.delete(); srcPts.delete(); dstPts.delete(); M.delete();
+
+      outCanvas.toBlob(async (blob) => {
+        if (!blob) return;
+        // reuse upload flow: send to API_URL/analyze
+        const form = new FormData();
+        form.append('file', blob, 'scan.jpg');
+        try {
+          const resp = await fetch(`${API_URL}/analyze`, { method: 'POST', body: form });
+          const data = await resp.json();
+          setMessages(prev => [...prev, { role: 'assistant', content: `📄 掃描並分析完成：\n\n摘要：${data.summary || '無摘要'}` }]);
+          closeScanner();
+        } catch (err) {
+          console.error('upload scanned image failed', err);
+          setMessages(prev => [...prev, { role: 'assistant', content: '❌ 掃描上傳失敗，請稍後再試。' }]);
+        }
+      }, 'image/jpeg', 0.9);
+    } catch (e) {
+      console.warn('capture error', e);
+    }
+  };
+
+  const manualCapture = async () => {
+    try {
+      const hc = scannerHiddenCanvasRef.current;
+      if (!hc) return;
+      hc.toBlob(async (blob) => {
+        if (!blob) return;
+        const form = new FormData();
+        form.append('file', blob, 'manual_scan.jpg');
+        try {
+          const resp = await fetch(`${API_URL}/analyze`, { method: 'POST', body: form });
+          const data = await resp.json();
+          setMessages(prev => [...prev, { role: 'assistant', content: `📄 手動拍照並分析完成：\n\n摘要：${data.summary || '無摘要'}` }]);
+          closeScanner();
+        } catch (err) {
+          console.error('manual upload failed', err);
+          setMessages(prev => [...prev, { role: 'assistant', content: '❌ 手動上傳失敗' }]);
+        }
+      }, 'image/jpeg', 0.9);
+    } catch (e) { console.warn('manual capture error', e); }
+  };
+
   // --- Web Speech API: 语音识别 (兼容 webkit) ---
   const [recognizing, setRecognizing] = useState(false);
   const [selectedLang, setSelectedLang] = useState('yue-HK'); // 默认粤语
@@ -520,6 +793,8 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     if (!ttsEnabled) return;
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
     try {
+      // stop any ongoing recognition to avoid mic feedback during TTS
+      try { stopRecognition(); } catch (e) { /* ignore */ }
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
       const v = ttsVoiceRef.current;
@@ -529,7 +804,18 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       u.rate = 1;
       u.pitch = 1;
       u.onstart = () => { try { setAiMood('excited'); } catch (e) {} };
-      u.onend = () => { try { setAiMood('neutral'); } catch (e) {} };
+      u.onend = () => {
+        try { setAiMood('neutral'); } catch (e) {}
+        // After speech finished, attempt to restart recognition if supported
+        try {
+          if (supportsSpeech && visible) {
+            // small delay to avoid racing with other UI updates
+            setTimeout(() => {
+              try { startRecognition(); } catch (e) { /* ignore start errors (may require user gesture) */ }
+            }, 260);
+          }
+        } catch (e) { /* ignore */ }
+      };
       u.onerror = () => { try { setAiMood('neutral'); } catch (e) {} };
       window.speechSynthesis.speak(u);
     } catch (e) {
@@ -669,6 +955,14 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
               {ttsEnabled ? '🔊 語音開' : '🔇 語音關'}
             </button>
 
+            <button
+              title="使用相機掃描文件"
+              onClick={(e) => { e.stopPropagation(); openScanner(); }}
+              style={{ marginLeft: 6, padding: '6px 10px', borderRadius: 8 }}
+            >
+              📷 掃描
+            </button>
+
             <label className="file-label" style={{ marginLeft: 4 }}>
               📎
               <input id="rb-file-input" className="file-input" type="file" accept="application/pdf" onChange={uploadFile} />
@@ -677,6 +971,22 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
         </div>
       </div>
       {/* AI 表情（跟隨對話情緒變化），若拍照模式中則隱藏 */}
+      {/* Camera Scanner Overlay */}
+      {scannerOpen && (
+        <div className="scanner-overlay" style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '92%', maxWidth: 960, height: '86%', background: '#000', position: 'relative', borderRadius: 12, overflow: 'hidden' }} onClick={(e)=>e.stopPropagation()}>
+            <video ref={scannerVideoRef} style={{ width: '100%', height: '100%', objectFit: 'cover' }} playsInline muted />
+            <canvas ref={scannerOverlayRef} style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', left: 12, top: 12, color: '#fff', fontSize: 13 }}>
+              <div>掃描模式 — 將紙張放入畫面，保持穩定即可自動拍攝</div>
+            </div>
+            <div style={{ position: 'absolute', left: 12, bottom: 12, display: 'flex', gap: 8 }}>
+              <button onClick={(e)=>{ e.stopPropagation(); manualCapture(); }} style={{ padding: '8px 12px', borderRadius: 8 }}>📸 手動拍照</button>
+              <button onClick={(e)=>{ e.stopPropagation(); closeScanner(); }} style={{ padding: '8px 12px', borderRadius: 8 }}>✖ 關閉</button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="ai-face-outer" aria-hidden={!visible || videoOpen}>
         {!videoOpen && (
           <div
