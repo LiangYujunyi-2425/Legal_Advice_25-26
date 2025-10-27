@@ -71,10 +71,11 @@ function App() {
           padding: '8px 12px',
           borderRadius: 12,
           border: '1px solid rgba(0,0,0,0.12)',
-          background: voiceEnabled ? '#4ade80' : '#fff'
+          background: voiceEnabled ? '#dfb632ff' : '#4ade80',
+          boxShadow: '0 12px 30px rgba(0, 0, 0, 0.25)'
         }}
       >
-        {voiceEnabled ? '語音：開' : '語音：關'}
+        {voiceEnabled ? '智能語音辅助' : '关闭語音辅助'}
       </button>
 
     </>
