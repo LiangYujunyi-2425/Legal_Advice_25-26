@@ -517,11 +517,23 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
         src.delete(); gray.delete(); blurred.delete(); edges.delete(); contours.delete(); hierarchy.delete();
 
         // draw overlay
+        if (!overlay || !overlay.getContext) {
+          s.raf = requestAnimationFrame(process);
+          return;
+        }
         const octx = overlay.getContext('2d');
-        overlay.width = overlay.clientWidth; overlay.height = overlay.clientHeight;
+        // ensure overlay internal size matches video frame size (1:1 mapping)
+        // and CSS size matches displayed video rect so drawing aligns visually
+        const vRect = video.getBoundingClientRect();
+        try {
+          overlay.style.width = `${Math.max(1, Math.round(vRect.width))}px`;
+          overlay.style.height = `${Math.max(1, Math.round(vRect.height))}px`;
+        } catch (e) {}
+        overlay.width = w;
+        overlay.height = h;
         octx.clearRect(0,0,overlay.width,overlay.height);
         octx.save();
-        // scale video->overlay
+        // scale video->overlay (usually 1 if overlay.width===w)
         const scaleX = overlay.width / w; const scaleY = overlay.height / h;
         octx.strokeStyle = 'lime'; octx.lineWidth = 3; octx.fillStyle = 'rgba(0,0,0,0)';
 
@@ -564,14 +576,16 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             setTimeout(() => {}, 400);
           }
         } else {
-          // draw guidance rectangle center
+          // draw guidance rectangle center (use CSS-visible area scaled from internal pixels)
           const gw = overlay.width * 0.78; const gh = overlay.height * 0.6;
           const gx = (overlay.width - gw)/2; const gy = (overlay.height - gh)/2;
-          octx.strokeStyle = 'rgba(255,255,255,0.6)'; octx.lineWidth = 2; octx.setLineDash([6,6]);
+          octx.strokeStyle = 'rgba(255,255,255,0.8)'; octx.lineWidth = Math.max(2, 2 * Math.max(scaleX, scaleY));
+          octx.setLineDash([6,6]);
           octx.strokeRect(gx, gy, gw, gh);
           octx.setLineDash([]);
-          octx.fillStyle = 'rgba(255,255,255,0.85)'; octx.font = '14px sans-serif';
-          octx.fillText('将纸张尽量放入虚线框内，保持相机稳定', 12, 22);
+          octx.fillStyle = 'rgba(255,255,255,0.95)'; octx.font = `${14 * Math.max(1, Math.min(scaleX, scaleY))}px sans-serif`;
+          // draw label at top-left of overlay (ensure visible)
+          octx.fillText('将纸张尽量放入虚线框内，保持相机稳定', 12 * Math.max(1, scaleX), 22 * Math.max(1, scaleY));
         }
 
         octx.restore();
