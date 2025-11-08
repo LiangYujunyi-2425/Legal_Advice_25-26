@@ -320,16 +320,21 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             const agentName = chunk.agent || 'Agent';
             const outputText = chunk.output || '';
 
-            // ensure participant exists
+            // ensure participant exists and set them as speaking
+            const avatarKey = (agentName.toLowerCase().includes('lawyer') && 'lawyer')
+              || (agentName.toLowerCase().includes('prosecutor') && 'judge')
+              || (agentName.toLowerCase().includes('judge') && 'judge')
+              || (agentName.toLowerCase().includes('contract') && 'lawyer')
+              || 'judge';
+            const newPart = { id: Date.now() + Math.random(), avatarKey, name: agentName };
             setOverlayParticipants(prev => {
               const exists = prev.find(p => p.name === agentName || p.avatarKey === (agentName.toLowerCase() || ''));
-              if (exists) return prev;
-              const avatarKey = (agentName.toLowerCase().includes('lawyer') && 'lawyer')
-                || (agentName.toLowerCase().includes('prosecutor') && 'judge')
-                || (agentName.toLowerCase().includes('judge') && 'judge')
-                || (agentName.toLowerCase().includes('contract') && 'lawyer')
-                || 'judge';
-              return [...prev, { id: Date.now() + Math.random(), avatarKey, name: agentName }];
+              if (exists) {
+                try { setSpeakingAgentId(exists.id); } catch (e) {}
+                return prev;
+              }
+              try { setSpeakingAgentId(newPart.id); } catch (e) {}
+              return [...prev, newPart];
             });
 
             // append message to overlay (roundtable)
@@ -858,11 +863,15 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
 
           @keyframes slideInLeft { from { opacity:0; transform: translateX(-26px) scale(0.98); } to { opacity:1; transform: translateX(0) scale(1); } }
           @keyframes slideInRight { from { opacity:0; transform: translateX(26px) scale(0.98); } to { opacity:1; transform: translateX(0) scale(1); } }
-          .roundtable-agents { position: absolute; inset: 0; pointer-events: none; top: 75px;}
-          .agent-node { position: absolute; width: 84px; height: 84px; border-radius: 50%; display:flex; align-items:center; justify-content:center; transition: transform 300ms cubic-bezier(.2,.9,.2,1), box-shadow 300ms; pointer-events: auto; }
-          .agent-node img { width: 64px; height:64px; border-radius:50%; object-fit:cover; }
-          .agent-node .name { position: absolute; top: 92px; width: 120px; left: 50%; transform: translateX(-50%); text-align:center; font-size:12px; color:#222; }
-          .agent-speaking { transform: scale(1.18) translateY(-6px);background: rgba(255, 255, 255, 0.15); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3);}
+          .roundtable-agents { position: absolute; inset: 0; pointer-events: none; top: 75px; }
+          /* agent node: centered at (left, top) with translate to truly center the circle layout */
+          .agent-node { position: absolute; width: 84px; height: 84px; border-radius: 50%; display:flex; align-items:center; justify-content:center; transition: transform 300ms cubic-bezier(.2,.9,.2,1), box-shadow 300ms, filter 300ms; pointer-events: auto; z-index: 2; transform: translate(-50%, -50%); }
+          .agent-node img { width: 64px; height:64px; border-radius:50%; object-fit:cover; display:block; }
+          .agent-node .name { position: absolute; top: 98px; width: 140px; left: 50%; transform: translateX(-50%); text-align:center; font-size:12px; color:#222; pointer-events: none; }
+          /* speaking visual: soft radial glow + subtle scale/pulse */
+          .agent-speaking { transform: translate(-50%, -50%) scale(1.12); filter: drop-shadow(0 10px 24px rgba(50,120,255,0.18)); }
+          .agent-speaking::before { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; border-radius: 50%; z-index: 1; pointer-events: none; background: radial-gradient(circle at center, rgba(72,142,255,0.30), rgba(72,142,255,0.08) 40%, transparent 60%); animation: pulseGlow 1400ms ease-out infinite; }
+          @keyframes pulseGlow { 0% { transform: translate(-50%, -50%) scale(0.94); opacity: 0.95 } 50% { transform: translate(-50%, -50%) scale(1.04); opacity: 0.8 } 100% { transform: translate(-50%, -50%) scale(0.98); opacity: 0.9 } }
           .agent-stretch { transition: transform 420ms cubic-bezier(.2,.9,.2,1); transform: scaleX(1.22) scaleY(1.22); }
           .center-message { background: rgba(250,250,250,0.9); padding:10px 12px; border-radius:12px; display:inline-block; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
           .name{border-radius: 40%; background: rgba(206, 206, 206, 0.9); }
@@ -871,10 +880,10 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           <div className="roundtable-agents" aria-hidden="false">
             {overlayParticipants.map((p, i) => {
               // position agents evenly around circle
-              const angle = (i / overlayParticipants.length) * Math.PI * 2 - Math.PI / 2;
-              const radius = 460;
-              const left = `calc(50% + ${Math.cos(angle) * radius}px)`;
-              const top = `calc(50% + ${Math.sin(angle) * radius}px)`;
+              const spacing = 900; // 每個 agent 的水平間距
+              const startX = `calc(50% - ${(overlayParticipants.length - 1) * spacing / 2}px)`;
+              const left = `calc(${startX} + ${i * spacing}px)`;
+              const top = `60%`; // 固定在畫面中下方
               const isSpeaking = speakingAgentId === p.id;
               return (
                 <div key={p.id} className={`agent-node ${isSpeaking ? 'agent-speaking' : ''} ${isSpeaking ? 'agent-stretch' : ''}`} style={{ left, top }}>
@@ -885,7 +894,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             })}
           </div>
 
-          <div className="roundtable-center" role="dialog" aria-label="圓桌會議">
+          <div className={`roundtable-center ${speakingAgentId ? 'agent-active' : ''}`} role="dialog" aria-label="圓桌會議">
             <div className="center-title">法律精靈圓桌會議</div>
             <div className="center-text" ref={overlayScrollRef}>
               {overlayMessagesState.map((m, mi) => (
