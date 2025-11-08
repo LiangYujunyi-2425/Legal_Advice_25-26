@@ -42,7 +42,7 @@ node dev-proxy.js
 ```bash
 npm run dev
 ```
-- 然後在另一個 terminal 啟動ai_data後端：
+- 接著在另一個 terminal 啟動ai_data後端：
 
 ```bash
 node dev-proxy.js
