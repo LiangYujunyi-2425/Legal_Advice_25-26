@@ -344,9 +344,9 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
         // If multi-agent conversation occurred, take the last agent message as the final assistant reply,
         // open the central bubble and show it in the main chat, then clear the roundtable overlay.
         if (multiAgentMessages.length > 0) {
-          const last = multiAgentMessages[multiAgentMessages.length - 1];
-          // append final assistant message
-          setMessages(prev => [...prev, { role: 'assistant', content: last.text }]);
+          const firstAgent = multiAgentMessages[0];
+          // append the FIRST agent message into main chat as the assistant reply (label with agent name)
+          setMessages(prev => [...prev, { role: 'assistant', content: `[${firstAgent.speaker}] ${firstAgent.text}` }]);
           // clear overlay state and restore central bubble
           setOverlayMessagesState([]);
           setOverlayParticipants([]);
