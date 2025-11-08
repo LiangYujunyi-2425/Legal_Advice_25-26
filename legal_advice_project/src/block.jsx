@@ -10,7 +10,7 @@ import welcomeSound from './assets/welcome.mp3';
 import { streamPredict } from './api/predictClient';
 
 // 居中泡泡聊天（保留 API / 上傳 邏輯），帶 banner 波動與右側 AI 表情互動
-const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiMood, setAiMood: propSetAiMood }, ref) => {
+const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiMood, setAiMood: propSetAiMood, voiceEnabled }, ref) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isIslandExpanded, setIsIslandExpanded] = useState(false);
@@ -284,7 +284,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
 
     // push user message and a placeholder assistant message which we'll update while streaming
     const userMessage = { role: 'user', content: text };
-    setMessages(prev => [...prev, userMessage, { role: 'assistant', content: '…' }]);
+    setMessages(prev => [...prev, userMessage, { role: 'assistant', content: 'AI團隊正在分析您的問題…' }]);
     setInput('');
     setAiMood('thinking');
     setSquash(true);
@@ -294,6 +294,8 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     (async () => {
       try {
         let accumulated = '';
+        // collect multi-agent messages locally so we can act on them when stream ends
+        const multiAgentMessages = [];
         for await (const chunk of streamPredict(text, false)) {
           // If backend yields a labeled agent chunk (e.g. {agent: 'Lawyer', output: '...'})
           // render it as a multi-agent roundtable message instead of a single assistant stream.
@@ -314,7 +316,9 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             });
 
             // append message to overlay (roundtable)
-            setOverlayMessagesState(prev => [...prev, { id: Date.now() + Math.random(), speaker: agentName, role: agentName, text: outputText, avatarKey: (agentName.toLowerCase().includes('lawyer') ? 'lawyer' : (agentName.toLowerCase().includes('prosecutor') ? 'judge' : 'xiaojinglin')) }]);
+            const m = { id: Date.now() + Math.random(), speaker: agentName, role: agentName, text: outputText, avatarKey: (agentName.toLowerCase().includes('lawyer') ? 'lawyer' : (agentName.toLowerCase().includes('prosecutor') ? 'judge' : 'xiaojinglin')) };
+            setOverlayMessagesState(prev => [...prev, m]);
+            multiAgentMessages.push(m);
 
             // ensure roundtable overlay is visible (hide central bubble)
             setVisible(false);
@@ -337,6 +341,18 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
         }
 
         // finished streaming
+        // If multi-agent conversation occurred, take the last agent message as the final assistant reply,
+        // open the central bubble and show it in the main chat, then clear the roundtable overlay.
+        if (multiAgentMessages.length > 0) {
+          const last = multiAgentMessages[multiAgentMessages.length - 1];
+          // append final assistant message
+          setMessages(prev => [...prev, { role: 'assistant', content: last.text }]);
+          // clear overlay state and restore central bubble
+          setOverlayMessagesState([]);
+          setOverlayParticipants([]);
+          setVisible(true);
+        }
+
         setAiMood('happy');
         setTimeout(() => setAiMood('neutral'), 900);
       } catch (err) {
@@ -527,16 +543,15 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     setRecognizing(false);
   };
 
-  // 当中央泡泡（visible）打开时，自动启动语音识别；关闭时停止。
+  // 当中央泡泡（visible）打开时，且使用者已开启智能語音輔助（voiceEnabled）才会自动启动语音识别；关闭或关闭语音辅助时停止。
   // 注意：某些浏览器要求用户手势才能开启麦克风访问，若被浏览器阻止，用户需手动点击语音按钮。
   useEffect(() => {
-    if (visible) {
+    if (visible && voiceEnabled) {
       try { startRecognition(); } catch (e) { /* ignore */ }
     } else {
       try { stopRecognition(); } catch (e) { /* ignore */ }
     }
-    // 仅在 visible 变化时触发
-  }, [visible]);
+  }, [visible, voiceEnabled]);
 
   // --- Text-to-Speech: 用於讀出 assistant 回覆，優先選擇廣東話/HK 聲音 ---
   // 默认允许 TTS，但从 localStorage 读取用户偏好以便记住开关状态

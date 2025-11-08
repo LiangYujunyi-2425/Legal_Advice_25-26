@@ -36,7 +36,7 @@ function App() {
   {showIntro && <IntroSprite onClose={() => setShowIntro(false)} />}
       <div id="aria-live" className="sr-only" aria-live="polite" aria-atomic="true"></div>
 
-  <RightBlock visible={drawerVisible} setVisible={setDrawerVisible} videoOpen={videoOpen} />
+  <RightBlock visible={drawerVisible} setVisible={setDrawerVisible} videoOpen={videoOpen} voiceEnabled={voiceEnabled} />
 
   {/* 视觉平衡的右侧装饰 */}
   <RightDecor />
