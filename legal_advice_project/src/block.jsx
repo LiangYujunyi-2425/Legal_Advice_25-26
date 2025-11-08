@@ -101,6 +101,23 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     return lines.join('\n');
   };
 
+  // sanitize agent output: prefer content inside <answer>...</answer>, strip other tags
+  const sanitizeAgentText = (text) => {
+    if (!text) return '';
+    let t = String(text);
+    // prefer explicit <answer> tag
+    const a = t.match(/<answer>([\s\S]*?)<\/answer>/i);
+    if (a && a[1]) t = a[1];
+    // remove instruction/question blocks
+    t = t.replace(/<instruction>[\s\S]*?<\/instruction>/gi, '');
+    t = t.replace(/<question>[\s\S]*?<\/question>/gi, '');
+    // remove any remaining XML-like tags
+    t = t.replace(/<[^>]+>/g, '');
+    // collapse whitespace
+    t = t.replace(/\s+/g, ' ').trim();
+    return t;
+  };
+
   // play conversation into the center overlay (自动触发于 sendMessage)
   const playConversation = (conversation = leaseMessages, speed = 900) => {
     // clear existing timers/intervals
@@ -316,7 +333,8 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             });
 
             // append message to overlay (roundtable)
-            const m = { id: Date.now() + Math.random(), speaker: agentName, role: agentName, text: outputText, avatarKey: (agentName.toLowerCase().includes('lawyer') ? 'lawyer' : (agentName.toLowerCase().includes('prosecutor') ? 'judge' : 'xiaojinglin')) };
+            const cleanText = sanitizeAgentText(outputText);
+            const m = { id: Date.now() + Math.random(), speaker: agentName, role: agentName, text: cleanText, avatarKey: (agentName.toLowerCase().includes('lawyer') ? 'lawyer' : (agentName.toLowerCase().includes('prosecutor') ? 'judge' : 'xiaojinglin')) };
             setOverlayMessagesState(prev => [...prev, m]);
             multiAgentMessages.push(m);
 
@@ -346,7 +364,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
         if (multiAgentMessages.length > 0) {
           const firstAgent = multiAgentMessages[0];
           // append the FIRST agent message into main chat as the assistant reply (label with agent name)
-          setMessages(prev => [...prev, { role: 'assistant', content: `[${firstAgent.speaker}] ${firstAgent.text}` }]);
+          setMessages(prev => [...prev, { role: 'assistant', content: `[${firstAgent.speaker}] ${sanitizeAgentText(firstAgent.text)}` }]);
           // clear overlay state and restore central bubble
           setOverlayMessagesState([]);
           setOverlayParticipants([]);
