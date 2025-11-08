@@ -42,6 +42,11 @@ node dev-proxy.js
 ```bash
 npm run dev
 ```
+- 然後在另一個 terminal 啟動ai_data後端：
+
+```bash
+node dev-proxy.js
+```
 
 代理預設監聽 http://localhost:3000 並轉發到 https://api-452141441389.europe-west1.run.app（若需改目標，可修改 `DEV_PROXY_TARGET` 環境變數）。
 
