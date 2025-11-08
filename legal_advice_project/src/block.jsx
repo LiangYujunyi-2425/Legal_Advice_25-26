@@ -825,7 +825,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
 
           @keyframes slideInLeft { from { opacity:0; transform: translateX(-26px) scale(0.98); } to { opacity:1; transform: translateX(0) scale(1); } }
           @keyframes slideInRight { from { opacity:0; transform: translateX(26px) scale(0.98); } to { opacity:1; transform: translateX(0) scale(1); } }
-          .roundtable-agents { position: absolute; inset: 0; pointer-events: none; }
+          .roundtable-agents { position: absolute; inset: 0; pointer-events: none; top: 75px;}
           .agent-node { position: absolute; width: 84px; height: 84px; border-radius: 50%; display:flex; align-items:center; justify-content:center; transition: transform 300ms cubic-bezier(.2,.9,.2,1), box-shadow 300ms; pointer-events: auto; }
           .agent-node img { width: 64px; height:64px; border-radius:50%; object-fit:cover; }
           .agent-node .name { position: absolute; top: 92px; width: 120px; left: 50%; transform: translateX(-50%); text-align:center; font-size:12px; color:#222; }
@@ -839,7 +839,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             {overlayParticipants.map((p, i) => {
               // position agents evenly around circle
               const angle = (i / overlayParticipants.length) * Math.PI * 2 - Math.PI / 2;
-              const radius = 385;
+              const radius = 460;
               const left = `calc(50% + ${Math.cos(angle) * radius}px)`;
               const top = `calc(50% + ${Math.sin(angle) * radius}px)`;
               const isSpeaking = speakingAgentId === p.id;
