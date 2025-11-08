@@ -7,9 +7,10 @@ import ownerAvatar from './assets/owner.webp';
 import managerAvatar from './assets/property_manager.webp';
 import leaseMessages from './data/leaseMessages';
 import welcomeSound from './assets/welcome.mp3';
+import { streamPredict } from './api/predictClient';
 
 // 居中泡泡聊天（保留 API / 上傳 邏輯），帶 banner 波動與右側 AI 表情互動
-const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiMood, setAiMood: propSetAiMood }, ref) => {
+const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiMood, setAiMood: propSetAiMood, voiceEnabled }, ref) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isIslandExpanded, setIsIslandExpanded] = useState(false);
@@ -98,6 +99,23 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     lines.push('8) 保存證據：保留簽署合約原件、點交表、所有收據與通訊記錄。');
     lines.push('如需，我可以把上述要點轉成合約可用的條款範本，或以繁體/英文輸出。');
     return lines.join('\n');
+  };
+
+  // sanitize agent output: prefer content inside <answer>...</answer>, strip other tags
+  const sanitizeAgentText = (text) => {
+    if (!text) return '';
+    let t = String(text);
+    // prefer explicit <answer> tag
+    const a = t.match(/<answer>([\s\S]*?)<\/answer>/i);
+    if (a && a[1]) t = a[1];
+    // remove instruction/question blocks
+    t = t.replace(/<instruction>[\s\S]*?<\/instruction>/gi, '');
+    t = t.replace(/<question>[\s\S]*?<\/question>/gi, '');
+    // remove any remaining XML-like tags
+    t = t.replace(/<[^>]+>/g, '');
+    // collapse whitespace
+    t = t.replace(/\s+/g, ' ').trim();
+    return t;
   };
 
   // play conversation into the center overlay (自动触发于 sendMessage)
@@ -280,18 +298,99 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   const sendMessage = async (textArg) => {
     const text = (typeof textArg === 'string' ? textArg : input).trim();
     if (!text) return;
+
+    // push user message and a placeholder assistant message which we'll update while streaming
     const userMessage = { role: 'user', content: text };
-    setMessages(prev => [...prev, userMessage]);
+    setMessages(prev => [...prev, userMessage, { role: 'assistant', content: 'AI團隊正在分析您的問題…' }]);
     setInput('');
     setAiMood('thinking');
     setSquash(true);
     setTimeout(() => setSquash(false), 160);
 
-    // collapse 中央泡泡并启动背景泡泡动画流程
-    // play built-in conversation sequence centered on screen
-    // for now, use full leaseMessages as demonstration; later can send to API to generate dynamic replies
-    startBubblesFlow(text);
-    playConversation(leaseMessages);
+    // Stream from remote predict endpoint and update assistant message incrementally
+    (async () => {
+      try {
+        let accumulated = '';
+        // collect multi-agent messages locally so we can act on them when stream ends
+        const multiAgentMessages = [];
+        for await (const chunk of streamPredict(text, false)) {
+          // If backend yields a labeled agent chunk (e.g. {agent: 'Lawyer', output: '...'})
+          // render it as a multi-agent roundtable message instead of a single assistant stream.
+          if (chunk && typeof chunk === 'object' && chunk.agent) {
+            const agentName = chunk.agent || 'Agent';
+            const outputText = chunk.output || '';
+
+            // ensure participant exists and set them as speaking
+            const avatarKey = (agentName.toLowerCase().includes('lawyer') && 'lawyer')
+              || (agentName.toLowerCase().includes('prosecutor') && 'judge')
+              || (agentName.toLowerCase().includes('judge') && 'judge')
+              || (agentName.toLowerCase().includes('contract') && 'lawyer')
+              || 'judge';
+            const newPart = { id: Date.now() + Math.random(), avatarKey, name: agentName };
+            setOverlayParticipants(prev => {
+              const exists = prev.find(p => p.name === agentName || p.avatarKey === (agentName.toLowerCase() || ''));
+              if (exists) {
+                try { setSpeakingAgentId(exists.id); } catch (e) {}
+                return prev;
+              }
+              try { setSpeakingAgentId(newPart.id); } catch (e) {}
+              return [...prev, newPart];
+            });
+
+            // append message to overlay (roundtable)
+            const cleanText = sanitizeAgentText(outputText);
+            const m = { id: Date.now() + Math.random(), speaker: agentName, role: agentName, text: cleanText, avatarKey: (agentName.toLowerCase().includes('lawyer') ? 'lawyer' : (agentName.toLowerCase().includes('prosecutor') ? 'judge' : 'xiaojinglin')) };
+            setOverlayMessagesState(prev => [...prev, m]);
+            multiAgentMessages.push(m);
+
+            // ensure roundtable overlay is visible (hide central bubble)
+            setVisible(false);
+            continue;
+          }
+
+          // otherwise treat as normal assistant streaming text
+          let piece = '';
+          if (typeof chunk === 'string') piece = chunk;
+          else if (chunk && chunk.output) piece = chunk.output;
+          else piece = JSON.stringify(chunk);
+          accumulated += piece;
+
+          // update last assistant message
+          setMessages(prev => {
+            const copy = [...prev];
+            copy[copy.length - 1] = { role: 'assistant', content: accumulated };
+            return copy;
+          });
+        }
+
+        // finished streaming
+        // If multi-agent conversation occurred, take the last agent message as the final assistant reply,
+        // open the central bubble and show it in the main chat, then clear the roundtable overlay.
+        if (multiAgentMessages.length > 0) {
+          const firstAgent = multiAgentMessages[0];
+          // append the FIRST agent message into main chat as the assistant reply (label with agent name)
+          setMessages(prev => [...prev, { role: 'assistant', content: `[${firstAgent.speaker}] ${sanitizeAgentText(firstAgent.text)}` }]);
+          // clear overlay state and restore central bubble
+          setOverlayMessagesState([]);
+          setOverlayParticipants([]);
+          setVisible(true);
+        }
+
+        setAiMood('happy');
+        setTimeout(() => setAiMood('neutral'), 900);
+      } catch (err) {
+        console.error('Predict stream error', err);
+        setMessages(prev => {
+          const copy = [...prev];
+          copy[copy.length - 1] = { role: 'assistant', content: `❌ 發生錯誤：${String(err)}` };
+          return copy;
+        });
+        setAiMood('sad');
+        setTimeout(() => setAiMood('neutral'), 1200);
+      } finally {
+        setSquash(false);
+      }
+    })();
   };
 
   // Start bubble animation flow: create bubbles, position origin near latest user message,
@@ -467,16 +566,15 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     setRecognizing(false);
   };
 
-  // 当中央泡泡（visible）打开时，自动启动语音识别；关闭时停止。
+  // 当中央泡泡（visible）打开时，且使用者已开启智能語音輔助（voiceEnabled）才会自动启动语音识别；关闭或关闭语音辅助时停止。
   // 注意：某些浏览器要求用户手势才能开启麦克风访问，若被浏览器阻止，用户需手动点击语音按钮。
   useEffect(() => {
-    if (visible) {
+    if (visible && voiceEnabled) {
       try { startRecognition(); } catch (e) { /* ignore */ }
     } else {
       try { stopRecognition(); } catch (e) { /* ignore */ }
     }
-    // 仅在 visible 变化时触发
-  }, [visible]);
+  }, [visible, voiceEnabled]);
 
   // --- Text-to-Speech: 用於讀出 assistant 回覆，優先選擇廣東話/HK 聲音 ---
   // 默认允许 TTS，但从 localStorage 读取用户偏好以便记住开关状态
@@ -765,11 +863,15 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
 
           @keyframes slideInLeft { from { opacity:0; transform: translateX(-26px) scale(0.98); } to { opacity:1; transform: translateX(0) scale(1); } }
           @keyframes slideInRight { from { opacity:0; transform: translateX(26px) scale(0.98); } to { opacity:1; transform: translateX(0) scale(1); } }
-          .roundtable-agents { position: absolute; inset: 0; pointer-events: none; }
-          .agent-node { position: absolute; width: 84px; height: 84px; border-radius: 50%; display:flex; align-items:center; justify-content:center; transition: transform 300ms cubic-bezier(.2,.9,.2,1), box-shadow 300ms; pointer-events: auto; }
-          .agent-node img { width: 64px; height:64px; border-radius:50%; object-fit:cover; }
-          .agent-node .name { position: absolute; top: 92px; width: 120px; left: 50%; transform: translateX(-50%); text-align:center; font-size:12px; color:#222; }
-          .agent-speaking { transform: scale(1.18) translateY(-6px);background: rgba(255, 255, 255, 0.15); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3);}
+          .roundtable-agents { position: absolute; inset: 0; pointer-events: none; top: 75px; }
+          /* agent node: centered at (left, top) with translate to truly center the circle layout */
+          .agent-node { position: absolute; width: 84px; height: 84px; border-radius: 50%; display:flex; align-items:center; justify-content:center; transition: transform 300ms cubic-bezier(.2,.9,.2,1), box-shadow 300ms, filter 300ms; pointer-events: auto; z-index: 2; transform: translate(-50%, -50%); }
+          .agent-node img { width: 64px; height:64px; border-radius:50%; object-fit:cover; display:block; }
+          .agent-node .name { position: absolute; top: 98px; width: 140px; left: 50%; transform: translateX(-50%); text-align:center; font-size:12px; color:#222; pointer-events: none; }
+          /* speaking visual: soft radial glow + subtle scale/pulse */
+          .agent-speaking { transform: translate(-50%, -50%) scale(1.12); filter: drop-shadow(0 10px 24px rgba(50,120,255,0.18)); }
+          .agent-speaking::before { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; border-radius: 50%; z-index: 1; pointer-events: none; background: radial-gradient(circle at center, rgba(72,142,255,0.30), rgba(72,142,255,0.08) 40%, transparent 60%); animation: pulseGlow 1400ms ease-out infinite; }
+          @keyframes pulseGlow { 0% { transform: translate(-50%, -50%) scale(0.94); opacity: 0.95 } 50% { transform: translate(-50%, -50%) scale(1.04); opacity: 0.8 } 100% { transform: translate(-50%, -50%) scale(0.98); opacity: 0.9 } }
           .agent-stretch { transition: transform 420ms cubic-bezier(.2,.9,.2,1); transform: scaleX(1.22) scaleY(1.22); }
           .center-message { background: rgba(250,250,250,0.9); padding:10px 12px; border-radius:12px; display:inline-block; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
           .name{border-radius: 40%; background: rgba(206, 206, 206, 0.9); }
@@ -778,10 +880,10 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           <div className="roundtable-agents" aria-hidden="false">
             {overlayParticipants.map((p, i) => {
               // position agents evenly around circle
-              const angle = (i / overlayParticipants.length) * Math.PI * 2 - Math.PI / 2;
-              const radius = 385;
-              const left = `calc(50% + ${Math.cos(angle) * radius}px)`;
-              const top = `calc(50% + ${Math.sin(angle) * radius}px)`;
+              const spacing = 900; // 每個 agent 的水平間距
+              const startX = `calc(50% - ${(overlayParticipants.length - 1) * spacing / 2}px)`;
+              const left = `calc(${startX} + ${i * spacing}px)`;
+              const top = `60%`; // 固定在畫面中下方
               const isSpeaking = speakingAgentId === p.id;
               return (
                 <div key={p.id} className={`agent-node ${isSpeaking ? 'agent-speaking' : ''} ${isSpeaking ? 'agent-stretch' : ''}`} style={{ left, top }}>
@@ -792,7 +894,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             })}
           </div>
 
-          <div className="roundtable-center" role="dialog" aria-label="圓桌會議">
+          <div className={`roundtable-center ${speakingAgentId ? 'agent-active' : ''}`} role="dialog" aria-label="圓桌會議">
             <div className="center-title">法律精靈圓桌會議</div>
             <div className="center-text" ref={overlayScrollRef}>
               {overlayMessagesState.map((m, mi) => (
