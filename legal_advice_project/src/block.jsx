@@ -7,6 +7,7 @@ import ownerAvatar from './assets/owner.webp';
 import managerAvatar from './assets/property_manager.webp';
 import leaseMessages from './data/leaseMessages';
 import welcomeSound from './assets/welcome.mp3';
+import { streamPredict } from './api/predictClient';
 
 // 居中泡泡聊天（保留 API / 上傳 邏輯），帶 banner 波動與右側 AI 表情互動
 const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiMood, setAiMood: propSetAiMood }, ref) => {
@@ -280,18 +281,56 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   const sendMessage = async (textArg) => {
     const text = (typeof textArg === 'string' ? textArg : input).trim();
     if (!text) return;
+
+    // push user message and a placeholder assistant message which we'll update while streaming
     const userMessage = { role: 'user', content: text };
-    setMessages(prev => [...prev, userMessage]);
+    setMessages(prev => [...prev, userMessage, { role: 'assistant', content: '…' }]);
     setInput('');
     setAiMood('thinking');
     setSquash(true);
     setTimeout(() => setSquash(false), 160);
 
-    // collapse 中央泡泡并启动背景泡泡动画流程
-    // play built-in conversation sequence centered on screen
-    // for now, use full leaseMessages as demonstration; later can send to API to generate dynamic replies
-    startBubblesFlow(text);
-    playConversation(leaseMessages);
+    // Stream from remote predict endpoint and update assistant message incrementally
+    (async () => {
+      try {
+        let accumulated = '';
+        for await (const chunk of streamPredict(text, false)) {
+          let piece = '';
+          if (typeof chunk === 'string') {
+            piece = chunk;
+          } else if (chunk && chunk.output) {
+            piece = chunk.output;
+          } else if (chunk && chunk.agent && chunk.output) {
+            piece = `[${chunk.agent}] ${chunk.output}`;
+          } else {
+            piece = JSON.stringify(chunk);
+          }
+          accumulated += piece;
+
+          // update last assistant message
+          setMessages(prev => {
+            const copy = [...prev];
+            copy[copy.length - 1] = { role: 'assistant', content: accumulated };
+            return copy;
+          });
+        }
+
+        // finished streaming
+        setAiMood('happy');
+        setTimeout(() => setAiMood('neutral'), 900);
+      } catch (err) {
+        console.error('Predict stream error', err);
+        setMessages(prev => {
+          const copy = [...prev];
+          copy[copy.length - 1] = { role: 'assistant', content: `❌ 發生錯誤：${String(err)}` };
+          return copy;
+        });
+        setAiMood('sad');
+        setTimeout(() => setAiMood('neutral'), 1200);
+      } finally {
+        setSquash(false);
+      }
+    })();
   };
 
   // Start bubble animation flow: create bubbles, position origin near latest user message,
