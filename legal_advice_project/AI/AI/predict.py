@@ -2,6 +2,7 @@
 import re
 from typing import Dict, Any, List, Optional
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from fastapi.responses import StreamingResponse
 from contextlib import asynccontextmanager
@@ -38,6 +39,17 @@ async def lifespan(app: FastAPI):
 
 # 建立 FastAPI 應用，並指定 lifespan
 app = FastAPI(lifespan=lifespan)
+
+# --- CORS: allow browser-based frontends to call this API
+# For development it's convenient to allow all origins; in production
+# restrict this to your frontend domain(s).
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # change to e.g. ["https://your-frontend.example"] in prod
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def extract_answer(text: str) -> str:
     """只抽取 <answer> ... </answer> 之間的內容"""

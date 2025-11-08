@@ -28,6 +28,23 @@ If you are developing a production application, we recommend using TypeScript wi
 
 7. npm run dev
 
+本地開發時若遇到瀏覽器 CORS 限制（curl 能通但瀏覽器報錯），可以使用內置的本地代理來繞過（只限本地開發）：
+
+- 在專案根目錄執行：
+
+```bash
+# 啟動本地代理，會把 /predict 轉發到 Cloud Run
+node dev-proxy.js
+```
+
+- 然後在另一個 terminal 啟動前端：
+
+```bash
+npm run dev
+```
+
+代理預設監聽 http://localhost:3000 並轉發到 https://api-452141441389.europe-west1.run.app（若需改目標，可修改 `DEV_PROXY_TARGET` 環境變數）。
+
 記得要確保你開著VPN 在美國
 
 **如果pip版本出现outdated情况，请运行以下指令：

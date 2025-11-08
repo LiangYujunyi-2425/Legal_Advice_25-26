@@ -1,20 +1,50 @@
-// client to call remote /predict endpoint and parse text/event-stream SSE
-const PREDICT_ENDPOINT = `${(import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')}/predict`;
+// client to call remote predict endpoint and parse text/event-stream SSE
+// NOTE: This version uses a hard-coded Cloud Run endpoint (no env vars) as requested.
+const PREDICT_ENDPOINT = 'https://api-452141441389.europe-west1.run.app/';
+// Use a relative path for the local proxy so the browser will call the dev server
+// (Vite dev server proxies /predict -> Cloud Run). In Codespaces the browser
+// cannot reach container localhost, so a relative path ensures requests go to
+// the same origin (the dev server) which will forward them.
+const LOCAL_PROXY = '/predict';
 
 /**
  * async generator that yields parsed SSE payloads from the /predict endpoint.
  * Each yield can be a string or an object depending on the server payload.
  */
-export async function* streamPredict(prompt, has_contract = false) {
-  const res = await fetch(PREDICT_ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ instances: [{ text: prompt }], has_contract })
-  });
+export async function* streamPredict(prompt, has_contract = false, apiKey = null) {
+  const headers = { 'Content-Type': 'application/json' };
+  // if caller provided an apiKey param, attach it (no env vars used)
+  if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
 
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(`Predict API error: ${res.status} ${txt}`);
+  // try direct fetch first
+  let res;
+  try {
+    res = await fetch(PREDICT_ENDPOINT, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ instances: [{ text: prompt }], has_contract })
+    });
+
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(`Predict API error: ${res.status} ${txt}`);
+    }
+  } catch (err) {
+  console.warn('Direct fetch failed, attempting local proxy fallback (relative /predict):', err && err.message);
+    // fallback to local proxy to avoid CORS - useful for local development
+    try {
+      res = await fetch(LOCAL_PROXY, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ instances: [{ text: prompt }], has_contract })
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`Proxy Predict API error: ${res.status} ${txt}`);
+      }
+    } catch (err2) {
+      throw new Error(`Failed to fetch from predict endpoint and local proxy: ${err2 && err2.message}`);
+    }
   }
 
   const reader = res.body?.getReader();
