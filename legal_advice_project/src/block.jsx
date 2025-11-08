@@ -295,16 +295,37 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       try {
         let accumulated = '';
         for await (const chunk of streamPredict(text, false)) {
-          let piece = '';
-          if (typeof chunk === 'string') {
-            piece = chunk;
-          } else if (chunk && chunk.output) {
-            piece = chunk.output;
-          } else if (chunk && chunk.agent && chunk.output) {
-            piece = `[${chunk.agent}] ${chunk.output}`;
-          } else {
-            piece = JSON.stringify(chunk);
+          // If backend yields a labeled agent chunk (e.g. {agent: 'Lawyer', output: '...'})
+          // render it as a multi-agent roundtable message instead of a single assistant stream.
+          if (chunk && typeof chunk === 'object' && chunk.agent) {
+            const agentName = chunk.agent || 'Agent';
+            const outputText = chunk.output || '';
+
+            // ensure participant exists
+            setOverlayParticipants(prev => {
+              const exists = prev.find(p => p.name === agentName || p.avatarKey === (agentName.toLowerCase() || ''));
+              if (exists) return prev;
+              const avatarKey = (agentName.toLowerCase().includes('lawyer') && 'lawyer')
+                || (agentName.toLowerCase().includes('prosecutor') && 'judge')
+                || (agentName.toLowerCase().includes('judge') && 'judge')
+                || (agentName.toLowerCase().includes('contract') && 'lawyer')
+                || 'judge';
+              return [...prev, { id: Date.now() + Math.random(), avatarKey, name: agentName }];
+            });
+
+            // append message to overlay (roundtable)
+            setOverlayMessagesState(prev => [...prev, { id: Date.now() + Math.random(), speaker: agentName, role: agentName, text: outputText, avatarKey: (agentName.toLowerCase().includes('lawyer') ? 'lawyer' : (agentName.toLowerCase().includes('prosecutor') ? 'judge' : 'xiaojinglin')) }]);
+
+            // ensure roundtable overlay is visible (hide central bubble)
+            setVisible(false);
+            continue;
           }
+
+          // otherwise treat as normal assistant streaming text
+          let piece = '';
+          if (typeof chunk === 'string') piece = chunk;
+          else if (chunk && chunk.output) piece = chunk.output;
+          else piece = JSON.stringify(chunk);
           accumulated += piece;
 
           // update last assistant message
