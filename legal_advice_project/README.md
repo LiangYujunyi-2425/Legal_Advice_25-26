@@ -55,22 +55,6 @@ node dev-proxy.js
 **如果pip版本出现outdated情况，请运行以下指令：
 python3 -m pip install --upgrade pip
 
-語音控制功能
----------------
-
-项目内置一个可选的「語音指令控制」功能，支持在浏览器中通过说中文命令来触发页面动作。当前支持的命令示例：
-
-- 「打开合同上传」「上传合同」「打开上传」 → 会打开聊天右下的附件上传对话并弹出文件选择。
-- 「启动AI助手」「打开AI助手」 → 会展开 AI 聊天窗口（法律助理）。
-
-使用方法：在页面右下角点击「語音：關」切换为「語音：開」后，浏览器会开始监听命令。
-
-注意事项：
-- 语音识别依赖浏览器的 Web Speech API（部分浏览器/平台不支援）。建议使用 Chrome / Edge 的最新版本以获得最佳体验。
-- 该功能会要求麦克风权限，用户需允许浏览器访问麦克风。
-- 当前默认识别语言设为粤语 (yue-HK)。如果你的浏览器不支持粤语识别，Hook 会使用所提供的语言设置；在不支持时可能需要切换为普通话 `zh-HK` / `zh-CN` 或英文 `en-US`。
-- 若功能不工作，请确认浏览器支持 SpeechRecognition（可在 DevTools 控制台查看错误）。
-
 ## OCR 掃描與 AI 分析流程
 
 本項目內置 OCR（光學字符識別）功能，可以掃描文件並將識別的文字傳給 AI 進行法律分析。
@@ -144,3 +128,108 @@ file: [PDF 或 圖片文件]
 - 新增 `handleAnalysisResult` 回調函數
 - 通過窗口事件系統傳遞 OCR 分析結果
 - 確保 Title 和 RightBlock 組件的無縫通信
+
+## 开发 / 运行 与 OCR 测试（更新）
+
+下面是开发时建议的完整步骤与调试提示，包含 OCR（pdf.js + Tesseract.js）流程与自动发送行为说明：
+
+1. 安装前端依赖（在 `legal_advice_project` 目录）
+
+```bash
+cd legal_advice_25-26/legal_advice_project
+npm install
+```
+
+2. 安装后端 python 依赖（如果需要运行 rag1.0）
+
+```bash
+pip install -r requirements.txt
+```
+
+3. (可选) 本地代理：如果浏览器出现 CORS 错误，可以用本地代理把 `/predict` 转发到 Cloud Run
+
+```bash
+# 在專案根目錄啟動本地代理（轉發 /predict 到 Cloud Run）
+node dev-proxy.js
+```
+
+代理預設監聽 `http://localhost:3000` 並轉發到 `https://api-452141441389.europe-west1.run.app`，可透過 `DEV_PROXY_TARGET` 修改目標。
+
+4. 启动前端开发服务器
+
+```bash
+npm run dev
+```
+
+5. PDF → OCR → AI 流程测试
+
+- 在浏览器打开 `http://localhost:5175`（Vite 提示的本地地址）。
+- 在左侧面板点击相机或拖放 PDF / 图片文件：
+   - 如果 PDF 为可选文本（非扫描件），前端先使用 `pdf.js` 尝试直接提取文本；
+   - 如果为扫描件或 `pdf.js` 提取失败，前端会把前 N 页（默认 5 页）渲染为图片并交给 `Tesseract.js` 的 worker 识别；
+   - 识别完成后，系统会自动将识别出的文本发送到 AI（自动调用 `sendMessage`），AI 会开始返回流式回答；
+
+6. 调试与常见问题
+
+- 若看到 `Setting up fake worker failed` 或 `Failed to fetch pdf.worker`，请先清除浏览器缓存并重载页面。我们已使用 Vite 的 `?url` 导入本地 worker，如仍失败会回退到 CDN。 
+- 初次运行 `tesseract.js` worker 会下载语言模型（`chi_tra` / `eng`），网络慢时会花一些时间，请耐心等待并观察左侧进度提示。
+- 若识别质量不佳，可以：
+   - 增加 `extractPdfText` 的 `maxPages` 或提高渲染 `scale`（在 `src/api/pdfExtractor.js` 可调整）；
+   - 在 OCR 前对 canvas 做灰度/二值化预处理（我可以按需帮你添加）；
+
+7. 可选：关闭自动发送
+
+当前实现默认**会在 OCR 完成后自动把识别文本发送到 AI**。
+如果你想临时关闭自动发送，可以在 `src/block.jsx` 中把处理 `pendingPdfText` 的 effect 修改为只把文本填入输入框（我也可以把这个开关做成 UI 控件，需我实现吗？）。
+
+8. 快速验证命令（在项目根目录）
+
+```bash
+# 启动本地代理（可选）
+node dev-proxy.js &
+
+# 启动前端
+cd legal_advice_25-26/legal_advice_project
+npm run dev
+```
+
+如果你想我把「关闭自动发送」做成一个 UI 开关，我可以接着实现并把控制位置加到左侧面板或设置菜单。
+
+## 端口说明与如何打开（简短直接）
+
+- **前端 (Vite dev server)**: `5173`（默认）。启动命令：
+
+```bash
+cd legal_advice_25-26/legal_advice_project
+npm run dev
+```
+
+ 说明：Vite 若端口被占用会自动回退（例如 `5174` / `5175`），终端会显示实际使用的端口。
+
+- **本地代理 (dev-proxy.js)**: `3000`（默认）。启动命令：
+
+```bash
+node dev-proxy.js
+```
+
+ 说明：代理会把 `/predict`（或其它已配置路径）转发到远端 Cloud Run，以解决浏览器 CORS 问题。若需修改目标，请设置 `DEV_PROXY_TARGET` 或直接编辑 `dev-proxy.js`。
+
+- **rag1.0 后端 (Flask API)**: `5000`（默认）。启动命令：
+
+```bash
+cd legal_advice_25-26/legal_advice_project/rag1.0
+python app.py
+```
+
+ 说明：`app.py` 使用 `app.run(host="0.0.0.0", port=5000)`，启动后主要端点示例：`/analyze`、`/ask`。如需变更端口，可修改 `app.run(...)` 中的 `port` 或用运行时参数/脚本包装器。
+
+- **Streamlit Web UI (可选)**: `8501`（默认）。启动命令：
+
+```bash
+cd legal_advice_25-26/legal_advice_project/rag1.0
+streamlit run launcher.py
+```
+
+- **Cloud Run / 远程 API**: 无需在本地打开端口，访问地址为 `https://api-452141441389.europe-west1.run.app`。如果前端直接与该远程 API 通信，可能遇到浏览器 CORS，建议在本地开发时使用 `dev-proxy.js` 转发。
+
+小结：要打开对应端口，直接运行上面对应的启动命令即可（`npm run dev` / `node dev-proxy.js` / `python app.py` / `streamlit run`）。如需我把这些说明移到 README 顶部或生成一个单独的 `GETTING_STARTED.md`，我可以继续调整。
