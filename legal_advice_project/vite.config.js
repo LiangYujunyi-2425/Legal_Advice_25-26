@@ -12,6 +12,20 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
         ws: false
+      },
+      // Proxy /extract-pdf-text to avoid CORS errors
+      '/extract-pdf-text': {
+        target: 'https://api-452141441389.europe-west1.run.app',
+        changeOrigin: true,
+        secure: false,
+        ws: false
+      },
+      // Proxy /analyze to avoid CORS errors
+      '/analyze': {
+        target: 'https://api-452141441389.europe-west1.run.app',
+        changeOrigin: true,
+        secure: false,
+        ws: false
       }
     }
   }
