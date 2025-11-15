@@ -2,7 +2,6 @@
 import re
 from typing import Dict, Any, List, Optional
 from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from fastapi.responses import StreamingResponse
 from contextlib import asynccontextmanager
@@ -39,17 +38,6 @@ async def lifespan(app: FastAPI):
 
 # 建立 FastAPI 應用，並指定 lifespan
 app = FastAPI(lifespan=lifespan)
-
-# --- CORS: allow browser-based frontends to call this API
-# For development it's convenient to allow all origins; in production
-# restrict this to your frontend domain(s).
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # change to e.g. ["https://your-frontend.example"] in prod
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 def extract_answer(text: str) -> str:
     """只抽取 <answer> ... </answer> 之間的內容"""
@@ -97,24 +85,26 @@ def format_responses_for_judge(responses: Dict[str, str]) -> str:
 def lawyer_template(user_question: str) -> str:
     return f"""
 <instruction>
-你是一名辯護律師，請用專業角度回答，並解釋你的回答。
-如果有控方律師意見。請針對控方律師的回答提出同意或反對，並解釋你的回答。
-限制:
-- 不超過100字
+You are a defense lawyer. Answer the user's question from a professional perspective and explain your reasoning.  
+If there is a prosecutor's opinion, respond to it based on the user's question by either agreeing or disagreeing, and explain your reasoning.  
+Constraints:  
+- Do not exceed 100 words  
+- Answer in Traditional Chinese  
 </instruction>
 <question>
-用戶的問題：{user_question}
+user's question：{user_question}
 </question>
 """
 
 def contract_template(user_question: str, ) -> str:
     return f"""
 <instruction>
-你是一名律師，如果用戶提供的文件是合約或合同，請用專業角度分析用戶提供文件的風險，指出該風險，並詢問用戶有甚麼需要你幫忙。
-如果用戶提供的文件是遺囑，請用專業角度分析用戶提供文件的錯漏，指出該錯漏，並詢問用戶有甚麼需要你幫忙。
-如果用戶提供的文件是狀書，請用專業角度分析用戶提供文件的錯漏，指出該錯漏，並詢問用戶有甚麼需要你幫忙。
-限制:
-- 不超過100字
+You are a lawyer.
+- If the user provides a contract or agreement, analyze its risks from a professional perspective, point out those risks, and ask what assistance the user needs.
+- If the user provides a will, analyze its errors or omissions from a professional perspective, point them out, and ask what assistance the user needs.
+- If the user provides a pleading, analyze its errors or omissions from a professional perspective, point them out, and ask what assistance the user needs.
+Constraints:
+- Answer in Traditional Chinese
 </instruction>
 <question>
 用戶提供文件: {user_question}
@@ -124,25 +114,30 @@ def contract_template(user_question: str, ) -> str:
 def prosecutor_template(user_question: str) -> str:
     return f"""
 <instruction>
-你是一名控方律師，請針對辯護律師的回答提出同意或反對，並解釋你的回答。
-限制:
-- 不超過100字
+You are a prosecutor. Based on the user's question, respond to the defense lawyer's answer with an opposing opinion and explain your reasoning.  
+If you agree with the defense lawyer's answer, you must reply: "法官閣下，我沒有意見。"  
+Constraints:  
+- Do not exceed 100 words  
+- Answer in Traditional Chinese
 </instruction>
 <question>
-用戶的問題：{user_question}
+user's question：{user_question}
 </question>
 """
 
 def judge_template(user_question: str, responses: Dict[str, str]) -> str:
     return f"""
 <instruction>
-你是一名法官，請綜合雙方多輪的觀點指出主要分歧，做出總結與定論。
-限制:
-- 不超過200字
+You are a judge. Summarize and integrate the viewpoints from both sides across multiple rounds, and provide a conclusion and final judgment.  
+Constraints:  
+- Do not exceed 200 words  
+- Answer in Traditional Chinese 
+- Do not introduce any new names or characters.
+- Do not assume facts that do not exist.
 </instruction>
 <question>
-用戶的問題：{user_question}
-律師與檢控官的觀點：{format_responses_for_judge(responses)}
+user's question：{user_question}
+perspectives of lawyers and prosecutors：{format_responses_for_judge(responses)}
 </question>
 """
 
@@ -150,15 +145,15 @@ def Guide_template(user_question: str, memory: Memory) -> str:
     history = "\n".join([f"{m['role']}: {m['content']}" for m in memory.messages[-6:]])
     return f"""
 <instruction>
-你是一名法律顧問助手:小律。
-當用戶問的問題與法律無關時，請友善地向用戶打招呼和自我介紹，
-並友善地提醒他聚焦在法律或合約相關的問題。
-限制:
-- 在回答最後加上:非專業法律意見，如需要法律援助請尋求專門人士協助。
+You are a legal consultant assistant named "小律".  
+politely greet the user and introduce yourself 
+Constraints:  
+- You must end every answer with: "非專業法律意見，如需要法律援助請尋求專門人士協助。"   
+- Answer in Traditional Chinese.  
 </instruction>
 <question>
-對話歷史：{history}
-用戶問題:{user_question}
+history：{history}
+user's question:{user_question}
 </question>
 """
 
@@ -269,14 +264,7 @@ def orchestrate(text: str, memory: Memory) -> Dict[str, Any]:
     elapsed = round(time.time() - start, 3)
     return {"agent_used": agent_name, "result": result, "latency_sec": elapsed}
 
-def text_overlap_ratio(a: str, b: str) -> float:
-    a_set = set(a.split())
-    b_set = set(b.split())
-    inter = a_set & b_set
-    union = a_set | b_set
-    return len(inter) / max(len(union), 1)
-
-def negotiate_stream(user_question: str, memory: Memory, max_rounds: int = 4, tolerance: float = 0.6):
+def negotiate_stream(user_question: str, memory: Memory, max_rounds: int = 5):
     responses: Dict[str, str] = {}
 
     # 第一輪
@@ -288,6 +276,12 @@ def negotiate_stream(user_question: str, memory: Memory, max_rounds: int = 4, to
     responses["prosecutor_r1"] = prosecutor_r1
     yield f"data: {json.dumps({'agent': 'Prosecutor', 'round': 1, 'output': prosecutor_r1}, ensure_ascii=False)}\n\n"
 
+    if "沒有意見" in prosecutor_r1 or "我同意辯方律師" in prosecutor_r1:
+        judge_result = JudgeAgent().run(user_question, responses, memory)
+        yield f"data: {json.dumps({'agent': 'Judge', 'output': judge_result}, ensure_ascii=False)}\n\n"
+        yield "data: [DONE]\n\n"
+        return
+
     # 後續多輪
     for r in range(2, max_rounds + 1):
         lawyer_reply = lawyerAgent().run(f"控方律師上一輪的意見是：{responses[f'prosecutor_r{r-1}']}", memory)
@@ -298,7 +292,7 @@ def negotiate_stream(user_question: str, memory: Memory, max_rounds: int = 4, to
         responses[f"prosecutor_r{r}"] = prosecutor_reply
         yield f"data: {json.dumps({'agent': 'Prosecutor', 'round': r, 'output': prosecutor_reply}, ensure_ascii=False)}\n\n"
 
-        if text_overlap_ratio(responses[f"lawyer_r{r}"], responses[f"prosecutor_r{r}"]) >= tolerance:
+        if "沒有意見" in prosecutor_reply or "同意" in prosecutor_reply:
             break
 
     # 法官總結
