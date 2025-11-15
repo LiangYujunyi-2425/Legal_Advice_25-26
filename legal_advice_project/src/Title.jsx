@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
-import Tesseract from 'tesseract.js';
+// 使用动态导入 Tesseract worker（在需要时创建/终止）
 import addPhotoIcon from './assets/addphoto.png';
 import addPhotoIconpdf from './assets/pdffile.png';
 import addPhotoIconscreen from './assets/diaphragm.png';
@@ -58,6 +58,22 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
     console.log(`✅ 已识别文本（来自 ${source}）:`, text.substring(0, 100) + '...');
   };
 
+  // Helper: 使用 tesseract worker 识别图片或 canvas
+  async function ocrWithWorker(imageOrCanvas, onProgress) {
+    const { createWorker } = await import('tesseract.js');
+    const worker = createWorker({ logger: onProgress });
+    try {
+      await worker.load();
+      await worker.loadLanguage('chi_tra');
+      await worker.loadLanguage('eng');
+      await worker.initialize('eng+chi_tra');
+      const { data: { text } } = await worker.recognize(imageOrCanvas);
+      return text;
+    } finally {
+      await worker.terminate();
+    }
+  }
+
   // 通用的文件處理函數
   const handleFile = async (file) => {
     if (!file) return;
@@ -69,13 +85,10 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
         const reader = new FileReader();
         reader.onload = async (event) => {
           try {
-            const { data: { text } } = await Tesseract.recognize(
-              event.target.result,
-              'eng+chi_tra',
-              { logger: (m) => console.log(m) }
-            );
+            const imgData = event.target.result;
+            const text = await ocrWithWorker(imgData, (m) => console.log('img OCR:', m));
             setRecognizedText(text || '');
-            
+
             // 将 OCR 识别的文字直接发送到聊天框
             sendTextToChat(text, '图片');
           } catch (err) {
@@ -140,11 +153,7 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
     setLoading(true);
 
     try {
-      const { data: { text } } = await Tesseract.recognize(
-        canvas,
-        'eng+chi_tra',
-        { logger: (m) => console.log(m) }
-      );
+      const text = await ocrWithWorker(canvas, (m) => console.log('camera OCR:', m));
 
       setRecognizedText(text || '');
 

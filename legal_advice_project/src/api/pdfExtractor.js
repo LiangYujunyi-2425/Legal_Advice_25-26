@@ -68,8 +68,15 @@ async function extractTextViaPdfJs(pdfFile) {
   // 动态导入 pdfjs
   const pdfjsLib = await import('pdfjs-dist');
   
-  // 设置 worker
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+  // 设置 worker：使用 Vite 的 ?url 导入以便打包后能够正确加载 worker 文件
+  try {
+    const workerUrlModule = await import('pdfjs-dist/build/pdf.worker.min.mjs?url');
+    const workerUrl = workerUrlModule.default || workerUrlModule;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
+  } catch (e) {
+    // 回退到 CDN（只在无法使用内置 worker 时）
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+  }
   
   const arrayBuffer = await pdfFile.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -107,8 +114,14 @@ async function extractTextFromPdfViaOCR(pdfFile, options = {}) {
   const pdfjsLib = await import('pdfjs-dist');
   const { createWorker } = await import('tesseract.js');
 
-  // 设置 pdf.js worker
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+  // 设置 pdf.js worker：优先使用本地打包的 worker URL（Vite ?url 导入）
+  try {
+    const workerUrlModule = await import('pdfjs-dist/build/pdf.worker.min.mjs?url');
+    const workerUrl = workerUrlModule.default || workerUrlModule;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
+  } catch (e) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+  }
 
   const arrayBuffer = await pdfFile.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
