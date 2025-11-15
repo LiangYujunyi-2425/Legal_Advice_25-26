@@ -14,6 +14,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isIslandExpanded, setIsIslandExpanded] = useState(false);
+  const [pendingPdfText, setPendingPdfText] = useState(null); // 待发送的 PDF 文本
   const API_URL = import.meta.env.VITE_API_URL || '';
   const inputRef = useRef(null);
 
@@ -248,6 +249,87 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     return () => clearTimeout(t);
   }, [messages.length]);
 
+  // 監聽 OCR 分析結果事件
+  useEffect(() => {
+    const handleOcrAnalysis = (event) => {
+      const data = event.detail;
+      if (!data) return;
+
+      // 如果有 OCR 文本，先顯示識別結果
+      if (data.ocr_text) {
+        const ocrMessage = `🔍 識別的文本：\n${data.ocr_text}`;
+        setMessages(prev => [...prev, { role: 'assistant', content: ocrMessage }]);
+      }
+
+      // 顯示 AI 分析結果
+      if (data.summary) {
+        const analysisMessage = `📋 分析結果：\n${data.summary}`;
+        setMessages(prev => [...prev, { role: 'assistant', content: analysisMessage }]);
+      }
+
+      // 如果有風險提示
+      if (data.risks && data.risks.length > 0) {
+        const riskMessage = `⚠️ 潛在風險：\n${data.risks.join('\n')}`;
+        setMessages(prev => [...prev, { role: 'assistant', content: riskMessage }]);
+      }
+
+      // 打開聊天窗口以顯示結果
+      try { setVisible(true); } catch (e) {}
+    };
+
+    window.addEventListener('ocr:analysisResult', handleOcrAnalysis);
+    return () => window.removeEventListener('ocr:analysisResult', handleOcrAnalysis);
+  }, [setVisible]);
+
+  // 監聽 PDF 文本提取事件 - 将识别的文本直接添加到聊天框
+  useEffect(() => {
+    const handlePdfTextExtracted = (event) => {
+      const { detail } = event;
+      if (!detail || !detail.text) return;
+
+      const { text, source } = detail;
+      
+      // 打開聊天窗口
+      try { setVisible(true); } catch (e) {}
+
+      // 将识别的文本作为用户消息自动发送
+      console.log(`📄 从 ${source} 提取的文本，自动发送到聊天:`, text.substring(0, 100) + '...');
+      
+      // 存储待发送的文本
+      setPendingPdfText(text);
+    };
+
+    window.addEventListener('pdf:textExtracted', handlePdfTextExtracted);
+    return () => window.removeEventListener('pdf:textExtracted', handlePdfTextExtracted);
+  }, [setVisible]);
+
+  // 处理待发送的 PDF 文本 - 在 sendMessage 定义后自动发送
+  useEffect(() => {
+    if (!pendingPdfText) return;
+
+    // 延迟确保 UI 已更新，再尝试自动发送
+    const timer = setTimeout(async () => {
+      try {
+        // 优先直接调用 sendMessage 自动发送到 AI
+        if (typeof sendMessage === 'function') {
+          await sendMessage(pendingPdfText);
+        } else {
+          // 回退：把文本填入输入框以便手动发送
+          setInput(pendingPdfText);
+          setTimeout(() => inputRef.current?.focus(), 100);
+        }
+      } catch (e) {
+        console.error('自动发送 PDF 文本失败，已回退至输入框：', e);
+        setInput(pendingPdfText);
+        setTimeout(() => inputRef.current?.focus(), 100);
+      } finally {
+        setPendingPdfText(null);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [pendingPdfText]);
+
   // auto-scroll main chat to latest message
   useEffect(() => {
     try {
@@ -461,24 +543,14 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
       setAiMood('excited');
-      const response = await fetch(`${API_URL}/analyze`, {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await response.json();
-      setMessages(prev => [
-        ...prev,
-        { role: 'assistant', content: `📄 合同分析完成：\n\n摘要：${data.summary || '無摘要'}\n\n風險：${(data.risks || []).join('、')}` }
-      ]);
-      setAiMood('happy');
-      setTimeout(() => setAiMood('neutral'), 900);
+      // 注：后端 API 只有 /predict 端点，不支持 /analyze
+      // 文件上传功能已在 Title.jsx 中通过 OCR 处理
+      alert('合同分析功能已集成到 PDF/图片上传流程中。请通过左侧面板上传 PDF 或拍照。');
+      setAiMood('neutral');
     } catch (error) {
-      console.error('上傳失敗', error);
+      console.error('处理失败', error);
       setMessages(prev => [
         ...prev,
         { role: 'assistant', content: '❌ 文件分析失敗，請稍後再試。' }
@@ -873,7 +945,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           .agent-speaking::before { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; border-radius: 50%; z-index: 1; pointer-events: none; background: radial-gradient(circle at center, rgba(72,142,255,0.30), rgba(72,142,255,0.08) 40%, transparent 60%); animation: pulseGlow 1400ms ease-out infinite; }
           @keyframes pulseGlow { 0% { transform: translate(-50%, -50%) scale(0.94); opacity: 0.95 } 50% { transform: translate(-50%, -50%) scale(1.04); opacity: 0.8 } 100% { transform: translate(-50%, -50%) scale(0.98); opacity: 0.9 } }
           .agent-stretch { transition: transform 420ms cubic-bezier(.2,.9,.2,1); transform: scaleX(1.22) scaleY(1.22); }
-          .center-message { background: rgba(250,250,250,0.9); padding:10px 12px; border-radius:12px; display:inline-block; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
+          .center-message { background: rgba(250,250,250,0.9); padding:10px 12px; border-radius:12px; display:inline-block; box-shadow: 0 6px 18px rgba(0,0,0,0.08); color:#000000; }
           .name{border-radius: 40%; background: rgba(206, 206, 206, 0.9); }
         `}</style>
         <div className="roundtable-card">

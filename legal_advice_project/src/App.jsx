@@ -16,6 +16,8 @@ function App() {
   const [videoOpen, setVideoOpen] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState(null);
+  const rightBlockRef = useState(null)[1]; // 用於傳遞分析結果給聊天窗口
 
   // start/stop global voice command listener (默认使用粤语 yue-HK)
   useVoiceCommands(voiceEnabled, { lang: 'yue-HK' });
@@ -30,6 +32,13 @@ function App() {
     return () => window.removeEventListener('voice:open-camera', onOpenCamera);
   }, []);
 
+  // 當 Title 元件返回分析結果時，轉發給 RightBlock
+  const handleAnalysisResult = (data) => {
+    setAnalysisResult(data);
+    // 向聊天窗口發送事件
+    window.dispatchEvent(new CustomEvent('ocr:analysisResult', { detail: data }));
+  };
+
   return (
     <>
   {/* aria-live for screen readers (updated by RightBlock) */}
@@ -42,7 +51,7 @@ function App() {
   <RightDecor />
 
       <div>
-        <Title shrink={drawerVisible} videoOpen={videoOpen} setVideoOpen={setVideoOpen} />
+        <Title shrink={drawerVisible} videoOpen={videoOpen} setVideoOpen={setVideoOpen} onAnalysisResult={handleAnalysisResult} />
       </div>
 
       {/* 语音控制开关 (固定在右下角) */}

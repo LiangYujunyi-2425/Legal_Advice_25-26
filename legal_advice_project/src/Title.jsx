@@ -1,18 +1,26 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
-import Tesseract from 'tesseract.js';
+// 使用动态导入 Tesseract worker（在需要时创建/终止）
 import addPhotoIcon from './assets/addphoto.png';
 import addPhotoIconpdf from './assets/pdffile.png';
 import addPhotoIconscreen from './assets/diaphragm.png';
+import { extractPdfText } from './api/pdfExtractor';
 import './index.css';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
-export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResult }) {
+// 调试：打印 API 配置
+console.log('API_URL configured:', API_URL || 'NOT SET - using relative paths');
+
+export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResult, onRecognizedText }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [recognizedText, setRecognizedText] = useState('');
+  const [pdfProgress, setPdfProgress] = useState(null);
+  const [dragActive, setDragActive] = useState(false);
+  const leftContentRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const startCamera = async () => {
@@ -29,6 +37,110 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
     if (videoOpen) startCamera();
   }, [videoOpen]);
 
+  // 将识别的文本直接发送到聊天框
+  const sendTextToChat = (text, source = '文档') => {
+    if (!text) {
+      console.warn('没有文本内容发送');
+      return;
+    }
+
+    // 通过事件系统将文本发送到聊天框
+    window.dispatchEvent(new CustomEvent('pdf:textExtracted', {
+      detail: {
+        text: text,
+        source: source,
+        timestamp: new Date().toISOString()
+      }
+    }));
+
+    // 同时记录文本
+    setRecognizedText(text);
+    console.log(`✅ 已识别文本（来自 ${source}）:`, text.substring(0, 100) + '...');
+  };
+
+  // Helper: 使用 tesseract worker 识别图片或 canvas
+  async function ocrWithWorker(imageOrCanvas, onProgress) {
+    const { createWorker } = await import('tesseract.js');
+    const worker = createWorker({ logger: onProgress });
+    try {
+      await worker.load();
+      await worker.loadLanguage('chi_tra');
+      await worker.loadLanguage('eng');
+      await worker.initialize('eng+chi_tra');
+      const { data: { text } } = await worker.recognize(imageOrCanvas);
+      return text;
+    } finally {
+      await worker.terminate();
+    }
+  }
+
+  // 通用的文件處理函數
+  const handleFile = async (file) => {
+    if (!file) return;
+
+    setLoading(true);
+    try {
+      // 檢查是否是圖片，如果是則進行 OCR
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          try {
+            const imgData = event.target.result;
+            const text = await ocrWithWorker(imgData, (m) => console.log('img OCR:', m));
+            setRecognizedText(text || '');
+
+            // 将 OCR 识别的文字直接发送到聊天框
+            sendTextToChat(text, '图片');
+          } catch (err) {
+            console.error('圖片 OCR 失敗:', err);
+          } finally {
+            setLoading(false);
+          }
+        };
+        reader.readAsDataURL(file);
+      } else if (file.type === 'application/pdf') {
+        // PDF 文本提取
+        try {
+          console.log('正在提取 PDF 文本...');
+          // 传入进度回调与最大页数
+          const pdfText = await extractPdfText(file, {
+            maxPages: 5,
+            onProgress: (m) => {
+              // m 可能是 tesseract 的 logger 或我们自定义的页面进度对象
+              if (m.page) {
+                const msg = `頁 ${m.page}: ${m.status || '完成'}`;
+                setPdfProgress(msg);
+                console.log(msg);
+              } else if (m.status) {
+                const pct = typeof m.progress === 'number' ? Math.round(m.progress * 100) : '';
+                const msg = `${m.status} ${pct ? `(${pct}%)` : ''}`;
+                setPdfProgress(msg);
+                console.log('Tesseract:', msg);
+              }
+            }
+          });
+
+          // 清除进度显示
+          setPdfProgress(null);
+
+          // 将提取的文本直接发送到聊天框（AI 分析由 block.jsx 处理）
+          sendTextToChat(pdfText, 'PDF');
+        } catch (err) {
+          console.error('PDF 提取失败:', err);
+          alert('PDF 处理失败: ' + err.message);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        console.error('不支援的檔案類型');
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error('檔案處理失敗:', err);
+      setLoading(false);
+    }
+  };
+
   const captureToPdf = async () => {
     if (!videoRef.current) return;
 
@@ -41,14 +153,14 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
     setLoading(true);
 
     try {
-      const { data: { text } } = await Tesseract.recognize(
-        canvas,
-        'eng+chi_tra',
-        { logger: (m) => console.log(m) }
-      );
+      const text = await ocrWithWorker(canvas, (m) => console.log('camera OCR:', m));
 
       setRecognizedText(text || '');
 
+      // 将识别的文本直接发送到聊天框
+      sendTextToChat(text, '摄像头');
+
+      // 同時也生成 PDF 以供下載參考
       const pdf = new jsPDF();
       pdf.setFont('Helvetica');
       pdf.setFontSize(12);
@@ -58,23 +170,90 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
       const pdfBlob = pdf.output('blob', { type: 'application/pdf' });
       const pdfFile = new File([pdfBlob], 'scanned_text.pdf', { type: 'application/pdf' });
 
-      const formData = new FormData();
-      formData.append('file', pdfFile);
-
-      // call backend analyze
-      const res = await fetch(`${API_URL}/analyze`, {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await res.json();
-
-      if (onAnalysisResult) onAnalysisResult(data);
+      // AI 分析通过 block.jsx 中的 streamPredict 处理
     } catch (err) {
       console.error('OCR 或分析失敗：', err);
     } finally {
       setLoading(false);
     }
   };
+
+  // 拖拽事件處理
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragIn = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setDragActive(true);
+    }
+  };
+
+  const handleDragOut = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    // 獲取拖拽的檔案
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      // 檢查檔案類型
+      if (file.type === 'application/pdf' || file.type.startsWith('image/')) {
+        handleFile(file);
+      } else {
+        console.error('只支援 PDF 和圖片檔案');
+      }
+    }
+  };
+
+  // 為左側面板添加拖拽事件監聽
+  useEffect(() => {
+    const element = leftContentRef.current;
+    if (!element) return;
+
+    element.addEventListener('drag', handleDrag);
+    element.addEventListener('dragenter', handleDragIn);
+    element.addEventListener('dragleave', handleDragOut);
+    element.addEventListener('dragover', handleDrag);
+    element.addEventListener('drop', handleDrop);
+
+    return () => {
+      element.removeEventListener('drag', handleDrag);
+      element.removeEventListener('dragenter', handleDragIn);
+      element.removeEventListener('dragleave', handleDragOut);
+      element.removeEventListener('dragover', handleDrag);
+      element.removeEventListener('drop', handleDrop);
+    };
+  }, []);
+
+  // 為左側面板添加拖拽事件監聽
+  useEffect(() => {
+    const element = leftContentRef.current;
+    if (!element) return;
+
+    element.addEventListener('drag', handleDrag);
+    element.addEventListener('dragenter', handleDragIn);
+    element.addEventListener('dragleave', handleDragOut);
+    element.addEventListener('dragover', handleDrag);
+    element.addEventListener('drop', handleDrop);
+
+    return () => {
+      element.removeEventListener('drag', handleDrag);
+      element.removeEventListener('dragenter', handleDragIn);
+      element.removeEventListener('dragleave', handleDragOut);
+      element.removeEventListener('dragover', handleDrag);
+      element.removeEventListener('drop', handleDrop);
+    };
+  }, []);
 
   // Provide a compact left panel UI for uploads/camera
   // only expand the left-panel for camera when videoOpen is true and the center bubble is not shrunk/open
@@ -94,31 +273,30 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
         )}
       </div>
 
-      <div className={`left-content ${videoOpen ? 'video' : ''}`}>
+      <div
+        ref={leftContentRef}
+        className={`left-content ${videoOpen ? 'video' : ''} ${dragActive ? 'drag-active' : ''}`}
+        style={dragActive ? { backgroundColor: 'rgba(100, 150, 255, 0.1)', borderColor: '#4a90e2' } : {}}
+      >
         {videoOpen ? (
           <video ref={videoRef} autoPlay muted playsInline className="left-video" />
         ) : (
-          <div className="upload-hint">上傳 PDF 或點擊相機拍照進行 OCR</div>
+          <div className="upload-hint">
+            拖拽 PDF 或圖片到此處
+            <br />
+            或點擊相機拍照進行 OCR
+          </div>
         )}
 
         <label className="file-label" tabIndex={0} aria-label="上傳檔案">
           <input
+            ref={fileInputRef}
             type="file"
             accept="application/pdf,image/*"
-            onChange={async (e) => {
+            onChange={(e) => {
               const file = e.target.files?.[0];
-              if (!file) return;
-              const formData = new FormData();
-              formData.append('file', file);
-              setLoading(true);
-              try {
-                const res = await fetch(`${API_URL}/analyze`, { method: 'POST', body: formData });
-                const data = await res.json();
-                if (onAnalysisResult) onAnalysisResult(data);
-              } catch (err) {
-                console.error(err);
-              } finally {
-                setLoading(false);
+              if (file) {
+                handleFile(file);
               }
             }}
           />
@@ -128,6 +306,10 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
         <canvas ref={canvasRef} style={{ display: 'none' }} />
 
         {loading && <div className="loading" role="status">處理中...</div>}
+
+        {pdfProgress && (
+          <div className="pdf-progress" aria-live="polite">{pdfProgress}</div>
+        )}
 
         {recognizedText && (
           <div className="ocr-result">

@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-  "dev": "vite",
-  "proxy": "node dev-proxy.js",
+    "dev": "vite",
+    "proxy": "node dev-proxy.js",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -15,6 +15,7 @@
     "express": "^5.1.0",
     "jspdf": "^3.0.3",
     "multer": "^2.0.2",
+    "pdfjs-dist": "^5.4.394",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "tesseract.js": "^6.0.1"
