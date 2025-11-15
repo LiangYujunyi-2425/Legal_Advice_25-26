@@ -134,7 +134,7 @@ def format_responses_for_judge(responses: Dict[str, str]) -> str:
 
 # ---- Prompt templates ----
 def lawyer_template(user_question: str) -> str:
-    system_prompt = "你是一名正方律師。你現在正在跟反方律師一起回應用戶的法律咨詢。請從專業角度回答用戶的問題並解釋你的推理。如果有反方律師的意見，請根據用戶的問題同意或不同意，並解釋你的推理。限制：用繁體中文回答。不引入任何新的名字或人物，不假設不存在的事實。請給我乾淨的回答，不要/n和**"
+    system_prompt = "你是一名律師。你和另一名律師正在回應用戶的香港法律咨詢，假設你是正方。請根據香港法例從專業角度回答用戶的問題並解釋你的推理。如果有反方律師的意見，請根據用戶的問題同意或不同意，並解釋你的推理。限制：用繁體中文回答。不引入任何新的名字或人物，不假設不存在的事實。不需要假設反方律師的回應。請給我乾淨的回答，不需要/n和**"
     return f"{system_prompt}\n{user_question}"
 
 def contract_template(user_question: str, ) -> str:
@@ -142,16 +142,16 @@ def contract_template(user_question: str, ) -> str:
     return f"{system_prompt}\n用戶提供文件：{user_question}"
 
 def prosecutor_template(user_question: str) -> str:
-    system_prompt = "你是一名反方律師。你現在正在跟正方律師一起回應用戶的法律咨詢。根據用戶的問題，用相反的意見回應正方律師的回答，並解釋你的推理。如果你同意正方律師的回答，你必須回覆：法官閣下，我沒有意見。限制：用繁體中文回答。不引入任何新的名字或人物，不假設不存在的事實。請給我乾淨的回答，不要/n和**"
+    system_prompt = "你是一名律師。你和另一名律師正在回應用戶的香港法律咨詢，假設你是反方。根據香港法例和用戶的問題，用相反的意見回應正方律師的回答，並解釋你的推理。如果你同意正方律師的回答，你必須回覆：我沒有意見。限制：用繁體中文回答。不引入任何新的名字或人物，不假設不存在的事實。不需要假設正方律師的回應。請給我乾淨的回答，不需要/n和**"
     return f"{system_prompt}\n{user_question}"
 
 def judge_template(user_question: str, responses: Dict[str, str]) -> str:
-    system_prompt = "你是一名律師助理。總結並整合多輪中雙方的觀點，並提供結論。限制：用繁體中文回答，不引入任何新的名字或人物，不假設不存在的事實。請給我乾淨的回答，不要/n和**"
+    system_prompt = "你是一名律師助理。總結並整合多輪中雙方的觀點，並提供結論。限制：用繁體中文回答，不引入任何新的名字或人物，不假設不存在的事實。請給我乾淨的回答，不需要/n和**"
     return f"{system_prompt}\n用戶問題：{user_question}\n律師和檢控官的觀點：{format_responses_for_judge(responses)}"
 
 def Guide_template(user_question: str, memory: Memory) -> str:
     history = "\n".join([f"{m['role']}: {m['content']}" for m in memory.messages[-6:]])
-    system_prompt = "你是一個名叫小律的法律顧問助手。禮貌地問候用戶並介紹自己。限制：你必須以『非專業法律意見，如需要法律援助請尋求專門人士協助。』結束每個回答。用繁體中文回答。請給我乾淨的回答，不要/n和**"
+    system_prompt = "你是一個名叫小律的法律顧問助手。禮貌地問候用戶並介紹自己。限制：你必須以『非專業法律意見，如需要法律援助請尋求專門人士協助。』結束每個回答。用繁體中文回答。請給我乾淨的回答，不需要/n和**"
     return f"{system_prompt}\n歷史：{history}\n用戶問題：{user_question}"
 
 # ---- Agents ----
@@ -239,10 +239,9 @@ def route_task(text: str, has_contract: bool = False) -> str:
         return "Contract"
 
     # 2. 如果是法律相關問題 → Negotiate
-    if any(k in t for k in ["法律", "合約", "合同", "訴訟", "法官", "律師", "檢控", "起訴", "辯護", "遺囑", "遺產", "租約"]):
+    if any(k in t for k in ["法律", "合約", "合同", "訴訟", "法官", "律師", "檢控", "起訴", "辯護", "遺囑", "遺產", "租約", "犯法", "法律", "法例", "規定", "責任", "權利", "義務", "賠償", "索償", "糾紛", "調解", "仲裁", "訴狀", "違法", "違反"]):
         return "Negotiate"
     
-
     # 3. 其他情況 → GuideAgent（引導用戶問法律問題）
     return "Guide"
 
