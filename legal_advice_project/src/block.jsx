@@ -306,18 +306,27 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   // 处理待发送的 PDF 文本 - 在 sendMessage 定义后自动发送
   useEffect(() => {
     if (!pendingPdfText) return;
-    
-    // 延迟确保 UI 已更新
-    const timer = setTimeout(() => {
-      // 将文本添加到输入框（用户可手动发送）
-      setInput(pendingPdfText);
-      setPendingPdfText(null);
-      // 可选：自动聚焦输入框
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 100);
+
+    // 延迟确保 UI 已更新，再尝试自动发送
+    const timer = setTimeout(async () => {
+      try {
+        // 优先直接调用 sendMessage 自动发送到 AI
+        if (typeof sendMessage === 'function') {
+          await sendMessage(pendingPdfText);
+        } else {
+          // 回退：把文本填入输入框以便手动发送
+          setInput(pendingPdfText);
+          setTimeout(() => inputRef.current?.focus(), 100);
+        }
+      } catch (e) {
+        console.error('自动发送 PDF 文本失败，已回退至输入框：', e);
+        setInput(pendingPdfText);
+        setTimeout(() => inputRef.current?.focus(), 100);
+      } finally {
+        setPendingPdfText(null);
+      }
     }, 500);
-    
+
     return () => clearTimeout(timer);
   }, [pendingPdfText]);
 
