@@ -1,40 +1,66 @@
 # app/predict.py
+import os
 import re
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from fastapi import FastAPI, Request
-from transformers import AutoTokenizer, AutoModelForCausalLM
 from fastapi.responses import StreamingResponse
 from contextlib import asynccontextmanager
-import torch
 import asyncio
 import time
 import json
 
+# Google Vertex AI (use vertexai GenerativeModel for endpoint calls)
+try:
+    import vertexai
+    from vertexai.generative_models import GenerativeModel
+except Exception:
+    vertexai = None
+    GenerativeModel = None
 
-app = FastAPI()
 
-tokenizer = None
-model = None
+# Configure via environment variables
+GCP_PROJECT = os.environ.get("GCP_PROJECT")
+GCP_LOCATION = os.environ.get("GCP_LOCATION")
+# REQUIRED: Vertex Endpoint ID
+VERTEX_ENDPOINT_ID = os.environ.get("VERTEX_ENDPOINT_ID")
 
-LOCAL_PATH = "/app/model"
+
+# Global model instance
+generative_model = None
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global tokenizer, model
-    # 🚀 啟動時載入模型
-    tokenizer = AutoTokenizer.from_pretrained("/app/model")
-    model = AutoModelForCausalLM.from_pretrained(
-        "/app/model",
-        torch_dtype="auto",
-        device_map="auto"
-    )
-    model.eval()
-    print("✅ 模型已載入完成")
+    global generative_model
 
-    yield  # 這裡之後就是服務運行中
+    # require vertexai package
+    if GenerativeModel is None:
+        raise RuntimeError("vertexai package not available. Install google-cloud-vertexai in requirements.")
 
-    # 🛑 關閉時釋放資源（可選）
+    # 初始化 vertexai
+    try:
+        vertexai.init(project=GCP_PROJECT, location=GCP_LOCATION)
+    except Exception:
+        # vertexai.init may raise if env vars missing; still proceed to construct endpoint_path
+        pass
+
+    # 建立 Endpoint 的完整路徑
+    if not VERTEX_ENDPOINT_ID:
+        raise RuntimeError("VERTEX_ENDPOINT_ID environment variable must be set")
+
+    endpoint_path = f"projects/{GCP_PROJECT}/locations/{GCP_LOCATION}/endpoints/{VERTEX_ENDPOINT_ID}"
+
+    try:
+        # 使用 GenerativeModel 初始化（直接對 endpoint 呼叫）
+        generative_model = GenerativeModel(endpoint_path)
+        print(f"✅ GenerativeModel initialized for endpoint: {endpoint_path}")
+    except Exception as e:
+        raise RuntimeError(f"Failed to initialize GenerativeModel with endpoint '{endpoint_path}': {e}")
+    
+    yield
+    
     print("🛑 服務關閉，釋放資源")
+
 
 # 建立 FastAPI 應用，並指定 lifespan
 app = FastAPI(lifespan=lifespan)
@@ -54,14 +80,39 @@ def sanitize_output(text: str) -> str:
 
 
 
-def llm_generate(prompt: str, max_new_tokens: int = 256) -> str:
-    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-    with torch.no_grad():
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=max_new_tokens,
-        )
-    return tokenizer.decode(outputs[0], skip_special_tokens=True)
+def _vertex_predict_sync(prompt: str, max_output_tokens: int = 256, **predict_kwargs) -> str:
+    """
+    同步呼叫 Vertex Endpoint 進行預測
+    使用 Endpoint.predict() 搭配 Gemini 2.5 Flash 模型
+    """
+    # Use the vertexai GenerativeModel (endpoint) to generate content
+    if generative_model is None:
+        return "[vertex predict error] generative model not initialized"
+
+    try:
+        final_prompt = prompt
+        # Call generate_content with a simple string prompt (matches provided example)
+        resp = generative_model.generate_content(final_prompt)
+        if hasattr(resp, "text") and resp.text:
+            return resp.text
+
+        # Try to extract common fields if 'text' not present
+        try:
+            obj = getattr(resp, "__dict__", {})
+            for k in ("text", "content", "outputs", "candidates"):
+                if k in obj and obj[k]:
+                    return str(obj[k])
+        except Exception:
+            pass
+
+        return str(resp)
+    except Exception as e:
+        return f"[vertex predict error] {str(e)}"
+
+async def llm_generate(prompt: str, max_new_tokens: int = 256, **predict_kwargs) -> str:
+    # Run blocking Vertex call in threadpool to avoid blocking event loop
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(None, _vertex_predict_sync, prompt, max_new_tokens, **predict_kwargs)
 
 # ---- Shared memory/context ----
 class Memory:
@@ -83,79 +134,25 @@ def format_responses_for_judge(responses: Dict[str, str]) -> str:
 
 # ---- Prompt templates ----
 def lawyer_template(user_question: str) -> str:
-    return f"""
-<instruction>
-You are a defense lawyer. Answer the user's question from a professional perspective and explain your reasoning.  
-If there is a prosecutor's opinion, respond to it based on the user's question by either agreeing or disagreeing, and explain your reasoning.  
-Constraints:  
-- Do not exceed 100 words  
-- Answer in Traditional Chinese  
-</instruction>
-<question>
-user's question：{user_question}
-</question>
-"""
+    system_prompt = "你是一名律師。你和另一名律師正在回應用戶的香港法律咨詢，假設你是正方。請根據香港法例從專業角度回答用戶的問題並解釋你的推理。如果有反方律師的意見，請根據用戶的問題同意或不同意，並解釋你的推理。限制：用繁體中文回答。不引入任何新的名字或人物，不假設不存在的事實。不需要假設反方律師的回應。請給我乾淨的回答，不需要/n和**"
+    return f"{system_prompt}\n{user_question}"
 
 def contract_template(user_question: str, ) -> str:
-    return f"""
-<instruction>
-You are a lawyer.
-- If the user provides a contract or agreement, analyze its risks from a professional perspective, point out those risks, and ask what assistance the user needs.
-- If the user provides a will, analyze its errors or omissions from a professional perspective, point them out, and ask what assistance the user needs.
-- If the user provides a pleading, analyze its errors or omissions from a professional perspective, point them out, and ask what assistance the user needs.
-Constraints:
-- Answer in Traditional Chinese
-</instruction>
-<question>
-用戶提供文件: {user_question}
-</question>
-"""
+    system_prompt = "你是一名律師。如果用戶提供合約或協議，請從專業角度分析其風險，指出這些風險，並詢問用戶需要什麼幫助。如果用戶提供遺囑，請從專業角度分析其錯誤或遺漏，指出它們，並詢問用戶需要什麼幫助。如果用戶提供訴狀，請從專業角度分析其錯誤或遺漏，指出它們，並詢問用戶需要什麼幫助。限制：用繁體中文回答。請給我乾淨的回答，不要/n和**"
+    return f"{system_prompt}\n用戶提供文件：{user_question}"
 
 def prosecutor_template(user_question: str) -> str:
-    return f"""
-<instruction>
-You are a prosecutor. Based on the user's question, respond to the defense lawyer's answer with an opposing opinion and explain your reasoning.  
-If you agree with the defense lawyer's answer, you must reply: "法官閣下，我沒有意見。"  
-Constraints:  
-- Do not exceed 100 words  
-- Answer in Traditional Chinese
-</instruction>
-<question>
-user's question：{user_question}
-</question>
-"""
+    system_prompt = "你是一名律師。你和另一名律師正在回應用戶的香港法律咨詢，假設你是反方。根據香港法例和用戶的問題，用相反的意見回應正方律師的回答，並解釋你的推理。如果你同意正方律師的回答，你必須回覆：我沒有意見。限制：用繁體中文回答。不引入任何新的名字或人物，不假設不存在的事實。不需要假設正方律師的回應。請給我乾淨的回答，不需要/n和**"
+    return f"{system_prompt}\n{user_question}"
 
 def judge_template(user_question: str, responses: Dict[str, str]) -> str:
-    return f"""
-<instruction>
-You are a judge. Summarize and integrate the viewpoints from both sides across multiple rounds, and provide a conclusion and final judgment.  
-Constraints:  
-- Do not exceed 200 words  
-- Answer in Traditional Chinese 
-- Do not introduce any new names or characters.
-- Do not assume facts that do not exist.
-</instruction>
-<question>
-user's question：{user_question}
-perspectives of lawyers and prosecutors：{format_responses_for_judge(responses)}
-</question>
-"""
+    system_prompt = "你是一名律師助理。總結並整合多輪中雙方的觀點，並提供結論。限制：用繁體中文回答，不引入任何新的名字或人物，不假設不存在的事實。請給我乾淨的回答，不需要/n和**"
+    return f"{system_prompt}\n用戶問題：{user_question}\n律師和檢控官的觀點：{format_responses_for_judge(responses)}"
 
 def Guide_template(user_question: str, memory: Memory) -> str:
     history = "\n".join([f"{m['role']}: {m['content']}" for m in memory.messages[-6:]])
-    return f"""
-<instruction>
-You are a legal consultant assistant named "小律".  
-politely greet the user and introduce yourself 
-Constraints:  
-- You must end every answer with: "非專業法律意見，如需要法律援助請尋求專門人士協助。"   
-- Answer in Traditional Chinese.  
-</instruction>
-<question>
-history：{history}
-user's question:{user_question}
-</question>
-"""
+    system_prompt = "你是一個名叫小律的法律顧問助手。禮貌地問候用戶並介紹自己。限制：你必須以『非專業法律意見，如需要法律援助請尋求專門人士協助。』結束每個回答。用繁體中文回答。請給我乾淨的回答，不需要/n和**"
+    return f"{system_prompt}\n歷史：{history}\n用戶問題：{user_question}"
 
 # ---- Agents ----
 class BaseAgent:
@@ -168,7 +165,8 @@ class lawyerAgent(BaseAgent):
     def run(self, text: str, memory: Memory) -> str:
         memory.add("user", text)   # 先記錄用戶輸入
         prompt = lawyer_template(text)
-        raw = llm_generate(prompt, max_new_tokens=256)
+        # llm_generate is async (calls Vertex), run in asyncio loop if needed
+        raw = asyncio.run(llm_generate(prompt, max_new_tokens=256))
         answer = extract_answer(raw)
         answer = sanitize_output(answer)
         memory.add(self.name, answer)  # 再記錄 agent 輸出
@@ -179,7 +177,7 @@ class contractAgent(BaseAgent):
     def run(self, text: str, memory: Memory) -> str:
         memory.add("user", text)
         prompt = contract_template(text)
-        raw = llm_generate(prompt, max_new_tokens=256)
+        raw = asyncio.run(llm_generate(prompt, max_new_tokens=256))
         answer = extract_answer(raw)
         answer = sanitize_output(answer)
         memory.add(self.name, answer)
@@ -190,7 +188,7 @@ class prosecutorAgent(BaseAgent):
     def run(self, text: str, memory: Memory) -> str:
         memory.add("user", text)
         prompt = prosecutor_template(text)
-        raw = llm_generate(prompt, max_new_tokens=256)
+        raw = asyncio.run(llm_generate(prompt, max_new_tokens=256))
         answer = extract_answer(raw)
         answer = sanitize_output(answer)
         memory.add(self.name, answer)
@@ -201,7 +199,7 @@ class JudgeAgent(BaseAgent):
     def run(self, text: str, responses: Dict[str, str], memory: Memory) -> str:
         memory.add("user", text)
         prompt = judge_template(text, responses)
-        raw = llm_generate(prompt, max_new_tokens=256)
+        raw = asyncio.run(llm_generate(prompt, max_new_tokens=256))
         answer = extract_answer(raw)
         answer = sanitize_output(answer)
         memory.add(self.name, answer)
@@ -212,7 +210,7 @@ class guideAgent(BaseAgent):
     def run(self, text: str, memory: Memory) -> str:
         memory.add("user", text)
         prompt = Guide_template(text, memory)   # ⚠️ Guide_template 要改成只接受一個參數
-        raw = llm_generate(prompt, max_new_tokens=256)
+        raw = asyncio.run(llm_generate(prompt, max_new_tokens=256))
         answer = extract_answer(raw)
         answer = sanitize_output(answer)
         memory.add(self.name, answer)
@@ -241,10 +239,9 @@ def route_task(text: str, has_contract: bool = False) -> str:
         return "Contract"
 
     # 2. 如果是法律相關問題 → Negotiate
-    if any(k in t for k in ["法律", "合約", "合同", "訴訟", "法官", "律師", "檢控", "起訴", "辯護", "遺囑", "遺產"]):
+    if any(k in t for k in ["法律", "合約", "合同", "訴訟", "法官", "律師", "檢控", "起訴", "辯護", "遺囑", "遺產", "租約", "犯法", "法律", "法例", "規定", "責任", "權利", "義務", "賠償", "索償", "糾紛", "調解", "仲裁", "訴狀", "違法", "違反"]):
         return "Negotiate"
     
-
     # 3. 其他情況 → GuideAgent（引導用戶問法律問題）
     return "Guide"
 
@@ -313,20 +310,40 @@ async def health():
 async def predict(request: Request):
     body = await request.json()
 
-    # 專門解析 instances 格式
-    instances = body.get("instances", [])
-    if not instances or "text" not in instances[0]:
-        def empty():
-            yield f"data: {json.dumps({'error': '沒有輸入文字'}, ensure_ascii=False)}\n\n"
-            yield "data: [DONE]\n\n"
-        return StreamingResponse(empty(), media_type="text/event-stream")
+    # 支援兩種輸入格式：
+    # 1) 舊的 instances 格式：{"instances":[{"text":"..."}], "has_contract": false}
+    # 2) 新的 system_prompt + user_question 格式：{"system_prompt": "...", "user_question": "..."}
+    prompt = None
+    has_contract = False
+    override_agent = None
 
-    prompt = instances[0]["text"]
-    has_contract = body.get("has_contract", False)
+    # agent 覆寫（optional）
+    if isinstance(body, dict):
+        override_agent = body.get("agent")
+
+    if isinstance(body, dict) and "system_prompt" in body and "user_question" in body:
+        # 使用明確的 system_prompt + user_question
+        system_prompt = body.get("system_prompt") or ""
+        user_question = body.get("user_question") or ""
+        prompt = f"{system_prompt}\n{user_question}".strip()
+        has_contract = body.get("has_contract", False)
+    else:
+        # fallback to instances format for backward compatibility
+        instances = body.get("instances", []) if isinstance(body, dict) else []
+        if not instances or "text" not in instances[0]:
+            def empty():
+                yield f"data: {json.dumps({'error': '沒有輸入文字'}, ensure_ascii=False)}\n\n"
+                yield "data: [DONE]\n\n"
+            return StreamingResponse(empty(), media_type="text/event-stream")
+
+        prompt = instances[0]["text"]
+        has_contract = body.get("has_contract", False)
+
     memory = Memory()
 
     def event_stream():
-        routed = route_task(prompt, has_contract)
+        # allow override of routing (e.g., pass "agent":"Guide" in JSON to force)
+        routed = override_agent if override_agent else route_task(prompt, has_contract)
 
         if routed == "Contract":
             out = contractAgent().run(prompt, memory)
