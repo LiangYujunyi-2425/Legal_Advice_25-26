@@ -449,13 +449,38 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
         // If multi-agent conversation occurred, take the last agent message as the final assistant reply,
         // open the central bubble and show it in the main chat, then clear the roundtable overlay.
         if (multiAgentMessages.length > 0) {
-          const firstAgent = multiAgentMessages[0];
-          // append the FIRST agent message into main chat as the assistant reply (label with agent name)
-          setMessages(prev => [...prev, { role: 'assistant', content: `[${firstAgent.speaker}] ${sanitizeAgentText(firstAgent.text)}` }]);
+          // take the LAST agent message from the roundtable and append its last paragraph
+          const lastAgent = multiAgentMessages[multiAgentMessages.length - 1];
+          try {
+            const rawText = sanitizeAgentText(lastAgent.text || '');
+            const normalized = rawText.replace(/\r\n/g, '\n');
+            const paragraphs = normalized.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
+            const lastPara = paragraphs.length > 0 ? paragraphs[paragraphs.length - 1] : (normalized.trim() || '');
+            const label = lastAgent.speaker ? `[${lastAgent.speaker}] ` : '';
+            if (lastPara) {
+              setMessages(prev => [...prev, { role: 'assistant', content: `${label}${lastPara}` }]);
+            }
+          } catch (e) {
+            // fallback: append whole sanitized text if paragraph extraction fails
+            setMessages(prev => [...prev, { role: 'assistant', content: `[${lastAgent.speaker}] ${sanitizeAgentText(lastAgent.text)}` }]);
+          }
+
           // clear overlay state and restore central bubble
           setOverlayMessagesState([]);
           setOverlayParticipants([]);
           setVisible(true);
+        }
+
+        // compute last paragraph from accumulated stream and append as a focused assistant message
+        try {
+          const normalized = (accumulated || '').replace(/\r\n/g, '\n');
+          const paragraphs = normalized.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
+          const lastPara = paragraphs.length > 0 ? paragraphs[paragraphs.length - 1] : (normalized.trim() || '');
+          if (lastPara) {
+            setMessages(prev => [...prev, { role: 'assistant', content: lastPara }]);
+          }
+        } catch (e) {
+          // ignore paragraph extraction errors
         }
 
         setAiMood('happy');
