@@ -59,15 +59,33 @@ function App() {
         onClick={() => {
           // prefer starting/stopping recognition from the actual click (user gesture)
           if (!voiceEnabled) {
-            if (typeof window !== 'undefined' && window.startVoiceRecognition) {
-              try { window.startVoiceRecognition(); } catch (e) {}
+            if (typeof window !== 'undefined') {
+              try { window.startVoiceRecognition?.(); } catch (e) {}
+              // 清除任何 forceStop 狀態
+              try { window.dispatchEvent(new CustomEvent('voice:forceStart')); } catch (e) {}
             }
             setVoiceEnabled(true);
+            try {
+              // 同步把自動語音輸入也設成開啓（使用者點擊啟動語音時默認期望自動功能開啓）
+              localStorage.setItem('voiceAutoEnabled', JSON.stringify(true));
+              window.dispatchEvent(new CustomEvent('voice:autoToggle', { detail: { enabled: true } }));
+            } catch (err) {
+              console.warn('保存 voiceAutoEnabled 失敗', err);
+            }
           } else {
-            if (typeof window !== 'undefined' && window.stopVoiceRecognition) {
-              try { window.stopVoiceRecognition(); } catch (e) {}
+            if (typeof window !== 'undefined') {
+              try { window.stopVoiceRecognition?.(); } catch (e) {}
+              // 發出強制停止，確保不會被自動重啓
+              try { window.dispatchEvent(new CustomEvent('voice:forceStop')); } catch (e) {}
             }
             setVoiceEnabled(false);
+            try {
+              // 使用者點擊關閉語音時，同步把自動語音輸入關閉並持久化，確保不會在 AI 回復後自動重啓
+              localStorage.setItem('voiceAutoEnabled', JSON.stringify(false));
+              window.dispatchEvent(new CustomEvent('voice:autoToggle', { detail: { enabled: false } }));
+            } catch (err) {
+              console.warn('保存 voiceAutoEnabled 失敗', err);
+            }
           }
         }}
         aria-pressed={voiceEnabled}

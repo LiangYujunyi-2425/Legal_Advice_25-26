@@ -21,8 +21,21 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
   const [dragActive, setDragActive] = useState(false);
   const leftContentRef = useRef(null);
   const fileInputRef = useRef(null);
+  // 智能語音輸入開關，預設開啓（persist 到 localStorage）
+  const [voiceAutoEnabled, setVoiceAutoEnabled] = useState(true);
 
   useEffect(() => {
+    // 讀取語音自動開啓設定（預設 true）並廣播初始狀態
+    try {
+      const saved = localStorage.getItem('voiceAutoEnabled');
+      const enabled = saved === null ? true : JSON.parse(saved);
+      setVoiceAutoEnabled(enabled);
+      // 廣播給其他組件（例如 chat）讓它們可以根據此設定決定是否自動啓動語音輸入
+      window.dispatchEvent(new CustomEvent('voice:autoToggle', { detail: { enabled } }));
+    } catch (err) {
+      console.warn('讀取 voiceAutoEnabled 時發生錯誤，使用預設 true', err);
+    }
+
     const startCamera = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -235,6 +248,21 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
     };
   }, []);
 
+  // 當 AI 回復完成時，如果開啓自動語音輸入則通知啓動語音輸入
+  useEffect(() => {
+    const onAIResponse = (e) => {
+      if (voiceAutoEnabled) {
+        // 發出一個全局事件，其他負責語音輸入的組件可以監聽並啓動語音輸入
+        window.dispatchEvent(new CustomEvent('voice:shouldStart', { detail: { source: 'ai' } }));
+      }
+    };
+
+    window.addEventListener('ai:responseComplete', onAIResponse);
+    return () => {
+      window.removeEventListener('ai:responseComplete', onAIResponse);
+    };
+  }, [voiceAutoEnabled]);
+
   // 為左側面板添加拖拽事件監聽
   useEffect(() => {
     const element = leftContentRef.current;
@@ -271,6 +299,25 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
             <img className="left-icon capture" src={addPhotoIconscreen} alt="" aria-hidden="true" />
           </button>
         )}
+        {/* 智能語音自動啟動開關按鈕 */}
+        <button
+          className="icon-btn voice-toggle"
+          onClick={() => {
+            const next = !voiceAutoEnabled;
+            try {
+              localStorage.setItem('voiceAutoEnabled', JSON.stringify(next));
+            } catch (err) {
+              console.warn('保存 voiceAutoEnabled 失敗', err);
+            }
+            setVoiceAutoEnabled(next);
+            window.dispatchEvent(new CustomEvent('voice:autoToggle', { detail: { enabled: next } }));
+          }}
+          aria-pressed={!voiceAutoEnabled}
+          aria-label={voiceAutoEnabled ? '關閉自動語音輸入' : '開啓自動語音輸入'}
+          title={voiceAutoEnabled ? '智能語音輸入：開啓（點擊關閉）' : '智能語音輸入：關閉（點擊開啓）'}
+        >
+          <img className="left-icon" src={voiceAutoEnabled ? addPhotoIconscreen : addPhotoIcon} alt="" aria-hidden="true" />
+        </button>
       </div>
 
       <div
@@ -312,9 +359,9 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
         )}
 
         {recognizedText && (
-          <div className="ocr-result">
+          <div className="ocr-result" style={{ color: 'rgba(248, 250, 255, 1)' }} >
             <h4>OCR 結果</h4>
-            <pre>{recognizedText}</pre>
+            <pre>已經處理，請打開ai顯示</pre>
           </div>
         )}
       </div>

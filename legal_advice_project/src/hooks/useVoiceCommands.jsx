@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react';
 // Usage: useVoiceCommands(enabled, { lang: 'yue-HK' })
 export default function useVoiceCommands(enabled = false, opts = {}) {
   const recognitionRef = useRef(null);
+  const forceStoppedRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -98,9 +99,37 @@ export default function useVoiceCommands(enabled = false, opts = {}) {
     };
   }, []);
 
+  // 支持通过全局事件强制启动/停止（用于确保按钮点击能可靠停止/启动识别）
+  useEffect(() => {
+    const onForceStop = () => {
+      forceStoppedRef.current = true;
+      try { recognitionRef.current?.stop(); } catch (e) {}
+      try { window.dispatchEvent(new CustomEvent('voice:stopped')); } catch (e) {}
+    };
+
+    const onForceStart = () => {
+      forceStoppedRef.current = false;
+      try { recognitionRef.current?.start(); } catch (e) {}
+      try { window.dispatchEvent(new CustomEvent('voice:started')); } catch (e) {}
+    };
+
+    window.addEventListener('voice:forceStop', onForceStop);
+    window.addEventListener('voice:forceStart', onForceStart);
+    return () => {
+      window.removeEventListener('voice:forceStop', onForceStop);
+      window.removeEventListener('voice:forceStart', onForceStart);
+    };
+  }, []);
+
   useEffect(() => {
     const rec = recognitionRef.current;
     if (!rec) return;
+    // 如果被強制停止，則不自動重啓
+    if (forceStoppedRef.current) {
+      try { rec.stop(); } catch (e) {}
+      return;
+    }
+
     if (enabled) {
       try { rec.start(); } catch (e) { /* ignore start errors */ }
     } else {
