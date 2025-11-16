@@ -312,9 +312,9 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
         )}
 
         {recognizedText && (
-          <div className="ocr-result">
+          <div className="ocr-result" style={{ color: 'rgba(248, 250, 255, 1)' }} >
             <h4>OCR 結果</h4>
-            <pre>{recognizedText}</pre>
+            <pre>已經處理，請打開ai顯示</pre>
           </div>
         )}
       </div>
