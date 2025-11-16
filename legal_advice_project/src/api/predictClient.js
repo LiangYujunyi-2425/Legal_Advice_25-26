@@ -1,6 +1,7 @@
 // client to call remote predict endpoint and parse text/event-stream SSE
 // NOTE: This version uses a hard-coded Cloud Run endpoint (no env vars) as requested.
-const PREDICT_ENDPOINT = 'https://api-926721049029.us-central1.run.app/';
+// Ensure the client posts to the /predict route on the remote service
+const PREDICT_ENDPOINT = 'https://api-926721049029.us-central1.run.app/predict';
 // Use a relative path for the local proxy so the browser will call the dev server
 // (Vite dev server proxies /predict -> Cloud Run). In Codespaces the browser
 // cannot reach container localhost, so a relative path ensures requests go to
