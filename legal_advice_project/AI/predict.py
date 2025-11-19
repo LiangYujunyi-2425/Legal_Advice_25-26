@@ -4,6 +4,7 @@ import re
 from typing import Dict, Any, List
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import asyncio
 import time
@@ -64,6 +65,15 @@ async def lifespan(app: FastAPI):
 
 # 建立 FastAPI 應用，並指定 lifespan
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 或指定 ["https://your-frontend.com"]
+    allow_credentials=True,
+    allow_methods=["*"],  # 包含 OPTIONS
+    allow_headers=["*"],
+)
+
 
 def extract_answer(text: str) -> str:
     """只抽取 <answer> ... </answer> 之間的內容"""
@@ -134,24 +144,24 @@ def format_responses_for_judge(responses: Dict[str, str]) -> str:
 
 # ---- Prompt templates ----
 def lawyer_template(user_question: str) -> str:
-    system_prompt = "你是一名律師。你和另一名律師正在回應用戶的香港法律咨詢，假設你是正方。請根據香港法例從專業角度回答用戶的問題並解釋你的推理。如果有反方律師的意見，請根據用戶的問題同意或不同意，並解釋你的推理。限制：用繁體中文回答。不引入任何新的名字或人物，不假設不存在的事實。不需要假設反方律師的回應。請給我乾淨的回答，不需要/n和**"
+    system_prompt = "假設你是一名律師。請根據香港法例從專業角度回答用戶的問題並解釋你的推理。限制：用繁體中文回答。不需要引入案例，不需要假設不存在的事實。請給我乾淨的回答，和使用點列方式輸出回覆。"
     return f"{system_prompt}\n{user_question}"
 
 def contract_template(user_question: str, ) -> str:
-    system_prompt = "你是一名律師。如果用戶提供合約或協議，請從專業角度分析其風險，指出這些風險，並詢問用戶需要什麼幫助。如果用戶提供遺囑，請從專業角度分析其錯誤或遺漏，指出它們，並詢問用戶需要什麼幫助。如果用戶提供訴狀，請從專業角度分析其錯誤或遺漏，指出它們，並詢問用戶需要什麼幫助。限制：用繁體中文回答。請給我乾淨的回答，不要/n和**"
+    system_prompt = "你是一名律師。請從專業角度分析用戶提供的文件，其風險、錯誤或遺漏，並詢問用戶需要什麼幫助。限制：用繁體中文回答。請給我乾淨的回答，和使用點列方式輸出回覆。"
     return f"{system_prompt}\n用戶提供文件：{user_question}"
 
 def prosecutor_template(user_question: str) -> str:
-    system_prompt = "你是一名律師。你和另一名律師正在回應用戶的香港法律咨詢，假設你是反方。根據香港法例和用戶的問題，用相反的意見回應正方律師的回答，並解釋你的推理。如果你同意正方律師的回答，你必須回覆：我沒有意見。限制：用繁體中文回答。不引入任何新的名字或人物，不假設不存在的事實。不需要假設正方律師的回應。請給我乾淨的回答，不需要/n和**"
+    system_prompt = "假設你是一名律師。請根據香港法例從專業角度回答用戶的問題並解釋你的推理並解釋你的推理。限制：用繁體中文回答。不需要引入案例，不需要假設不存在的事實。請給我乾淨的回答，和使用點列方式輸出回覆。"
     return f"{system_prompt}\n{user_question}"
 
 def judge_template(user_question: str, responses: Dict[str, str]) -> str:
-    system_prompt = "你是一名律師助理。總結並整合多輪中雙方的觀點，並提供結論。限制：用繁體中文回答，不引入任何新的名字或人物，不假設不存在的事實。請給我乾淨的回答，不需要/n和**"
-    return f"{system_prompt}\n用戶問題：{user_question}\n律師和檢控官的觀點：{format_responses_for_judge(responses)}"
+    system_prompt = "假設你是一名法官。總結多輪中雙方的觀點，並提供結論。限制：只需要提供結論，用繁體中文回答，不需要引入案例，不需要假設不存在的事實。請給我乾淨的回答，和使用點列方式輸出回覆。"
+    return f"{system_prompt}\n用戶問題：{user_question}\n律師們的觀點：{format_responses_for_judge(responses)}"
 
 def Guide_template(user_question: str, memory: Memory) -> str:
     history = "\n".join([f"{m['role']}: {m['content']}" for m in memory.messages[-6:]])
-    system_prompt = "你是一個名叫小律的法律顧問助手。禮貌地問候用戶並介紹自己。限制：你必須以『非專業法律意見，如需要法律援助請尋求專門人士協助。』結束每個回答。用繁體中文回答。請給我乾淨的回答，不需要/n和**"
+    system_prompt = "你是一個名叫小律的法律顧問助手。禮貌地問候用戶並介紹自己。限制：你必須以『非專業法律意見，如需要法律援助請尋求專門人士協助。』結束每個回答。用繁體中文回答。請給我乾淨的回答，和使用點列方式輸出回覆。"
     return f"{system_prompt}\n歷史：{history}\n用戶問題：{user_question}"
 
 # ---- Agents ----
@@ -234,8 +244,7 @@ def route_task(text: str, has_contract: bool = False) -> str:
     t = text.lower()
 
     # 1. 如果有上傳合約 PDF → ContractAgent
-    contract_keywords = ["合約", "合同", "遺囑", "租約"]
-    if has_contract or (len(text) > 100 and any(k in t for k in contract_keywords)):
+    if has_contract or len(text) > 50:
         return "Contract"
 
     # 2. 如果是法律相關問題 → Negotiate
@@ -261,7 +270,7 @@ def orchestrate(text: str, memory: Memory) -> Dict[str, Any]:
     elapsed = round(time.time() - start, 3)
     return {"agent_used": agent_name, "result": result, "latency_sec": elapsed}
 
-def negotiate_stream(user_question: str, memory: Memory, max_rounds: int = 5):
+def negotiate_stream(user_question: str, memory: Memory, max_rounds: int = 3):
     responses: Dict[str, str] = {}
 
     # 第一輪
