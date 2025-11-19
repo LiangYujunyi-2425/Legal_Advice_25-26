@@ -40,13 +40,6 @@ export async function getLastParagraph(prompt, has_contract = false, apiKey = nu
   }
 
   // Normalize line endings and split into paragraphs (one or more blank lines)
-  const paragraphs = fullText
-    .replace(/\r\n/g, '\n')
-    .split(/\n{2,}/)
-    .map(p => p.trim())
-    .filter(Boolean);
-
-  if (paragraphs.length > 0) return paragraphs[paragraphs.length - 1];
   return fullText.trim();
 }
 

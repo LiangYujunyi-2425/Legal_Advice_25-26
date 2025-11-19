@@ -14,7 +14,6 @@ const LOCAL_PROXY = '/predict';
  */
 export async function* streamPredict(prompt, has_contract = false, apiKey = null) {
   const headers = { 'Content-Type': 'application/json' };
-  // if caller provided an apiKey param, attach it (no env vars used)
   if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
 
   // try direct fetch first
@@ -23,7 +22,7 @@ export async function* streamPredict(prompt, has_contract = false, apiKey = null
     res = await fetch(PREDICT_ENDPOINT, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ instances: [{ text: prompt }], has_contract })
+      body: JSON.stringify({ system_prompt: "", user_question: prompt })
     });
 
     if (!res.ok) {
@@ -31,12 +30,13 @@ export async function* streamPredict(prompt, has_contract = false, apiKey = null
       throw new Error(`Predict API error: ${res.status} ${txt}`);
     }
   } catch (err) {
-  console.warn('Direct fetch failed, attempting local proxy fallback (relative /predict):', err && err.message);
+    console.warn('Direct fetch failed, attempting local proxy fallback (relative /predict):', err && err.message);
     // fallback to local proxy to avoid CORS - useful for local development
     try {
       res = await fetch(LOCAL_PROXY, {
         method: 'POST',
         headers,
+        // If your local proxy expects the new format, switch this to system_prompt/user_question too.
         body: JSON.stringify({ instances: [{ text: prompt }], has_contract })
       });
       if (!res.ok) {
@@ -49,7 +49,9 @@ export async function* streamPredict(prompt, has_contract = false, apiKey = null
   }
 
   const reader = res.body?.getReader();
-  if (!reader) return;
+  if (!reader) {
+    throw new Error("response body 不支援 getReader()");
+  }
 
   const decoder = new TextDecoder();
   let buf = '';
@@ -57,23 +59,26 @@ export async function* streamPredict(prompt, has_contract = false, apiKey = null
   while (true) {
     const { value, done } = await reader.read();
     if (done) break;
+
     buf += decoder.decode(value, { stream: true });
 
-    let idx;
-    while ((idx = buf.indexOf('\n\n')) !== -1) {
-      const chunk = buf.slice(0, idx).trim();
-      buf = buf.slice(idx + 2);
+    // 找出所有以 data: 開頭的行，但保留原始 \n
+    const matches = buf.match(/^data:\s*(.*)$/gm);
+    buf = ''; // 清空 buffer
 
-      const lines = chunk.split(/\r?\n/);
-      for (const line of lines) {
-        const prefix = 'data: ';
-        if (!line.startsWith(prefix)) continue;
-        const payload = line.slice(prefix.length).trim();
+    if (matches) {
+      for (const m of matches) {
+        // 保留原始字串，包括可能存在的 \n（注意：這裡 m 是單行，\n 會存在於 payload 原始 JSON 字串中）
+        const payload = m.slice('data: '.length);
+
         if (payload === '[DONE]') return;
+
         try {
           const obj = JSON.parse(payload);
+          // 若 obj.output 內含 \n，前端用 white-space: pre-line 顯示即可
           yield obj;
-        } catch (e) {
+        } catch {
+          // 非 JSON → 字串，保留原始內容
           yield payload;
         }
       }

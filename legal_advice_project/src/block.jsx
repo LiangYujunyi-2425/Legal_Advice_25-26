@@ -8,6 +8,9 @@ import managerAvatar from './assets/property_manager.webp';
 import leaseMessages from './data/leaseMessages';
 import welcomeSound from './assets/welcome.mp3';
 import { streamPredict } from './api/predictClient';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+
 
 // 居中泡泡聊天（保留 API / 上傳 邏輯），帶 banner 波動與右側 AI 表情互動
 const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiMood, setAiMood: propSetAiMood, voiceEnabled }, ref) => {
@@ -86,38 +89,6 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     };
   }, []);
 
-  // compose a concrete final reply based on the conversation (simple template)
-  const composeFinalReply = (conversation) => {
-    const lines = [];
-    lines.push('基於剛才四方的討論，給你一份具體且可執行的建議：');
-    lines.push('1) 租期與租金：在合約寫明租期起訖日、租金金額、繳付日期與逾期利息。');
-    lines.push('2) 押金：建議押金為兩個月租金，並約定業主在確認物業無損後於十個工作日內退還（可扣除合理維修費）。');
-    lines.push('3) 入伙/點交：合約應附入伙點交表（Inventory & Condition Report），雙方簽名並拍照存證。');
-    lines.push('4) 修繕責任：明確區分重大結構性維修（業主負責）與日常小修（租客負責）。');
-    lines.push('5) 轉租/改裝/養寵物：若允許需在合約列明條件、押金或恢復原狀責任。');
-    lines.push('6) 提前終止與違約：列明嚴重違約情形（如連續拖欠租金兩個月）、寬限期（例如14天）與賠償機制。');
-    lines.push('7) 爭議解決：先行協商/調解，並約定香港法院管轄或仲裁條款以加速處理。');
-    lines.push('8) 保存證據：保留簽署合約原件、點交表、所有收據與通訊記錄。');
-    lines.push('如需，我可以把上述要點轉成合約可用的條款範本，或以繁體/英文輸出。');
-    return lines.join('\n');
-  };
-
-  // sanitize agent output: prefer content inside <answer>...</answer>, strip other tags
-  const sanitizeAgentText = (text) => {
-    if (!text) return '';
-    let t = String(text);
-    // prefer explicit <answer> tag
-    const a = t.match(/<answer>([\s\S]*?)<\/answer>/i);
-    if (a && a[1]) t = a[1];
-    // remove instruction/question blocks
-    t = t.replace(/<instruction>[\s\S]*?<\/instruction>/gi, '');
-    t = t.replace(/<question>[\s\S]*?<\/question>/gi, '');
-    // remove any remaining XML-like tags
-    t = t.replace(/<[^>]+>/g, '');
-    // collapse whitespace
-    t = t.replace(/\s+/g, ' ').trim();
-    return t;
-  };
 
   // play conversation into the center overlay (自动触发于 sendMessage)
   const playConversation = (conversation = leaseMessages, speed = 900) => {
@@ -389,6 +360,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     setSquash(true);
     setTimeout(() => setSquash(false), 160);
 
+
     // Stream from remote predict endpoint and update assistant message incrementally
     (async () => {
       try {
@@ -396,48 +368,32 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
         // collect multi-agent messages locally so we can act on them when stream ends
         const multiAgentMessages = [];
         for await (const chunk of streamPredict(text, false)) {
-          // If backend yields a labeled agent chunk (e.g. {agent: 'Lawyer', output: '...'})
-          // render it as a multi-agent roundtable message instead of a single assistant stream.
           if (chunk && typeof chunk === 'object' && chunk.agent) {
             const agentName = chunk.agent || 'Agent';
             const outputText = chunk.output || '';
 
-            // ensure participant exists and set them as speaking
-            const avatarKey = (agentName.toLowerCase().includes('lawyer') && 'lawyer')
-              || (agentName.toLowerCase().includes('prosecutor') && 'judge')
-              || (agentName.toLowerCase().includes('judge') && 'judge')
-              || (agentName.toLowerCase().includes('contract') && 'lawyer')
-              || 'judge';
-            const newPart = { id: Date.now() + Math.random(), avatarKey, name: agentName };
-            setOverlayParticipants(prev => {
-              const exists = prev.find(p => p.name === agentName || p.avatarKey === (agentName.toLowerCase() || ''));
-              if (exists) {
-                try { setSpeakingAgentId(exists.id); } catch (e) {}
-                return prev;
-              }
-              try { setSpeakingAgentId(newPart.id); } catch (e) {}
-              return [...prev, newPart];
-            });
-
-            // append message to overlay (roundtable)
-            const cleanText = sanitizeAgentText(outputText);
-            const m = { id: Date.now() + Math.random(), speaker: agentName, role: agentName, text: cleanText, avatarKey: (agentName.toLowerCase().includes('lawyer') ? 'lawyer' : (agentName.toLowerCase().includes('prosecutor') ? 'judge' : 'xiaojinglin')) };
+            // 建立 overlay message
+            const m = {
+              id: Date.now() + Math.random(),
+              speaker: agentName,
+              role: agentName,
+              text: outputText,
+              avatarKey: agentName.toLowerCase().includes('lawyer')
+                ? 'lawyer'
+                : agentName.toLowerCase().includes('prosecutor')
+                ? 'judge'
+                : 'xiaojinglin'
+            };
             setOverlayMessagesState(prev => [...prev, m]);
             multiAgentMessages.push(m);
 
-            // ensure roundtable overlay is visible (hide central bubble)
             setVisible(false);
             continue;
           }
 
-          // otherwise treat as normal assistant streaming text
-          let piece = '';
-          if (typeof chunk === 'string') piece = chunk;
-          else if (chunk && chunk.output) piece = chunk.output;
-          else piece = JSON.stringify(chunk);
+          // 一般 assistant streaming
+          let piece = typeof chunk === 'string' ? chunk : chunk?.output || JSON.stringify(chunk);
           accumulated += piece;
-
-          // update last assistant message
           setMessages(prev => {
             const copy = [...prev];
             copy[copy.length - 1] = { role: 'assistant', content: accumulated };
@@ -446,26 +402,12 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
         }
 
         // finished streaming
-        // If multi-agent conversation occurred, take the last agent message as the final assistant reply,
-        // open the central bubble and show it in the main chat, then clear the roundtable overlay.
         if (multiAgentMessages.length > 0) {
-          // take the LAST agent message from the roundtable and append its last paragraph
           const lastAgent = multiAgentMessages[multiAgentMessages.length - 1];
-          try {
-            const rawText = sanitizeAgentText(lastAgent.text || '');
-            const normalized = rawText.replace(/\r\n/g, '\n');
-            const paragraphs = normalized.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
-            const lastPara = paragraphs.length > 0 ? paragraphs[paragraphs.length - 1] : (normalized.trim() || '');
-            const label = lastAgent.speaker ? `[${lastAgent.speaker}] ` : '';
-            if (lastPara) {
-              setMessages(prev => [...prev, { role: 'assistant', content: `${label}${lastPara}` }]);
-            }
-          } catch (e) {
-            // fallback: append whole sanitized text if paragraph extraction fails
-            setMessages(prev => [...prev, { role: 'assistant', content: `[${lastAgent.speaker}] ${sanitizeAgentText(lastAgent.text)}` }]);
-          }
+          const rawText = lastAgent.text || '';
+          const label = lastAgent.speaker ? `[${lastAgent.speaker}] ` : '';
+          setMessages(prev => [...prev, { role: 'assistant', content: `${label}${rawText}` }]);
 
-          // clear overlay state and restore central bubble
           setOverlayMessagesState([]);
           setOverlayParticipants([]);
           setVisible(true);
@@ -827,7 +769,9 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           <div className="chat-messages" ref={chatMessagesRef}>
             {messages.map((msg, index) => (
               <div key={index} className={`message ${msg.role}`}>
-                {msg.content}
+                <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                  {msg.content}
+                </ReactMarkdown>
               </div>
             ))}
           </div>
