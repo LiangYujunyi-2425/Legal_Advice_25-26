@@ -872,51 +872,6 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       )}
       {/* 圆桌会话 overlay（Round-table） */}
       <div className="roundtable-overlay" style={{ display: overlayMessagesState.length ? 'flex' : 'none' }} aria-hidden={!overlayMessagesState.length}>
-        <style>{`
-          .roundtable-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 80; pointer-events: auto; }
-          .roundtable-card {position: absolute; top: -50px;border-radius: 20%; background: rgba(255, 255, 255, 0.96); width: min(760px, 92%); max-height: 86vh; position: relative; display: flex; align-items: center; justify-content: center; }
-          .center-title{border-radius: 20%; background: rgba(255, 255, 255, 0.96)}
-          .roundtable-center {position: absolute;top: -340px;left: 7px;width: 790px; height: 745px; border-radius: 50%;  display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; }
-          .roundtable-center .center-text {border-radius: 10%; background: rgba(200, 200, 200, 0.6); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); width: 80%; height: 80%; overflow:auto; padding:8px; text-align:left; }
-          /* hide scrollbar but keep scroll functionality */
-          .roundtable-center .center-text::-webkit-scrollbar { width: 0; height: 0; }
-          .roundtable-center .center-text { -ms-overflow-style: none; scrollbar-width: none; }
-
-          /* message layout and entrance animations */
-          .rt-message { display:flex; align-items:flex-start; gap:8px; width:100%; max-width:720px; box-sizing:border-box; }
-          .rt-avatar { width:40px; flex-shrink:0; }
-          .rt-body { flex:1; display:flex; flex-direction:column; align-items:flex-start; }
-          .rt-sender { font-size:12px; color:#333; margin-bottom:6px; }
-
-          /* floating sender name near avatar */
-          .rt-sender-floating { position: absolute; font-size:12px; color:#222; background: rgba(255,255,255,0.92); padding:4px 8px; border-radius:8px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); pointer-events: none; }
-          .msg-left .rt-sender-floating { transform-origin:left center; left: 56px; top: -6px; animation: nameSlideLeft 420ms cubic-bezier(.2,.9,.2,1) both; }
-          .msg-right .rt-sender-floating { transform-origin:right center; right: 56px; top: -6px; animation: nameSlideRight 420ms cubic-bezier(.2,.9,.2,1) both; }
-
-          @keyframes nameSlideLeft { from { opacity:0; transform: translateX(-10px) scale(.98); } to { opacity:1; transform: translateX(0) scale(1); } }
-          @keyframes nameSlideRight { from { opacity:0; transform: translateX(10px) scale(.98); } to { opacity:1; transform: translateX(0) scale(1); } }
-
-          .center-message { background: rgba(250,250,250,0.9); padding:10px 12px; border-radius:12px; display:inline-block; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
-
-          /* left / right variants */
-          .msg-left { justify-content:flex-start; transform-origin:left center; animation: slideInLeft 360ms cubic-bezier(.2,.9,.2,1) both; }
-          .msg-right { justify-content:flex-end; flex-direction:row-reverse; transform-origin:right center; animation: slideInRight 360ms cubic-bezier(.2,.9,.2,1) both; }
-
-          @keyframes slideInLeft { from { opacity:0; transform: translateX(-26px) scale(0.98); } to { opacity:1; transform: translateX(0) scale(1); } }
-          @keyframes slideInRight { from { opacity:0; transform: translateX(26px) scale(0.98); } to { opacity:1; transform: translateX(0) scale(1); } }
-          .roundtable-agents { position: absolute; inset: 0; pointer-events: none; top: 75px; }
-          /* agent node: centered at (left, top) with translate to truly center the circle layout */
-          .agent-node { position: absolute; width: 84px; height: 84px; border-radius: 50%; display:flex; align-items:center; justify-content:center; transition: transform 300ms cubic-bezier(.2,.9,.2,1), box-shadow 300ms, filter 300ms; pointer-events: auto; z-index: 2; transform: translate(-50%, -50%); }
-          .agent-node img { width: 64px; height:64px; border-radius:50%; object-fit:cover; display:block; }
-          .agent-node .name { position: absolute; top: 98px; width: 140px; left: 50%; transform: translateX(-50%); text-align:center; font-size:12px; color:#222; pointer-events: none; }
-          /* speaking visual: soft radial glow + subtle scale/pulse */
-          .agent-speaking { transform: translate(-50%, -50%) scale(1.12); filter: drop-shadow(0 10px 24px rgba(50,120,255,0.18)); }
-          .agent-speaking::before { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; border-radius: 50%; z-index: 1; pointer-events: none; background: radial-gradient(circle at center, rgba(72,142,255,0.30), rgba(72,142,255,0.08) 40%, transparent 60%); animation: pulseGlow 1400ms ease-out infinite; }
-          @keyframes pulseGlow { 0% { transform: translate(-50%, -50%) scale(0.94); opacity: 0.95 } 50% { transform: translate(-50%, -50%) scale(1.04); opacity: 0.8 } 100% { transform: translate(-50%, -50%) scale(0.98); opacity: 0.9 } }
-          .agent-stretch { transition: transform 420ms cubic-bezier(.2,.9,.2,1); transform: scaleX(1.22) scaleY(1.22); }
-          .center-message { background: rgba(250,250,250,0.9); padding:10px 12px; border-radius:12px; display:inline-block; box-shadow: 0 6px 18px rgba(0,0,0,0.08); color:#000000; }
-          .name{border-radius: 40%; background: rgba(206, 206, 206, 0.9); }
-        `}</style>
         <div className="roundtable-card">
           <div className="roundtable-agents" aria-hidden="false">
             {overlayParticipants.map((p, i) => {
@@ -946,7 +901,11 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
                   {/* floating sender name placed near avatar and animated per-side */}
                   <div className="rt-sender-floating">{m.speaker}</div>
                   <div className={`rt-body`}>
-                    <div className={`center-message`}>{m.text}</div>
+                    <div className={`center-message`}>
+                      <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                        {m.text}
+                      </ReactMarkdown>
+                    </div>
                   </div>
                 </div>
               ))}
