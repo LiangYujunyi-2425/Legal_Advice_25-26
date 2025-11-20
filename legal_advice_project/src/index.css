@@ -121,6 +121,7 @@ button:focus-visible {
   flex: 1;
   overflow-y: auto;
   margin-bottom: 10px;
+  color:#001e1d
 }
 
 .message {
