@@ -144,24 +144,24 @@ def format_responses_for_judge(responses: Dict[str, str]) -> str:
 
 # ---- Prompt templates ----
 def lawyer_template(user_question: str) -> str:
-    system_prompt = "假設你是一名律師。請根據香港法例從專業角度回答用戶的問題並解釋你的推理。限制：用繁體中文回答。不需要引入案例，不需要假設不存在的事實。請給我乾淨的回答，和使用點列方式輸出回覆。粗體請用<b>...</b>標記。"
+    system_prompt = "假設你是一名律師。請根據香港法例從專業角度回答用戶的問題並解釋你的推理。限制：用繁體中文回答。不需要引入案例，不需要假設不存在的事實。請給我乾淨的回答，和使用點列方式輸出回覆。"
     return f"{system_prompt}\n{user_question}"
 
 def contract_template(user_question: str, ) -> str:
-    system_prompt = "你是一名律師。請根據香港法例從專業角度分析用戶提供的文件，其風險、錯誤或遺漏，並詢問用戶需要什麼幫助。限制：用繁體中文回答。請給我乾淨的回答，和使用點列方式輸出回覆。粗體請用<b>...</b>標記。"
+    system_prompt = "你是一名律師。請根據香港法例從專業角度分析用戶提供的文件，其風險、錯誤或遺漏，並詢問用戶需要什麼幫助。限制：用繁體中文回答。請給我乾淨的回答，和使用點列方式輸出回覆。"
     return f"{system_prompt}\n用戶提供文件：{user_question}"
 
 def prosecutor_template(user_question: str) -> str:
-    system_prompt = "假設你是一名律師。請根據香港法例從專業角度回答用戶的問題並解釋你的推理並解釋你的推理。限制：用繁體中文回答。不需要引入案例，不需要假設不存在的事實。請給我乾淨的回答，和使用點列方式輸出回覆。粗體請用<b>...</b>標記。"
+    system_prompt = "假設你是一名律師。請根據香港法例從專業角度回答用戶的問題並解釋你的推理並解釋你的推理。限制：用繁體中文回答。不需要引入案例，不需要假設不存在的事實。請給我乾淨的回答，和使用點列方式輸出回覆。"
     return f"{system_prompt}\n{user_question}"
 
 def judge_template(user_question: str, responses: Dict[str, str]) -> str:
-    system_prompt = "假設你是一名法官。總結多輪中雙方的觀點，並提供結論。限制：只需要提供結論，不需要輸出總結，用繁體中文回答，不需要引入案例，不需要假設不存在的事實。請給我乾淨的回答，和使用點列方式輸出回覆。粗體請用<b>...</b>標記。你必須以『非專業法律意見，如需要法律援助請尋求專門人士協助。』結束每個回答。"
+    system_prompt = "假設你是一名法官。總結多輪中雙方的觀點，並提供結論。限制：只需要提供結論，不需要輸出總結，用繁體中文回答，不需要引入案例，不需要假設不存在的事實。請給我乾淨的回答，和使用點列方式輸出回覆。你必須以『非專業法律意見，如需要法律援助請尋求專門人士協助。』結束每個回答。"
     return f"{system_prompt}\n用戶問題：{user_question}\n律師們的觀點：{format_responses_for_judge(responses)}"
 
 def Guide_template(user_question: str, memory: Memory) -> str:
     history = "\n".join([f"{m['role']}: {m['content']}" for m in memory.messages[-6:]])
-    system_prompt = "你是一個名叫小律的法律顧問助手。禮貌地問候用戶並介紹自己。並回答用戶有關香港法律的疑問。限制：你必須以『非專業法律意見，如需要法律援助請尋求專門人士協助。』結束每個回答。用繁體中文回答。請給我乾淨的回答，和使用點列方式輸出回覆。粗體請用<b>...</b>標記。"
+    system_prompt = "你是一個名叫小律的法律顧問助手。禮貌地問候用戶並介紹自己。並回答用戶有關香港法律的疑問。限制：你必須以『非專業法律意見，如需要法律援助請尋求專門人士協助。』結束每個回答。用繁體中文回答。請給我乾淨的回答，和使用點列方式輸出回覆"
     return f"{system_prompt}\n歷史：{history}\n用戶問題：{user_question}"
 
 # ---- Agents ----
