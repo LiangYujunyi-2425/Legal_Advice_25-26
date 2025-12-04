@@ -818,7 +818,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
                 padding: '6px 10px',
                 borderRadius: 8,
                 border: '1px solid rgba(0,0,0,0.08)',
-                background: ttsEnabled ? '#f0f8ff' : undefined
+                background: ttsEnabled ? '#a1c423ff' : undefined
               }}
             >
               {ttsEnabled ? '🔊 語音開' : '🔇 語音關'}
