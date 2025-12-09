@@ -765,6 +765,19 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             <div className="avatar-bubble" />
             <div className="title">法律助理</div>
           </div>
+          <div className="header-centualtxt">
+            <div className="scroll-container">
+              <div className="scroll-text">
+                <span>多代理人對話系統已啟用，模擬律師、法官、當事人真實場景！</span>
+                <span>上傳合約、遺囑或判決書，AI 即時分析法律重點，助你快速理解！</span>
+                <span>點擊語音圖示，與法律 AI 助理對話，支援中文與英文雙語互動！</span>
+                <span>本網站支援 PDF 自動識別與掃描文字分析，無需手動輸入！</span>
+                <span>法律不再遙遠，AI 助你普法，讓每位市民都能輕鬆掌握法律知識。</span>
+                <span>拖放你的文件，AI 即刻回覆法律建議，無需等待律師排期！</span>
+                <span>本網站支援視障者語音操作，致力打造無障礙法律科技平台。</span>
+              </div>
+            </div>
+          </div>
           <div className="header-right">
             {messages.length} 訊息
           </div>

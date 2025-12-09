@@ -1424,3 +1424,41 @@ button:focus-visible {
   .suggestion-bar{ padding:6px 8px; gap:6px }
   .suggestion-chip{ font-size:13px; padding:6px 10px }
 }
+
+
+.header-centualtxt {
+  width: 80%;
+  height: 40px;
+  overflow: hidden;
+  position: relative;
+  background: transparent;   /* 背景透明 */
+  border: none;              /* 移除邊框（可選） */
+  display: flex;
+  align-items: center;
+}
+
+.scroll-container {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.scroll-text {
+  display: inline-block;
+  animation: scroll-left 65s linear infinite;
+}
+
+.scroll-text span {
+  display: inline-block;
+  margin-right: 50px; /* 每條提示之間的間距 */
+  font-size: 18px;
+  font-weight: bold;
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
