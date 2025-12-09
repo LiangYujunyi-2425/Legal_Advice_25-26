@@ -56,6 +56,7 @@ function App() {
 
       {/* 语音控制开关 (固定在右下角) */}
       <button
+        className='voicecontroltxtweb'
         onClick={() => {
           // prefer starting/stopping recognition from the actual click (user gesture)
           if (!voiceEnabled) {
@@ -92,14 +93,14 @@ function App() {
         title="切換語音控制"
         style={{
           position: 'fixed',
-          right: 18,
-          bottom: 18,
           zIndex: 240,
           padding: '8px 12px',
           borderRadius: 12,
           border: '1px solid rgba(0,0,0,0.12)',
           background: voiceEnabled ? '#dfb632ff' : '#4ade80',
-          boxShadow: '0 12px 30px rgba(0, 0, 0, 0.25)'
+          boxShadow: '0 12px 30px rgba(0, 0, 0, 0.25)' ,
+          fontSize: '18px',
+          fontWeight: 'bold'
         }}
       >
         {voiceEnabled ? '智能語音辅助' : '关闭語音辅助'}

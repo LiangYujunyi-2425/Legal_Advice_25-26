@@ -10,6 +10,8 @@ import welcomeSound from './assets/welcome.mp3';
 import { streamPredict } from './api/predictClient';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
+import SuggestionBar from './components/SuggestionBar';
+import { useSuggestions } from './hooks/useSuggestions';
 
 
 // 居中泡泡聊天（保留 API / 上傳 邏輯），帶 banner 波動與右側 AI 表情互動
@@ -739,6 +741,9 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     };
   }, [setVisible]);
 
+  // compute suggestion list (rules-based fallback)
+  const suggestions = useSuggestions({ messages, uploadedFiles: [], popular: ['法律備忘錄格式','起草一份簡短的法律意見書框架','生成辯護要點清單','檢查合同風險','列出重點','比較兩份合同差異'] });
+
   return (
     <>
       {/* 浮動右下開關 */}
@@ -760,12 +765,31 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             <div className="avatar-bubble" />
             <div className="title">法律助理</div>
           </div>
+          <div className="header-centualtxt">
+            <div className="scroll-container">
+              <div className="scroll-text">
+                <span>多代理人對話系統已啟用，模擬律師、法官、當事人真實場景！</span>
+                <span>上傳合約、遺囑或判決書，AI 即時分析法律重點，助你快速理解！</span>
+                <span>點擊語音圖示，與法律 AI 助理對話，支援中文與英文雙語互動！</span>
+                <span>本網站支援 PDF 自動識別與掃描文字分析，無需手動輸入！</span>
+                <span>法律不再遙遠，AI 助你普法，讓每位市民都能輕鬆掌握法律知識。</span>
+                <span>拖放你的文件，AI 即刻回覆法律建議，無需等待律師排期！</span>
+                <span>本網站支援視障者語音操作，致力打造無障礙法律科技平台。</span>
+              </div>
+            </div>
+          </div>
           <div className="header-right">
             {messages.length} 訊息
           </div>
         </div>
 
         <div className="chat-container">
+          {/* 建議問題列：會根據會話/上傳內容顯示建議 */}
+          <SuggestionBar
+            suggestions={suggestions}
+            onFill={(text) => { setInput(text); setTimeout(() => inputRef.current?.focus(), 80); }}
+            onSend={(text) => sendMessage(text)}
+          />
           <div className="chat-messages" ref={chatMessagesRef}>
             {messages.map((msg, index) => (
               <div key={index} className={`message ${msg.role}`}>
@@ -798,13 +822,14 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             </select>
 
             <input
+              className='txtinputplace'
               ref={inputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
               placeholder="問我有關合同或法律的問題..."
-              style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.08)' }}
+              style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(172, 169, 169, 0.08)' }}
             />
 
             <button className='ai_txt_sendbutton' onClick={() => sendMessage()} >送出</button>

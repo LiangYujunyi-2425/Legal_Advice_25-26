@@ -1169,14 +1169,16 @@ button:focus-visible {
   border-radius: 20%;
   background: rgba(255, 255, 255, 0.96);
   color: #000000;
+  font-size: 30;
+  font-weight: bold;
 }
 
 .roundtable-center {
   position: absolute;
-  top: -340px;
-  left: 7px;
-  width: 790px;
-  height: 745px;
+  top: -500px;
+  left: -150px;
+  width: 1250px;
+  height: 945px;
   border-radius: 50%;
   display: flex;
   flex-direction: column;
@@ -1356,4 +1358,107 @@ button:focus-visible {
 
 .ai_txt_sendbutton:active {
   background-color: #2ecc71;   /* 按下時變綠色 */
+}
+
+.txtinputplace {
+  transition: all 0.3s ease;
+}
+.txtinputplace:hover{
+  background-color: #fff7f0 ;
+  box-shadow: 0 0 12px rgba(207, 255, 36, 0.6);
+}
+
+.voicecontroltxtweb {
+  position: fixed;
+  right: 40px;
+  bottom: 40px;
+  z-index: 240;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background-color: #4ade80; /* 預設綠色 */
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+/* hover 效果 */
+.voicecontroltxtweb:hover {
+  transform: scale(1.40); /* 放大 */
+  box-shadow: 0 0 20px rgba(188, 255, 31, 0.8); /* 光暈 */
+  background-color: #22c55e; /* 顏色變亮 */
+}
+
+/* ---------- Suggestion Bar (建議問題列) ---------- */
+.suggestion-bar{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  padding:8px 12px;
+  overflow-x:auto;
+  width:100%;
+  -webkit-overflow-scrolling: touch;
+}
+.suggestion-chip{
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));
+  color: #e9f7f2;
+  border: 1px solid rgba(255,255,255,0.04);
+  padding:8px 12px;
+  border-radius: 999px;
+  font-size: 14px;
+  cursor:pointer;
+  white-space:nowrap;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+.suggestion-chip:focus,
+.suggestion-chip:hover{
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.45);
+  outline: none;
+}
+.chip-icon{ margin-right:8px; display:inline-flex; align-items:center; }
+.chip-loading{ margin-left:8px; opacity:0.9 }
+
+@media (max-width: 600px){
+  .suggestion-bar{ padding:6px 8px; gap:6px }
+  .suggestion-chip{ font-size:13px; padding:6px 10px }
+}
+
+
+.header-centualtxt {
+  width: 80%;
+  height: 40px;
+  overflow: hidden;
+  position: relative;
+  background: transparent;   /* 背景透明 */
+  border: none;              /* 移除邊框（可選） */
+  display: flex;
+  align-items: center;
+}
+
+.scroll-container {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.scroll-text {
+  display: inline-block;
+  animation: scroll-left 65s linear infinite;
+}
+
+.scroll-text span {
+  display: inline-block;
+  margin-right: 50px; /* 每條提示之間的間距 */
+  font-size: 18px;
+  font-weight: bold;
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
