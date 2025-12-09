@@ -798,13 +798,14 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             </select>
 
             <input
+              className='txtinputplace'
               ref={inputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
               placeholder="問我有關合同或法律的問題..."
-              style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.08)' }}
+              style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(172, 169, 169, 0.08)' }}
             />
 
             <button className='ai_txt_sendbutton' onClick={() => sendMessage()} >送出</button>

@@ -1169,14 +1169,16 @@ button:focus-visible {
   border-radius: 20%;
   background: rgba(255, 255, 255, 0.96);
   color: #000000;
+  font-size: 30;
+  font-weight: bold;
 }
 
 .roundtable-center {
   position: absolute;
-  top: -340px;
-  left: 7px;
-  width: 790px;
-  height: 745px;
+  top: -500px;
+  left: -150px;
+  width: 1250px;
+  height: 945px;
   border-radius: 50%;
   display: flex;
   flex-direction: column;
@@ -1356,4 +1358,34 @@ button:focus-visible {
 
 .ai_txt_sendbutton:active {
   background-color: #2ecc71;   /* 按下時變綠色 */
+}
+
+.txtinputplace {
+  transition: all 0.3s ease;
+}
+.txtinputplace:hover{
+  background-color: #fff7f0 ;
+  box-shadow: 0 0 12px rgba(207, 255, 36, 0.6);
+}
+
+.voicecontroltxtweb {
+  position: fixed;
+  right: 40px;
+  bottom: 40px;
+  z-index: 240;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background-color: #4ade80; /* 預設綠色 */
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+/* hover 效果 */
+.voicecontroltxtweb:hover {
+  transform: scale(1.40); /* 放大 */
+  box-shadow: 0 0 20px rgba(188, 255, 31, 0.8); /* 光暈 */
+  background-color: #22c55e; /* 顏色變亮 */
 }
