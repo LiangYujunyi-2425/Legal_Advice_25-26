@@ -149,6 +149,8 @@ button:focus-visible {
 .chat-input {
   display: flex;
   gap: 5px;
+  transition: all 0.3s ease; /* 平滑過渡效果 */
+  border-radius: 8px;
 }
 
 .chat-input input {
@@ -169,7 +171,14 @@ button:focus-visible {
   border-radius: 5px;
   cursor: pointer;
 }
-
+.chat-input:hover{
+  transform: scale(1.1); /* 放大 */
+  box-shadow: 0 0 12px rgba(229, 253, 190, 0.6); /* 光暈 */
+  border: 1px solid rgba(255,255,255,0.3);   /* 半透明邊框 */
+  background: rgb(16, 48, 19); /* hover 時背景更亮 */
+  backdrop-filter: blur(8px);                /* 背景模糊 */
+  -webkit-backdrop-filter: blur(8px); 
+}
 
 .centerarea {
       position: fixed;
@@ -347,12 +356,12 @@ button:focus-visible {
 
 .center-bubble {
   position: fixed;
-  left: 50%;
+  left: 53%;
   top: 50%;
   transform: translate(-50%, -50%) scale(0.9);
-  width: min(1100px, 92%);
-  max-width: 1200px;
-  height: min(78vh, 720px);
+  width: min(1300px, 92%);
+  max-width: 1400px;
+  height: min(85vh, 820px);
   /* stronger frosted glass base */
   background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.28));
   border-radius: 40px;
@@ -552,20 +561,7 @@ button:focus-visible {
 @keyframes bannerWave{ 0%{ transform: translateY(0) } 30%{ transform: translateY(-6px) rotate(-0.3deg) } 60%{ transform: translateY(3px) rotate(0.2deg) } 100%{ transform: translateY(0) } }
 
 /* 右側 AI 小表情 */
-.ai-face{
-  position: fixed;
-  right: 50px;
-  top: 18%;
-  width: 84px;
-  height: 84px;
-  border-radius: 999px;
-  display:flex; align-items:center; justify-content:center;
-  /* elf-like face contour: soft light green / aqua to blend with background */
-  background: radial-gradient(circle at 30% 30%, rgba(198,255,230,0.95), rgba(110,219,190,0.9));
-  box-shadow: 0 12px 36px rgba(6,30,18,0.48), 0 2px 10px rgba(110,220,180,0.06) inset;
-  z-index: 1800;
-  transition: transform 220ms ease, box-shadow 220ms ease, filter 220ms ease;
-}
+
 .ai-face .eye{
   width:12px;
   height:12px;
@@ -581,7 +577,7 @@ button:focus-visible {
 .ai-face .eye::after{
   content: '';
   position: absolute;
-  left: 3px;
+  left: 50%;
   top: 2px;
   width: 4px;
   height: 4px;
@@ -883,7 +879,7 @@ button:focus-visible {
 .ai-face .expression {
   position: absolute;
   top: -8px;
-  right: -8px;
+  right: -5px;
   min-width: 26px;
   height: 26px;
   display: inline-flex;
@@ -1340,4 +1336,24 @@ button:focus-visible {
   transform: translateX(-50%);
   text-align: center;
   font-size: 12;
+}
+
+.ai_txt_sendbutton {
+  margin-left: 1px;
+  padding: 6px 10px;
+  border-radius: 0px;
+  border: 1px solid rgba(0,0,0,0.03);
+  background-color: #a1c423;   /* 改成 background-color */
+  font-size: 18px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.ai_txt_sendbutton:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 12px rgba(161,196,35,0.6);
+}
+
+.ai_txt_sendbutton:active {
+  background-color: #2ecc71;   /* 按下時變綠色 */
 }

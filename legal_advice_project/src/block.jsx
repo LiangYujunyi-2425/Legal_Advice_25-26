@@ -785,7 +785,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
               onTouchEnd={(e) => { e.preventDefault(); stopRecognition(); }}
               onClick={(e) => { e.preventDefault(); if (!recognizing) startRecognition(); else stopRecognition(); }}
               title={supportsSpeech ? `按住說話 (或點擊開始/停止)。語言: ${selectedLang}` : '瀏覽器不支援語音辨識'}
-              style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.08)', background: recognizing ? '#e74c3c' : undefined, color: recognizing ? '#fff' : undefined }}
+              style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.08)',fontSize: '18px',fontWeight: 'bold' ,background: recognizing ? '#e74c3c' : undefined, color: recognizing ? '#fff' : undefined }}
             >
               {recognizing ? '● 錄音中…' : '🎤 語音'}
             </button>
@@ -807,23 +807,16 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
               style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.08)' }}
             />
 
-            <button onClick={() => sendMessage()} style={{ padding: '6px 10px', borderRadius: 8 }}>送出</button>
+            <button className='ai_txt_sendbutton' onClick={() => sendMessage()} >送出</button>
 
             {/* TTS 开关：默认开启，点击可关闭/开启并持久化 */}
             <button
+              className='ai_txt_sendbutton'
               onClick={(e) => { e.stopPropagation(); toggleTts(); }}
               title={ttsEnabled ? '語音播報：開啟（點擊關閉）' : '語音播報：關閉（點擊開啟）'}
-              style={{
-                marginLeft: 6,
-                padding: '6px 10px',
-                borderRadius: 8,
-                border: '1px solid rgba(0,0,0,0.08)',
-                background: ttsEnabled ? '#a1c423ff' : undefined
-              }}
             >
               {ttsEnabled ? '🔊 語音開' : '🔇 語音關'}
             </button>
-
 
 
             <label className="file-label" style={{ marginLeft: 4 }}>
@@ -840,7 +833,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           <div
             className={`ai-face ${facePop ? 'pop' : ''} ${aiMood}`}
             ref={eyesRef}
-            style={{ position: 'fixed', left: '15%', top: '50px' }}
+            style={{ position: 'fixed', left: '13%', top: '50px' }}
           >
             <img
               src={xiaojinglin}
