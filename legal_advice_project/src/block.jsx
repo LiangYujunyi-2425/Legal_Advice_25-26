@@ -10,6 +10,8 @@ import welcomeSound from './assets/welcome.mp3';
 import { streamPredict } from './api/predictClient';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
+import SuggestionBar from './components/SuggestionBar';
+import { useSuggestions } from './hooks/useSuggestions';
 
 
 // 居中泡泡聊天（保留 API / 上傳 邏輯），帶 banner 波動與右側 AI 表情互動
@@ -739,6 +741,9 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     };
   }, [setVisible]);
 
+  // compute suggestion list (rules-based fallback)
+  const suggestions = useSuggestions({ messages, uploadedFiles: [], popular: ['法律備忘錄格式','起草一份簡短的法律意見書框架','生成辯護要點清單','檢查合同風險','列出重點','比較兩份合同差異'] });
+
   return (
     <>
       {/* 浮動右下開關 */}
@@ -766,6 +771,12 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
         </div>
 
         <div className="chat-container">
+          {/* 建議問題列：會根據會話/上傳內容顯示建議 */}
+          <SuggestionBar
+            suggestions={suggestions}
+            onFill={(text) => { setInput(text); setTimeout(() => inputRef.current?.focus(), 80); }}
+            onSend={(text) => sendMessage(text)}
+          />
           <div className="chat-messages" ref={chatMessagesRef}>
             {messages.map((msg, index) => (
               <div key={index} className={`message ${msg.role}`}>
