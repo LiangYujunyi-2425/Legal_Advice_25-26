@@ -39,6 +39,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   const [overlayMessagesState, setOverlayMessagesState] = useState([]);
   const [overlayParticipants, setOverlayParticipants] = useState([]);
   const [speakingAgentId, setSpeakingAgentId] = useState(null);
+  const [overlayActive, setOverlayActive] = useState(false);
 
   const [squash, setSquash] = useState(false);
   const [aiMoodLocal, setAiMoodLocal] = useState('neutral'); // fallback local mood
@@ -363,6 +364,12 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     setSquash(true);
     setTimeout(() => setSquash(false), 160);
 
+    // 啟動 overlay（即使尚無 agent 訊息也先顯示群組討論視圖）
+    setOverlayMessagesState([]);
+    setOverlayParticipants([]);
+    setOverlayActive(true);
+    setVisible(false);
+
 
     // Stream from remote predict endpoint and update assistant message incrementally
     (async () => {
@@ -412,15 +419,24 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           const judgeMsg = reversed.find(m => (m.speaker || '').toLowerCase() === 'judge');
           if (judgeMsg) {
             const rawText = judgeMsg.text || '';
-            setMessages(prev => [...prev, { role: 'assistant', content: rawText }]);
+            setMessages(prev => {
+              const copy = [...prev];
+              copy[copy.length - 1] = { role: 'assistant', content: rawText };
+              return copy;
+            });
           } else {
             const lastAgent = multiAgentMessages[multiAgentMessages.length - 1];
             const rawText = lastAgent.text || '';
-            setMessages(prev => [...prev, { role: 'assistant', content: rawText }]);
+            setMessages(prev => {
+              const copy = [...prev];
+              copy[copy.length - 1] = { role: 'assistant', content: rawText };
+              return copy;
+            });
           }
 
           setOverlayMessagesState([]);
           setOverlayParticipants([]);
+          setOverlayActive(false);
           setVisible(true);
 
           // 已用 multi-agent 的 Judge 結論，避免後續從 accumulated 再加入重複內容
@@ -904,7 +920,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
         </button>
       )}
       {/* 圆桌会话 overlay（Round-table） */}
-      <div className="roundtable-overlay" style={{ display: overlayMessagesState.length ? 'flex' : 'none' }} aria-hidden={!overlayMessagesState.length}>
+      <div className="roundtable-overlay" style={{ display: (overlayActive || overlayMessagesState.length) ? 'flex' : 'none' }} aria-hidden={!(overlayActive || overlayMessagesState.length)}>
         <div className="roundtable-card">
           <div className="roundtable-agents" aria-hidden="false">
             {overlayParticipants.map((p, i) => {
