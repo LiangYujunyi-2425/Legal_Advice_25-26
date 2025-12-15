@@ -375,26 +375,27 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             const agentName = chunk.agent || 'Agent';
             const outputText = chunk.output || '';
 
-            // 建立 overlay message
-            const m = {
-              id: Date.now() + Math.random(),
-              speaker: agentName,
-              role: agentName,
-              text: outputText,
-              avatarKey: agentName.toLowerCase().includes('lawyer')
-                ? 'lawyer'
-                : agentName.toLowerCase().includes('prosecutor')
-                ? 'judge'
-                : 'xiaojinglin'
-            };
-            setOverlayMessagesState(prev => [...prev, m]);
-            multiAgentMessages.push(m);
+            // 只在 overlay/圓桌動畫中顯示 Judge，並在最終聊天僅顯示 Judge 的結論。
+            if (agentName === 'Judge' || agentName === 'judge') {
+              const m = {
+                id: Date.now() + Math.random(),
+                speaker: agentName,
+                role: agentName,
+                text: outputText,
+                avatarKey: 'judge'
+              };
+              setOverlayMessagesState(prev => [...prev, m]);
+              multiAgentMessages.push(m);
+              setVisible(false);
+            } else {
+              // 收集其他 agent 的輸出但不顯示於 overlay（避免在主對話框噪音）
+              multiAgentMessages.push({ id: Date.now() + Math.random(), speaker: agentName, role: agentName, text: outputText });
+            }
 
-            setVisible(false);
             continue;
           }
 
-          // 一般 assistant streaming
+          // 一般 assistant streaming（非 agent event 的文字片段）
           let piece = typeof chunk === 'string' ? chunk : chunk?.output || JSON.stringify(chunk);
           accumulated += piece;
           setMessages(prev => {
@@ -406,14 +407,24 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
 
         // finished streaming
         if (multiAgentMessages.length > 0) {
-          const lastAgent = multiAgentMessages[multiAgentMessages.length - 1];
-          const rawText = lastAgent.text || '';
-          const label = lastAgent.speaker ? `[${lastAgent.speaker}] ` : '';
-          setMessages(prev => [...prev, { role: 'assistant', content: `${label}${rawText}` }]);
+          // 優先取得最後的 Judge 結論，若沒有則退回使用最後一個 agent
+          const reversed = [...multiAgentMessages].reverse();
+          const judgeMsg = reversed.find(m => (m.speaker || '').toLowerCase() === 'judge');
+          if (judgeMsg) {
+            const rawText = judgeMsg.text || '';
+            setMessages(prev => [...prev, { role: 'assistant', content: rawText }]);
+          } else {
+            const lastAgent = multiAgentMessages[multiAgentMessages.length - 1];
+            const rawText = lastAgent.text || '';
+            setMessages(prev => [...prev, { role: 'assistant', content: rawText }]);
+          }
 
           setOverlayMessagesState([]);
           setOverlayParticipants([]);
           setVisible(true);
+
+          // 已用 multi-agent 的 Judge 結論，避免後續從 accumulated 再加入重複內容
+          accumulated = '';
         }
 
         // compute last paragraph from accumulated stream and append as a focused assistant message
@@ -797,9 +808,8 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
                 {msg.role === 'assistant' ? (
                   <AiMessage text={msg.content} />
                 ) : (
-                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                    {msg.content}
-                  </ReactMarkdown>
+                    msg.content
+
                 )}
               </div>
             ))}
