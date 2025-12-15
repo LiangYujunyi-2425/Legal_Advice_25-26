@@ -961,8 +961,18 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           <div className={`roundtable-center ${speakingAgentId ? 'agent-active' : ''}`} role="dialog" aria-label="圓桌會議">
             <div className="center-title">法律精靈圓桌會議</div>
             <div className="center-text" ref={overlayScrollRef}>
-              {overlayMessagesState.map((m, mi) => (
-                <div key={m.id} className={`rt-message ${m.side === 'left' ? 'msg-left' : 'msg-right'}`} style={{ marginBottom: 10 }}>
+              {overlayMessagesState.length === 0 ? (
+                <div className={`rt-message msg-center placeholder`} style={{ marginBottom: 10 }}>
+                  <div className={`rt-avatar`}>
+                    <img src={xiaojinglin} alt={`AI`} style={{ width: 36, height: 36, borderRadius: 18 }} />
+                  </div>
+                  <div className="rt-sender-floating">AI 團隊</div>
+                  <div className={`rt-body`}>
+                    <div className={`center-message`}>AI 團隊正在處理您的問題…</div>
+                  </div>
+                </div>
+              ) : overlayMessagesState.map((m, mi) => (
+                  <div key={m.id} className={`rt-message ${m.side === 'left' ? 'msg-left' : 'msg-right'}`} style={{ marginBottom: 10 }}>
                   <div className={`rt-avatar`}>
                     <img src={avatarMap[m.avatarKey] || xiaojinglin} alt={m.speaker} style={{ width: 36, height: 36, borderRadius: 18 }} />
                   </div>
@@ -980,7 +990,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
                     </div>
                   </div>
                 </div>
-              ))}
+              )) }
             </div>
           </div>
         </div>
