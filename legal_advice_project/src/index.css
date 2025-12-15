@@ -1306,13 +1306,14 @@ button:focus-visible {
   inset: 0;
   pointer-events: none;
   top: 75px;
+  left: 110%;
 }
 
 /* agent node */
 .agent-node {
   position: absolute;
-  width: 84px;
-  height: 84px;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1323,8 +1324,8 @@ button:focus-visible {
   transform: translate(-50%, -50%);
 }
 .agent-node img {
-  width: 64px;
-  height: 64px;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
   object-fit: cover;
   display: block;
