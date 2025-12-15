@@ -39,6 +39,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   const [overlayMessagesState, setOverlayMessagesState] = useState([]);
   const [overlayParticipants, setOverlayParticipants] = useState([]);
   const [speakingAgentId, setSpeakingAgentId] = useState(null);
+  const [overlayActive, setOverlayActive] = useState(false);
 
   const [squash, setSquash] = useState(false);
   const [aiMoodLocal, setAiMoodLocal] = useState('neutral'); // fallback local mood
@@ -363,57 +364,101 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     setSquash(true);
     setTimeout(() => setSquash(false), 160);
 
+    // 啟動 overlay（即使尚無 agent 訊息也先顯示群組討論視圖）
+    setOverlayMessagesState([]);
+    setOverlayParticipants([]);
+    setOverlayActive(true);
+    setVisible(false);
+
 
     // Stream from remote predict endpoint and update assistant message incrementally
     (async () => {
       try {
         let accumulated = '';
+        let hasAgent = false; // 是否有 multi-agent 討論事件
         // collect multi-agent messages locally so we can act on them when stream ends
         const multiAgentMessages = [];
         for await (const chunk of streamPredict(text, false)) {
           if (chunk && typeof chunk === 'object' && chunk.agent) {
-            const agentName = chunk.agent || 'Agent';
+            const agentNameRaw = String(chunk.agent || 'Agent');
+            const agentName = agentNameRaw.toLowerCase();
+            const speakerName = (agentNameRaw[0] || '').toUpperCase() + agentNameRaw.slice(1);
             const outputText = chunk.output || '';
 
-            // 建立 overlay message
+            // determine avatarKey for this agent
+            const avatarKey = agentName === 'judge' ? 'judge' : (agentName === 'lawyer' || agentName === 'prosecutor' ? 'lawyer' : (agentName === 'owner' ? 'owner' : 'manager'));
+
+            // add participant if not exists
+            setOverlayParticipants(prev => {
+              const exists = prev.find(p => (p.name || '').toLowerCase() === agentName);
+              if (exists) return prev;
+              return [...prev, { id: Date.now() + Math.random(), avatarKey, name: speakerName }];
+            });
+
             const m = {
               id: Date.now() + Math.random(),
-              speaker: agentName,
-              role: agentName,
+              speaker: speakerName,
+              role: speakerName,
               text: outputText,
-              avatarKey: agentName.toLowerCase().includes('lawyer')
-                ? 'lawyer'
-                : agentName.toLowerCase().includes('prosecutor')
-                ? 'judge'
-                : 'xiaojinglin'
+              avatarKey
             };
+
+            // 每個 agent 的訊息都加入 overlay（模擬群組討論）
             setOverlayMessagesState(prev => [...prev, m]);
             multiAgentMessages.push(m);
 
+            // 標記有 agent 討論，避免把流式文字立即更新到主對話
+            hasAgent = true;
+
+            // ensure we are in overlay view
+            setOverlayActive(true);
             setVisible(false);
+
             continue;
           }
 
-          // 一般 assistant streaming
+          // 一般 assistant streaming（非 agent event 的文字片段）
           let piece = typeof chunk === 'string' ? chunk : chunk?.output || JSON.stringify(chunk);
           accumulated += piece;
-          setMessages(prev => {
-            const copy = [...prev];
-            copy[copy.length - 1] = { role: 'assistant', content: accumulated };
-            return copy;
-          });
+          // 只有在沒有任何 agent 討論時才即時更新主對話的 streaming 片段
+          if (!hasAgent) {
+            setMessages(prev => {
+              const copy = [...prev];
+              copy[copy.length - 1] = { role: 'assistant', content: accumulated };
+              return copy;
+            });
+          }
         }
 
         // finished streaming
         if (multiAgentMessages.length > 0) {
-          const lastAgent = multiAgentMessages[multiAgentMessages.length - 1];
-          const rawText = lastAgent.text || '';
-          const label = lastAgent.speaker ? `[${lastAgent.speaker}] ` : '';
-          setMessages(prev => [...prev, { role: 'assistant', content: `${label}${rawText}` }]);
+          // 優先取得最後的 Judge 結論，若沒有則退回使用最後一個 agent
+          const reversed = [...multiAgentMessages].reverse();
+          const judgeMsg = reversed.find(m => (m.speaker || '').toLowerCase() === 'judge');
+          if (judgeMsg) {
+            const rawText = judgeMsg.text || '';
+            setMessages(prev => {
+              const copy = [...prev];
+              copy[copy.length - 1] = { role: 'assistant', content: rawText };
+              return copy;
+            });
+          } else {
+            const lastAgent = multiAgentMessages[multiAgentMessages.length - 1];
+            const rawText = lastAgent.text || '';
+            setMessages(prev => {
+              const copy = [...prev];
+              copy[copy.length - 1] = { role: 'assistant', content: rawText };
+              return copy;
+            });
+          }
 
           setOverlayMessagesState([]);
           setOverlayParticipants([]);
+          setOverlayActive(false);
           setVisible(true);
+
+          // 已用 multi-agent 的 Judge 結論，避免後續從 accumulated 再加入重複內容
+          accumulated = '';
         }
 
         // compute last paragraph from accumulated stream and append as a focused assistant message
@@ -797,9 +842,8 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
                 {msg.role === 'assistant' ? (
                   <AiMessage text={msg.content} />
                 ) : (
-                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                    {msg.content}
-                  </ReactMarkdown>
+                    msg.content
+
                 )}
               </div>
             ))}
@@ -894,12 +938,13 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
         </button>
       )}
       {/* 圆桌会话 overlay（Round-table） */}
-      <div className="roundtable-overlay" style={{ display: overlayMessagesState.length ? 'flex' : 'none' }} aria-hidden={!overlayMessagesState.length}>
+      <div className="roundtable-overlay" style={{ display: (overlayActive || overlayMessagesState.length) ? 'flex' : 'none' }} aria-hidden={!(overlayActive || overlayMessagesState.length)}>
         <div className="roundtable-card">
           <div className="roundtable-agents" aria-hidden="false">
             {overlayParticipants.map((p, i) => {
               // position agents evenly around circle
-              const spacing = 900; // 每個 agent 的水平間距
+              // horizontal spacing for agent nodes — smaller so multiple agents fit on screen
+              const spacing = 140; // 每個 agent 的水平間距（調整為合理數值）
               const startX = `calc(50% - ${(overlayParticipants.length - 1) * spacing / 2}px)`;
               const left = `calc(${startX} + ${i * spacing}px)`;
               const top = `60%`; // 固定在畫面中下方
@@ -916,8 +961,18 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           <div className={`roundtable-center ${speakingAgentId ? 'agent-active' : ''}`} role="dialog" aria-label="圓桌會議">
             <div className="center-title">法律精靈圓桌會議</div>
             <div className="center-text" ref={overlayScrollRef}>
-              {overlayMessagesState.map((m, mi) => (
-                <div key={m.id} className={`rt-message ${m.side === 'left' ? 'msg-left' : 'msg-right'}`} style={{ marginBottom: 10 }}>
+              {overlayMessagesState.length === 0 ? (
+                <div className={`rt-message msg-center placeholder`} style={{ marginBottom: 10 }}>
+                  <div className={`rt-avatar`}>
+                    <img src={xiaojinglin} alt={`AI`} style={{ width: 36, height: 36, borderRadius: 18 }} />
+                  </div>
+                  <div className="rt-sender-floating">AI 團隊</div>
+                  <div className={`rt-body`}>
+                    <div className={`center-message`}>AI 團隊正在處理您的問題…</div>
+                  </div>
+                </div>
+              ) : overlayMessagesState.map((m, mi) => (
+                  <div key={m.id} className={`rt-message ${m.side === 'left' ? 'msg-left' : 'msg-right'}`} style={{ marginBottom: 10 }}>
                   <div className={`rt-avatar`}>
                     <img src={avatarMap[m.avatarKey] || xiaojinglin} alt={m.speaker} style={{ width: 36, height: 36, borderRadius: 18 }} />
                   </div>
@@ -935,7 +990,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
                     </div>
                   </div>
                 </div>
-              ))}
+              )) }
             </div>
           </div>
         </div>
