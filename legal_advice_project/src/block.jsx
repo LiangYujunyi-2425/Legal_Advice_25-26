@@ -379,25 +379,36 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
         const multiAgentMessages = [];
         for await (const chunk of streamPredict(text, false)) {
           if (chunk && typeof chunk === 'object' && chunk.agent) {
-            const agentName = chunk.agent || 'Agent';
+            const agentNameRaw = String(chunk.agent || 'Agent');
+            const agentName = agentNameRaw.toLowerCase();
+            const speakerName = (agentNameRaw[0] || '').toUpperCase() + agentNameRaw.slice(1);
             const outputText = chunk.output || '';
 
-            // 只在 overlay/圓桌動畫中顯示 Judge，並在最終聊天僅顯示 Judge 的結論。
-            if (agentName === 'Judge' || agentName === 'judge') {
-              const m = {
-                id: Date.now() + Math.random(),
-                speaker: agentName,
-                role: agentName,
-                text: outputText,
-                avatarKey: 'judge'
-              };
-              setOverlayMessagesState(prev => [...prev, m]);
-              multiAgentMessages.push(m);
-              setVisible(false);
-            } else {
-              // 收集其他 agent 的輸出但不顯示於 overlay（避免在主對話框噪音）
-              multiAgentMessages.push({ id: Date.now() + Math.random(), speaker: agentName, role: agentName, text: outputText });
-            }
+            // determine avatarKey for this agent
+            const avatarKey = agentName === 'judge' ? 'judge' : (agentName === 'lawyer' || agentName === 'prosecutor' ? 'lawyer' : (agentName === 'owner' ? 'owner' : 'manager'));
+
+            // add participant if not exists
+            setOverlayParticipants(prev => {
+              const exists = prev.find(p => (p.name || '').toLowerCase() === agentName);
+              if (exists) return prev;
+              return [...prev, { id: Date.now() + Math.random(), avatarKey, name: speakerName }];
+            });
+
+            const m = {
+              id: Date.now() + Math.random(),
+              speaker: speakerName,
+              role: speakerName,
+              text: outputText,
+              avatarKey
+            };
+
+            // 每個 agent 的訊息都加入 overlay（模擬群組討論）
+            setOverlayMessagesState(prev => [...prev, m]);
+            multiAgentMessages.push(m);
+
+            // ensure we are in overlay view
+            setOverlayActive(true);
+            setVisible(false);
 
             continue;
           }
@@ -925,7 +936,8 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           <div className="roundtable-agents" aria-hidden="false">
             {overlayParticipants.map((p, i) => {
               // position agents evenly around circle
-              const spacing = 900; // 每個 agent 的水平間距
+              // horizontal spacing for agent nodes — smaller so multiple agents fit on screen
+              const spacing = 140; // 每個 agent 的水平間距（調整為合理數值）
               const startX = `calc(50% - ${(overlayParticipants.length - 1) * spacing / 2}px)`;
               const left = `calc(${startX} + ${i * spacing}px)`;
               const top = `60%`; // 固定在畫面中下方
