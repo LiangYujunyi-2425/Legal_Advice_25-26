@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "jspdf": "^3.0.3"
+    "jspdf": "^3.0.3",
+    "react-markdown": "^10.1.0"
   }
 }
