@@ -375,6 +375,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     (async () => {
       try {
         let accumulated = '';
+        let hasAgent = false; // 是否有 multi-agent 討論事件
         // collect multi-agent messages locally so we can act on them when stream ends
         const multiAgentMessages = [];
         for await (const chunk of streamPredict(text, false)) {
@@ -406,6 +407,9 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             setOverlayMessagesState(prev => [...prev, m]);
             multiAgentMessages.push(m);
 
+            // 標記有 agent 討論，避免把流式文字立即更新到主對話
+            hasAgent = true;
+
             // ensure we are in overlay view
             setOverlayActive(true);
             setVisible(false);
@@ -416,11 +420,14 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           // 一般 assistant streaming（非 agent event 的文字片段）
           let piece = typeof chunk === 'string' ? chunk : chunk?.output || JSON.stringify(chunk);
           accumulated += piece;
-          setMessages(prev => {
-            const copy = [...prev];
-            copy[copy.length - 1] = { role: 'assistant', content: accumulated };
-            return copy;
-          });
+          // 只有在沒有任何 agent 討論時才即時更新主對話的 streaming 片段
+          if (!hasAgent) {
+            setMessages(prev => {
+              const copy = [...prev];
+              copy[copy.length - 1] = { role: 'assistant', content: accumulated };
+              return copy;
+            });
+          }
         }
 
         // finished streaming
