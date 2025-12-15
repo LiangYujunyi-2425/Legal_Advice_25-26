@@ -12,9 +12,30 @@ const LOCAL_PROXY = '/predict';
  * async generator that yields parsed SSE payloads from the /predict endpoint.
  * Each yield can be a string or an object depending on the server payload.
  */
-export async function* streamPredict(prompt, has_contract = false, apiKey = null) {
+export async function* streamPredict(prompt, has_contract = false, apiKey = null, sessionId = null, recentN = 6) {
   const headers = { 'Content-Type': 'application/json' };
   if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
+
+  // If sessionId provided, try to fetch recent messages from cache and prepend
+  let promptToSend = prompt;
+  if (sessionId) {
+    try {
+      // For testing, use local cache backend
+      const cacheBase = 'http://localhost:5000';
+      const url = `${cacheBase}/cache/${encodeURIComponent(sessionId)}/recent?n=${encodeURIComponent(recentN)}`;
+      const cacheRes = await fetch(url);
+      if (cacheRes && cacheRes.ok) {
+        const data = await cacheRes.json();
+        if (data && Array.isArray(data.recent) && data.recent.length) {
+          const prefix = data.recent.map(m => `${m.role}: ${m.content}`).join('\n');
+          promptToSend = prefix + '\nUser: ' + prompt;
+        }
+      }
+    } catch (e) {
+      // ignore cache errors and continue with original prompt
+      console.warn('Failed to fetch recent cache', e && e.message);
+    }
+  }
 
   // try direct fetch first
   let res;
@@ -22,7 +43,7 @@ export async function* streamPredict(prompt, has_contract = false, apiKey = null
     res = await fetch(PREDICT_ENDPOINT, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ system_prompt: "", user_question: prompt })
+      body: JSON.stringify({ system_prompt: "", user_question: promptToSend })
     });
 
     if (!res.ok) {
@@ -37,7 +58,7 @@ export async function* streamPredict(prompt, has_contract = false, apiKey = null
         method: 'POST',
         headers,
         // If your local proxy expects the new format, switch this to system_prompt/user_question too.
-        body: JSON.stringify({ instances: [{ text: prompt }], has_contract })
+        body: JSON.stringify({ instances: [{ text: promptToSend }], has_contract })
       });
       if (!res.ok) {
         const txt = await res.text();
