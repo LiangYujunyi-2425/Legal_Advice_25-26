@@ -12,6 +12,7 @@ import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import SuggestionBar from './components/SuggestionBar';
 import { useSuggestions } from './hooks/useSuggestions';
+import AiMessage from './components/AiMessage';
 
 
 // 居中泡泡聊天（保留 API / 上傳 邏輯），帶 banner 波動與右側 AI 表情互動
@@ -793,9 +794,13 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           <div className="chat-messages" ref={chatMessagesRef}>
             {messages.map((msg, index) => (
               <div key={index} className={`message ${msg.role}`}>
-                <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                  {msg.content}
-                </ReactMarkdown>
+                {msg.role === 'assistant' ? (
+                  <AiMessage text={msg.content} />
+                ) : (
+                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                    {msg.content}
+                  </ReactMarkdown>
+                )}
               </div>
             ))}
           </div>
@@ -920,9 +925,13 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
                   <div className="rt-sender-floating">{m.speaker}</div>
                   <div className={`rt-body`}>
                     <div className={`center-message`}>
-                      <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                        {m.text}
-                      </ReactMarkdown>
+                      {m.role === 'assistant' ? (
+                        <AiMessage text={m.text} />
+                      ) : (
+                        <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                          {m.text}
+                        </ReactMarkdown>
+                      )}
                     </div>
                   </div>
                 </div>
