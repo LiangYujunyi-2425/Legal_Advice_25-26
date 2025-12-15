@@ -1343,8 +1343,8 @@ button:focus-visible {
 
 .ai_txt_sendbutton {
   margin-left: 1px;
-  padding: 6px 10px;
-  border-radius: 0px;
+  padding: 4x 8x;
+  border-radius: 10%;
   border: 1px solid rgba(0,0,0,0.03);
   background-color: #a1c423;   /* 改成 background-color */
   font-size: 18px;

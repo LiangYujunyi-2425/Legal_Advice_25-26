@@ -11,8 +11,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "body-parser": "^2.2.1",
     "cors": "^2.8.5",
-    "express": "^5.1.0",
+    "express": "^5.2.1",
     "jspdf": "^3.0.3",
     "multer": "^2.0.2",
     "pdfjs-dist": "^5.4.394",

@@ -22,6 +22,8 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   const [isIslandExpanded, setIsIslandExpanded] = useState(false);
   const [pendingPdfText, setPendingPdfText] = useState(null); // 待发送的 PDF 文本
   const API_URL = import.meta.env.VITE_API_URL || '';
+  // For testing: hardcode cache base to local backend
+  const cacheBase = 'http://localhost:5000';
   const inputRef = useRef(null);
 
   useImperativeHandle(ref, () => ({
@@ -40,6 +42,16 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   const [overlayParticipants, setOverlayParticipants] = useState([]);
   const [speakingAgentId, setSpeakingAgentId] = useState(null);
   const [overlayActive, setOverlayActive] = useState(false);
+  const [sessionId] = useState(() => {
+    try {
+      let id = localStorage.getItem('la_session_id');
+      if (!id) {
+        id = 's_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+        localStorage.setItem('la_session_id', id);
+      }
+      return id;
+    } catch (e) { return 's_default'; }
+  });
 
   const [squash, setSquash] = useState(false);
   const [aiMoodLocal, setAiMoodLocal] = useState('neutral'); // fallback local mood
@@ -359,6 +371,14 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     // push user message and a placeholder assistant message which we'll update while streaming
     const userMessage = { role: 'user', content: text };
     setMessages(prev => [...prev, userMessage, { role: 'assistant', content: 'AI團隊正在分析您的問題…' }]);
+    // push user message into memory cache (best-effort)
+    try {
+      const url = cacheBase ? `${cacheBase}/cache/${encodeURIComponent(sessionId)}/message` : `/cache/${encodeURIComponent(sessionId)}/message`;
+      fetch(url, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userMessage)
+      }).catch(() => {});
+    } catch (e) {}
     setInput('');
     setAiMood('thinking');
     setSquash(true);
@@ -378,7 +398,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
         let hasAgent = false; // 是否有 multi-agent 討論事件
         // collect multi-agent messages locally so we can act on them when stream ends
         const multiAgentMessages = [];
-        for await (const chunk of streamPredict(text, false)) {
+        for await (const chunk of streamPredict(text, false, null, sessionId, 6)) {
           if (chunk && typeof chunk === 'object' && chunk.agent) {
             const agentNameRaw = String(chunk.agent || 'Agent');
             const agentName = agentNameRaw.toLowerCase();
@@ -442,6 +462,14 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
               copy[copy.length - 1] = { role: 'assistant', content: rawText };
               return copy;
             });
+            // push assistant/judge conclusion to cache
+            try {
+              const url = cacheBase ? `${cacheBase}/cache/${encodeURIComponent(sessionId)}/message` : `/cache/${encodeURIComponent(sessionId)}/message`;
+              fetch(url, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ role: 'assistant', content: rawText })
+              }).catch(() => {});
+            } catch (e) {}
           } else {
             const lastAgent = multiAgentMessages[multiAgentMessages.length - 1];
             const rawText = lastAgent.text || '';
@@ -450,6 +478,13 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
               copy[copy.length - 1] = { role: 'assistant', content: rawText };
               return copy;
             });
+            try {
+              const url = cacheBase ? `${cacheBase}/cache/${encodeURIComponent(sessionId)}/message` : `/cache/${encodeURIComponent(sessionId)}/message`;
+              fetch(url, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ role: 'assistant', content: rawText })
+              }).catch(() => {});
+            } catch (e) {}
           }
 
           setOverlayMessagesState([]);
@@ -468,6 +503,13 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           const lastPara = paragraphs.length > 0 ? paragraphs[paragraphs.length - 1] : (normalized.trim() || '');
           if (lastPara) {
             setMessages(prev => [...prev, { role: 'assistant', content: lastPara }]);
+            try {
+              const url = cacheBase ? `${cacheBase}/cache/${encodeURIComponent(sessionId)}/message` : `/cache/${encodeURIComponent(sessionId)}/message`;
+              fetch(url, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ role: 'assistant', content: lastPara })
+              }).catch(() => {});
+            } catch (e) {}
           }
         } catch (e) {
           // ignore paragraph extraction errors
@@ -863,7 +905,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
               {recognizing ? '● 錄音中…' : '🎤 語音'}
             </button>
 
-            <select value={selectedLang} onChange={(e) => setSelectedLang(e.target.value)} aria-label="選擇語言" style={{ padding: 6, borderRadius: 6 }}>
+            <select value={selectedLang} onChange={(e) => setSelectedLang(e.target.value)} aria-label="選擇語言" style={{ padding: 1, borderRadius: 6 }}>
               <option value="yue-HK">粤语 (yue-HK)</option>
               <option value="zh-HK">繁中-香港 (zh-HK)</option>
               <option value="zh-CN">普通话 (zh-CN)</option>
@@ -891,7 +933,19 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             >
               {ttsEnabled ? '🔊 語音開' : '🔇 語音關'}
             </button>
-
+            <div style={{ marginLeft: 8 }}>
+             <button
+                className="ai_txt_sendbutton"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOverlayActive(true);
+                  setVisible(false);
+                }}
+                title="查看群組討論"
+              >
+                查看討論
+              </button>
+            </div>
 
             <label className="file-label" style={{ marginLeft: 4 }}>
               📎
@@ -959,7 +1013,18 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           </div>
 
           <div className={`roundtable-center ${speakingAgentId ? 'agent-active' : ''}`} role="dialog" aria-label="圓桌會議">
-            <div className="center-title">法律精靈圓桌會議</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div className="center-title">法律精靈圓桌會議</div>
+              <div>
+                <button
+                  aria-label="關閉群組討論"
+                  onClick={() => { setOverlayActive(false); setVisible(true); }}
+                  style={{ marginLeft: 8 }}
+                >
+                  關閉
+                </button>
+              </div>
+            </div>
             <div className="center-text" ref={overlayScrollRef}>
               {overlayMessagesState.length === 0 ? (
                 <div className={`rt-message msg-center placeholder`} style={{ marginBottom: 10 }}>
