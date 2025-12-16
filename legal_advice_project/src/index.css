@@ -797,6 +797,96 @@ body.bg-image {
   left: 50%; top: 74%; /* lower placement */
   width: 160px; height: 160px;
   pointer-events: none;
+
+/* ---------- Responsive: switch to mobile layout when viewport is narrow ---------- */
+@media (max-width: 768px) {
+  :root { font-size: 15px; }
+  body { height: auto; }
+
+  /* Banner stretch full width and reduce height */
+  .banner {
+    left: 0;
+    top: 0.5%;
+    width: 100%;
+    height: 56px;
+    border-radius: 0 0 12px 12px;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .banner-btn { padding: 8px 10px; font-size: 14px; }
+
+  /* Hide left-side upload panel on small screens to preserve space */
+  .left-panel { display: none; }
+
+  /* Make center area occupy most of the screen under the banner */
+  .centerarea {
+    position: fixed;
+    top: 64px;
+    left: 4%;
+    transform: none;
+    width: 92%;
+    height: calc(100vh - 64px - 160px);
+    min-width: auto;
+    border-radius: 12px;
+    padding: 12px;
+  }
+
+  /* Drawer becomes bottom sheet full width */
+  .drawer {
+    right: -100%;
+    left: 0;
+    bottom: 0;
+    top: auto;
+    width: 100%;
+    min-width: auto;
+    height: 40vh;
+    border-radius: 12px 12px 0 0;
+    margin: 0;
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.5);
+    transition: right 0.25s ease, transform 0.25s ease;
+  }
+  .drawer.open { right: 0; transform: translateY(0); }
+
+  /* Center bubble and chat adapt to narrower width */
+  .center-bubble {
+    left: 50%;
+    top: 60%;
+    transform: translate(-50%, -50%);
+    width: 96%;
+    max-width: none;
+    height: auto;
+    max-height: calc(100vh - 140px);
+    border-radius: 16px;
+    padding: 10px;
+  }
+
+  .chat-messages { padding: 6px; }
+  .message { max-width: 86%; font-size: 16px; }
+
+  .chat-input input[type="text"], .chat-input input {
+    font-size: 15px;
+    padding: 10px 12px;
+  }
+
+  .bg-switcher { right: 6%; top: 74px; }
+  .openbutt { right: 12px; top: 8px; }
+
+  /* Make background video focus on top for mobile crop */
+  #bg-video { object-position: center top; }
+}
+
+/* Extra small phones: tighten spacing and increase drawer height for easier tapping */
+@media (max-width: 420px) {
+  :root { font-size: 14px; }
+  .drawer { height: 48vh; }
+  .banner { height: 52px; padding: 6px 10px; }
+  .banner-btn { font-size: 13px; padding: 6px 8px; }
+  .message { font-size: 15px; padding: 10px; }
+  .chat-input button { padding: 10px 12px; }
+}
   border-radius: 50%;
   transform-origin: 50% 50%;
 }
