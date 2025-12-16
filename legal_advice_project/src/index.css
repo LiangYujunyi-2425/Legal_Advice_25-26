@@ -1645,6 +1645,32 @@ body.bg-image {
 .header-centualtxt {
   width: 80%;
   height: 40px;
+
+/* Move center-bubble down and shrink center-text on mobile */
+@media (max-width: 768px) {
+  .center-bubble.open {
+    top: 80% !important;
+    transform: translate(-50%, -36%) !important; /* move further down */
+  }
+  /* shrink roundtable/center text area further */
+  .center-text {
+    font-size: 14px !important;
+    padding: 4px !important;
+    max-width: 90% !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .center-bubble.open {
+    top: 80% !important;
+    transform: translate(-50%, -34%) !important;
+  }
+  .center-text {
+    font-size: 13px !important;
+    padding: 4px !important;
+    max-width: 96% !important;
+  }
+}
   overflow: hidden;
   position: relative;
   background: transparent;   /* 背景透明 */
@@ -1738,6 +1764,10 @@ body.bg-image {
   /* hide original controls inside chat-input and instead show `.mobile-floating-controls` */
   .chat-input select[aria-label="選擇語言"], .chat-input button[title="查看群組討論"] { display: none !important; }
 
+  /* hide the large App-level voice control on mobile; we provide a compact one in the floating bar */
+  .voicecontroltxtweb { display: none !important; }
+  .chat-input .mic-button { display: none !important; }
+
   select[aria-label="選擇語言"], button[title="查看群組討論"] {
     position: fixed !important;
     right: 12px !important;
@@ -1792,12 +1822,13 @@ body.bg-image {
     flex-direction: column;
     position: fixed;
     right: 12px;
-    top: 150px;
+    top: 110px;
     gap: 8px;
     z-index: 2300;
     align-items: center;
   }
-  .mobile-floating-controls select, .mobile-floating-controls button { width: 60px; }
+  .mobile-floating-controls select, .mobile-floating-controls button, .mobile-floating-controls .mobile-voice-btn { width: 60px; }
+  .mobile-floating-controls .mobile-voice-btn { padding: 6px 8px; height: 36px; border-radius: 10px; }
 }
 @media (max-width: 420px) {
   .mobile-floating-controls { right: 10px; top: 250px; }

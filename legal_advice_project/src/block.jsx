@@ -58,6 +58,25 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   const aiMood = propAiMood || aiMoodLocal;
   const setAiMood = propSetAiMood || setAiMoodLocal;
   const [facePop, setFacePop] = useState(false);
+  const [mobileVoiceEnabled, setMobileVoiceEnabled] = useState(false);
+
+  const toggleMobileVoice = () => {
+    try {
+      if (!mobileVoiceEnabled) {
+        try { window.startVoiceRecognition?.(); } catch (e) {}
+        try { window.dispatchEvent(new CustomEvent('voice:forceStart')); } catch (e) {}
+        setMobileVoiceEnabled(true);
+        try { localStorage.setItem('voiceAutoEnabled', JSON.stringify(true)); window.dispatchEvent(new CustomEvent('voice:autoToggle', { detail: { enabled: true } })); } catch (err) {}
+      } else {
+        try { window.stopVoiceRecognition?.(); } catch (e) {}
+        try { window.dispatchEvent(new CustomEvent('voice:forceStop')); } catch (e) {}
+        setMobileVoiceEnabled(false);
+        try { localStorage.setItem('voiceAutoEnabled', JSON.stringify(false)); window.dispatchEvent(new CustomEvent('voice:autoToggle', { detail: { enabled: false } })); } catch (err) {}
+      }
+    } catch (e) {
+      console.warn('toggleMobileVoice error', e);
+    }
+  };
   const [welcomeAudioAllowed, setWelcomeAudioAllowed] = useState(false);
   const [welcomeAudioError, setWelcomeAudioError] = useState(null);
   const welcomeAudioRef = useRef(null);
@@ -1081,6 +1100,15 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           style={{ marginTop: 8 }}
         >
           討論
+        </button>
+        <button
+          className="mobile-voice-btn"
+          aria-pressed={mobileVoiceEnabled}
+          onClick={(e) => { e.stopPropagation(); toggleMobileVoice(); }}
+          title="切換語音控制"
+          style={{ marginTop: 8 }}
+        >
+          {mobileVoiceEnabled ? '語音輔助ON' : '語音輔助OFF'}
         </button>
       </div>
       <div className="bubbles-overlay" ref={overlayRef} aria-hidden={!bubblesActive} style={{ display: bubblesActive ? 'block' : 'none' }}>
