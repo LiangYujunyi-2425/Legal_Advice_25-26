@@ -300,23 +300,15 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
           </button>
         )}
         {/* 智能語音自動啟動開關按鈕 */}
+        
+        {/* Mobile-only upload button: triggers the hidden file input for mobile users */}
         <button
-          className="icon-btn voice-toggle"
-          onClick={() => {
-            const next = !voiceAutoEnabled;
-            try {
-              localStorage.setItem('voiceAutoEnabled', JSON.stringify(next));
-            } catch (err) {
-              console.warn('保存 voiceAutoEnabled 失敗', err);
-            }
-            setVoiceAutoEnabled(next);
-            window.dispatchEvent(new CustomEvent('voice:autoToggle', { detail: { enabled: next } }));
-          }}
-          aria-pressed={!voiceAutoEnabled}
-          aria-label={voiceAutoEnabled ? '關閉自動語音輸入' : '開啓自動語音輸入'}
-          title={voiceAutoEnabled ? '智能語音輸入：開啓（點擊關閉）' : '智能語音輸入：關閉（點擊開啓）'}
+          className="icon-btn mobile-upload-btn"
+          onClick={() => { try { fileInputRef.current?.click(); } catch (e) { console.warn('mobile upload click failed', e); } }}
+          aria-label="手機上傳檔案"
+          title="上傳檔案"
         >
-          <img className="left-icon" src={voiceAutoEnabled ? addPhotoIconscreen : addPhotoIcon} alt="" aria-hidden="true" />
+          <img className="left-icon" src={addPhotoIconpdf} alt="上傳" aria-hidden="true" />
         </button>
       </div>
 
