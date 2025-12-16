@@ -58,6 +58,25 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   const aiMood = propAiMood || aiMoodLocal;
   const setAiMood = propSetAiMood || setAiMoodLocal;
   const [facePop, setFacePop] = useState(false);
+  const [mobileVoiceEnabled, setMobileVoiceEnabled] = useState(false);
+
+  const toggleMobileVoice = () => {
+    try {
+      if (!mobileVoiceEnabled) {
+        try { window.startVoiceRecognition?.(); } catch (e) {}
+        try { window.dispatchEvent(new CustomEvent('voice:forceStart')); } catch (e) {}
+        setMobileVoiceEnabled(true);
+        try { localStorage.setItem('voiceAutoEnabled', JSON.stringify(true)); window.dispatchEvent(new CustomEvent('voice:autoToggle', { detail: { enabled: true } })); } catch (err) {}
+      } else {
+        try { window.stopVoiceRecognition?.(); } catch (e) {}
+        try { window.dispatchEvent(new CustomEvent('voice:forceStop')); } catch (e) {}
+        setMobileVoiceEnabled(false);
+        try { localStorage.setItem('voiceAutoEnabled', JSON.stringify(false)); window.dispatchEvent(new CustomEvent('voice:autoToggle', { detail: { enabled: false } })); } catch (err) {}
+      }
+    } catch (e) {
+      console.warn('toggleMobileVoice error', e);
+    }
+  };
   const [welcomeAudioAllowed, setWelcomeAudioAllowed] = useState(false);
   const [welcomeAudioError, setWelcomeAudioError] = useState(null);
   const welcomeAudioRef = useRef(null);
@@ -900,7 +919,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
               onTouchEnd={(e) => { e.preventDefault(); stopRecognition(); }}
               onClick={(e) => { e.preventDefault(); if (!recognizing) startRecognition(); else stopRecognition(); }}
               title={supportsSpeech ? `按住說話 (或點擊開始/停止)。語言: ${selectedLang}` : '瀏覽器不支援語音辨識'}
-              style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.08)',fontSize: '18px',fontWeight: 'bold' ,background: recognizing ? '#e74c3c' : undefined, color: recognizing ? '#fff' : undefined }}
+              style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.08)', background: recognizing ? '#e74c3c' : undefined, color: recognizing ? '#fff' : undefined }}
             >
               {recognizing ? '● 錄音中…' : '🎤 語音'}
             </button>
@@ -1062,6 +1081,36 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       </div>
 
       {/* 泡泡动画覆盖层（发送消息时触发） */}
+      {/* Mobile floating controls: language select + 查看討論 (rendered outside chat-input to avoid transform issues) */}
+      <div className="mobile-floating-controls" aria-hidden={false}>
+        <select
+          value={selectedLang}
+          onChange={(e) => setSelectedLang(e.target.value)}
+          aria-label="選擇語言"
+          style={{ padding: 4, borderRadius: 8 }}
+        >
+          <option value="yue-HK">粵</option>
+          <option value="zh-HK">繁</option>
+          <option value="zh-CN">普</option>
+          <option value="en-US">EN</option>
+        </select>
+        <button
+          title="查看群組討論"
+          onClick={(e) => { e.stopPropagation(); setOverlayActive(true); setVisible(false); }}
+          style={{ marginTop: 8 }}
+        >
+          討論
+        </button>
+        <button
+          className="mobile-voice-btn"
+          aria-pressed={mobileVoiceEnabled}
+          onClick={(e) => { e.stopPropagation(); toggleMobileVoice(); }}
+          title="切換語音控制"
+          style={{ marginTop: 8 }}
+        >
+          {mobileVoiceEnabled ? '語音輔助ON' : '語音輔助OFF'}
+        </button>
+      </div>
       <div className="bubbles-overlay" ref={overlayRef} aria-hidden={!bubblesActive} style={{ display: bubblesActive ? 'block' : 'none' }}>
         <div className="bubbles-container">
           {bubbles.map((b, i) => {

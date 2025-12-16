@@ -584,6 +584,7 @@ body.bg-image {
 .left-controls{ display:flex; gap:10px; align-items:center }
 .left-icon{ width:40px; height:40px; cursor:pointer }
 .left-icon.capture{ width:36px }
+.mobile-upload-btn{ display: none; }
 .left-content{ width:100%; flex:1; display:flex; flex-direction:column; gap:8px; align-items:center; justify-content:flex-start; transition: all 200ms ease; border-radius: 12px; position: relative; }
 .left-content.drag-active{ background-color: rgba(100, 150, 255, 0.15); border: 2px dashed #4a90e2; box-shadow: inset 0 0 8px rgba(74, 144, 226, 0.2); }
 .left-video{ width:100%; height:100%; border-radius:12px; object-fit:cover }
@@ -797,6 +798,187 @@ body.bg-image {
   left: 50%; top: 74%; /* lower placement */
   width: 160px; height: 160px;
   pointer-events: none;
+
+/* ---------- Responsive: switch to mobile layout when viewport is narrow ---------- */
+@media (max-width: 768px) {
+  :root { font-size: 15px; }
+  body { height: auto; }
+
+  /* 全頁文字整體縮小（覆蓋大部分明確 px 定義的字級） */
+  body, body * {
+    font-size: 0.92em !important;
+    line-height: 1.3 !important;
+  }
+
+/* 語言選擇與輸入框整體尺寸調整 */
+.chat-input select[aria-label="選擇語言"] {
+  font-size: 13px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  height: 34px;
+}
+
+.txtinputplace {
+  flex: 1 1 auto; /* 讓輸入框占用剩餘空間 */
+  min-width: 160px;
+  font-size: 16px; /* 放大輸入文字 */
+  padding: 10px 12px;
+  height: 44px;
+  border-radius: 16px;
+}
+
+@media (max-width: 768px) {
+  .chat-input select[aria-label="選擇語言"] { font-size: 12px; padding: 3px 6px; height: 32px; }
+  .txtinputplace { font-size: 15px; height: 40px; }
+}
+
+@media (max-width: 420px) {
+  .chat-input select[aria-label="選擇語言"] { font-size: 11px; padding: 2px 5px; height: 30px; }
+  .txtinputplace { font-size: 14px; height: 38px; }
+}
+
+  /* Banner stretch full width and reduce height */
+  .banner {
+    left: 0;
+    top: 0.5%;
+    width: 100%;
+    height: 56px;
+    border-radius: 0 0 12px 12px;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .banner-btn { padding: 8px 10px; font-size: 14px; }
+
+  /* Hide left-side upload panel on small screens to preserve space */
+  .left-panel { display: none; }
+
+  /* Make center area occupy most of the screen under the banner */
+  .centerarea {
+    position: fixed;
+    top: 64px;
+    left: 4%;
+    transform: none;
+    width: 92%;
+    height: calc(100vh - 64px - 160px);
+    min-width: auto;
+    border-radius: 12px;
+    padding: 12px;
+  }
+
+  /* Drawer becomes bottom sheet full width */
+  .drawer {
+    right: -100%;
+    left: 0;
+    bottom: 0;
+    top: auto;
+    width: 100%;
+    min-width: auto;
+    height: 40vh;
+    border-radius: 12px 12px 0 0;
+    margin: 0;
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.5);
+    transition: right 0.25s ease, transform 0.25s ease;
+  }
+  .drawer.open { right: 0; transform: translateY(0); }
+
+  /* Center bubble and chat adapt to narrower width */
+  .center-bubble {
+    left: 50%;
+    top: 60%;
+    transform: translate(-50%, -50%);
+    width: 96%;
+    max-width: none;
+    height: auto;
+    max-height: calc(100vh - 140px);
+    border-radius: 16px;
+    padding: 10px;
+  }
+
+  .chat-messages { padding: 6px; }
+  /* Shrink message font and bubble spacing for mobile */
+  .message { max-width: 86%; font-size: 15px; padding: 8px 10px; }
+  .message.user, .message.assistant { font-size: 15px; }
+
+  /* Shrink titles and headings */
+  .title { font-size: 15px; }
+
+  /* Chat input: tighten spacing, smaller font and buttons for mobile */
+  .chat-input {
+    gap: 6px;
+    align-items: center;
+  }
+  .chat-input input[type="text"], .chat-input input {
+    font-size: 13px;
+    padding: 8px 10px;
+    border-radius: 14px;
+    height: 38px;
+  }
+  .chat-input button {
+    font-size: 13px;
+    padding: 6px 8px;
+    border-radius: 12px;
+    height: 36px;
+    min-width: 44px;
+  }
+
+  /* Specific mobile shrink rules for mic, text input placeholder area, and send button */
+  .mic-button {
+    width: 10px;
+    height: 36px;
+    padding: 6px;
+    font-size: 5px;
+  }
+  .txtinputplace {
+    font-size: 5px;
+    padding: 4px 6px;
+    height: 36px;
+  }
+  .ai_txt_sendbutton {
+    font-size: 5px;
+    padding: 6px 8px;
+    height: 36px;
+    min-width: 44px;
+  }
+
+  /* General buttons and controls */
+  .banner-btn { font-size: 14px; padding: 8px 10px; }
+  .remove-btn { font-size: 14px; padding: 6px 10px; }
+  .file-label { font-size: 14px; padding: 6px 8px; }
+  .left-icon { width: 34px; height: 34px; }
+
+  .bg-switcher { right: 6%; top: 74px; }
+  .openbutt { right: 12px; top: 8px; transform: none; }
+
+  /* Make background video focus on top for mobile crop */
+  #bg-video { object-position: center top; }
+}
+
+/* Extra small phones: tighten spacing and increase drawer height for easier tapping */
+@media (max-width: 420px) {
+  :root { font-size: 14px; }
+  /* 更進一步整頁文字縮小，讓手機顯示更緊湊 */
+  body, body * {
+    font-size: 0.88em !important;
+    line-height: 1.25 !important;
+  }
+  .drawer { height: 48vh; }
+  .banner { height: 52px; padding: 6px 10px; }
+  .banner-btn { font-size: 13px; padding: 6px 8px; }
+  .message { font-size: 14px; padding: 8px; }
+  .chat-input { gap: 4px; }
+  .chat-input input[type="text"], .chat-input input { font-size: 13px; padding: 7px 10px; height: 36px; }
+  .chat-input button { padding: 6px 8px; font-size: 12px; height: 34px; min-width: 40px; }
+  .remove-btn { font-size: 13px; padding: 8px 10px; }
+  .file-label { font-size: 13px; }
+
+  /* Extra small screen: make mic/send/input even tighter */
+  .mic-button { width: 5px; height: 5px; padding: 2px; font-size: 5px; }
+  .txtinputplace { font-size: 5px; padding: 6px 6px; height: 34px; }
+  .ai_txt_sendbutton { font-size: 5px; padding: 5px 6px; height: 34px; min-width: 38px; }
+}
   border-radius: 50%;
   transform-origin: 50% 50%;
 }
@@ -889,8 +1071,33 @@ body.bg-image {
 /* Responsive: 小於 600px 時把左側 panel 收納為底部抽屜 */
 @media (max-width: 600px){
   .left-panel{ left: 50%; transform: translateX(-50%); bottom: 0; top: auto; width: 100%; height: 220px; border-radius: 12px 12px 0 0; }
-  .center-bubble{ top: 30%; height: 60vh; width: calc(100% - 32px); left: 50%; transform: translate(-50%, -10%) scale(0.98) }
+  .center-bubble{ top: 50%; height: 60vh; max-height: 86vh; width: calc(100% - 32px); left: 50%; transform: translate(-50%, -50%) scale(0.98); }
   .ai-face-outer{ right: 16px; top: 6%; }
+  /* Show a compact upload button in left-controls for mobile users */
+  .mobile-upload-btn{ display:inline-flex !important; align-items:center; justify-content:center; padding:6px; border-radius:10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 6px 14px rgba(0,0,0,0.32); }
+  .mobile-upload-btn .left-icon{ width:28px; height:28px; }
+  /* Mobile: shrink and center the roundtable discussion area */
+  .roundtable-card{ width: min(420px, 92%); max-height: 90vh; border-radius: 14px; padding: 8px; }
+  .roundtable-center{
+    position: relative !important;
+    top: 0 !important;
+    left: 50% !important;
+    transform: translate(-50%, 0) !important;
+    width: 92% !important;
+    max-width: 380px !important;
+    height: auto !important;
+    padding: 8px !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+  }
+  .roundtable-center .center-text{ width:100% !important; height: 260px !important; max-height: 70vh !important; padding:8px !important; box-sizing: border-box; }
+  .roundtable-agents{ top: 8px !important; left: 50% !important; transform: translateX(-50%) !important; }
+  .agent-node{ width: 88px !important; height: 88px !important; }
+  .agent-node img{ width: 88px !important; height: 88px !important; }
+  .agent-node .name{ top: 58px !important; font-size: 11px !important; width: 100px !important; }
 }
 
 /* 拍照模式伸展：左側 panel 伸展到中間並把中間泡泡挤压 */
@@ -1464,6 +1671,32 @@ body.bg-image {
 .header-centualtxt {
   width: 80%;
   height: 40px;
+
+/* Move center-bubble down and shrink center-text on mobile */
+@media (max-width: 768px) {
+  .center-bubble.open {
+    top: 80% !important;
+    transform: translate(-50%, -36%) !important; /* move further down */
+  }
+  /* shrink roundtable/center text area further */
+  .center-text {
+    font-size: 14px !important;
+    padding: 4px !important;
+    max-width: 90% !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .center-bubble.open {
+    top: 80% !important;
+    transform: translate(-50%, -34%) !important;
+  }
+  .center-text {
+    font-size: 13px !important;
+    padding: 4px !important;
+    max-width: 96% !important;
+  }
+}
   overflow: hidden;
   position: relative;
   background: transparent;   /* 背景透明 */
@@ -1495,5 +1728,207 @@ body.bg-image {
   }
   100% {
     transform: translateX(-100%);
+  }
+}
+
+/* 强制性的手机端覆盖（放在文件末尾，优先级高于早期声明） */
+@media (max-width: 768px) {
+  .mic-button, .ai_txt_sendbutton, .txtinputplace {
+    font-size: 12px !important;
+    padding: 6px 8px !important;
+    height: 36px !important;
+    min-width: 40px !important;
+  }
+  .mic-button { width: 36px !important; }
+}
+
+@media (max-width: 420px) {
+  .mic-button, .ai_txt_sendbutton, .txtinputplace {
+    font-size: 5px !important;
+    padding: 5px 6px !important;
+    height: 34px !important;
+    min-width: 36px !important;
+  }
+  .mic-button { width: 32px !important; }
+}
+
+/* 强制缩小页面上所有按钮与控制在手机断点，并把 mic 长度设为 60px */
+@media (max-width: 768px) {
+  /* mic length 60px */
+  .mic-button { width: 60px !important; height: 36px !important; }
+
+  /* 通用按钮缩小 */
+  button, .banner-btn, .remove-btn, .ai_txt_sendbutton, .voicecontroltxtweb, .openbutt, .bg-switcher .banner-btn {
+    font-size: 9px !important;
+    padding: 6px 8px !important;
+    height: 36px !important;
+    border-radius: 8px !important;
+    min-width: 44px !important;
+  }
+
+  /* 背景切换控件与语音控制进一步调整 */
+  .bg-switcher { gap: 6px !important; right: 6% !important; top: 74px !important; }
+  .voicecontroltxtweb { font-size: 13px !important; padding: 6px 8px !important; height: 36px !important; }
+}
+
+@media (max-width: 420px) {
+  .mic-button { width: 60px !important; height: 34px !important; }
+  button, .banner-btn, .remove-btn, .ai_txt_sendbutton, .voicecontroltxtweb, .openbutt, .bg-switcher .banner-btn {
+    font-size: 12px !important;
+    padding: 5px 6px !important;
+    height: 34px !important;
+    border-radius: 6px !important;
+    min-width: 36px !important;
+  }
+  .bg-switcher { right: 6% !important; top: 66px !important; }
+  .voicecontroltxtweb { font-size: 12px !important; padding: 5px 6px !important; height: 34px !important; }
+}
+
+/* Mobile: move language select and "查看討論" button into a small floating right bar */
+@media (max-width: 768px) {
+  /* container-like visual for the floating bar (uses pseudo-background via both items) */
+  /* hide original controls inside chat-input and instead show `.mobile-floating-controls` */
+  .chat-input select[aria-label="選擇語言"], .chat-input button[title="查看群組討論"] { display: none !important; }
+
+  /* hide the large App-level voice control on mobile; we provide a compact one in the floating bar */
+  .voicecontroltxtweb { display: none !important; }
+  .chat-input .mic-button { display: none !important; }
+
+  select[aria-label="選擇語言"], button[title="查看群組討論"] {
+    position: fixed !important;
+    right: 12px !important;
+    width: 60px !important;
+    display: block !important;
+    text-align: center !important;
+    background: rgba(0,0,0,0.6) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255,255,255,0.06) !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45) !important;
+    border-radius: 12px !important;
+    padding: 6px 8px !important;
+    z-index: 2200 !important;
+  }
+  /* Stack: language on top, discussion button under it (moved down slightly) */
+  select[aria-label="選擇語言"] { top: 290px !important; }
+  button[title="查看群組討論"] { top: 340px !important; }
+  /* Make select's inner text smaller to fit */
+  select[aria-label="選擇語言"] option { font-size: 12px !important; }
+}
+
+@media (max-width: 420px) {
+  select[aria-label="選擇語言"], button[title="查看群組討論"] {
+    width: 56px !important;
+    right: 10px !important;
+    padding: 5px 6px !important;
+    border-radius: 10px !important;
+  }
+  select[aria-label="選擇語言"] { top: 255px !important; }
+  button[title="查看群組討論"] { top: 278px !important; }
+}
+
+/* Ensure language select and discussion button are not affected by .chat-input touch/active effects */
+@media (max-width: 768px) {
+  select[aria-label="選擇語言"], button[title="查看群組討論"] {
+    transform: none !important;
+    box-shadow: none !important;
+    transition: none !important;
+  }
+  select[aria-label="選擇語言"]:active, select[aria-label="選擇語言"]:focus,
+  button[title="查看群組討論"]:active, button[title="查看群組討論"]:focus {
+    transform: none !important;
+    box-shadow: none !important;
+
+/* Mobile-floating-controls: hidden by default, shown on narrow screens */
+.mobile-floating-controls {
+  display: none;
+}
+@media (max-width: 768px) {
+  .mobile-floating-controls {
+    display: flex !important;
+    flex-direction: column;
+    position: fixed;
+    right: 12px;
+    top: 110px;
+    gap: 8px;
+    z-index: 2300;
+    align-items: center;
+  }
+  .mobile-floating-controls select, .mobile-floating-controls button, .mobile-floating-controls .mobile-voice-btn { width: 60px; background-color: #00aaff; }
+  .mobile-floating-controls .mobile-voice-btn { padding: 6px 8px; height: 36px; border-radius: 10px; }
+}
+@media (max-width: 420px) {
+  .mobile-floating-controls { right: 10px; top: 600px; }
+  .mobile-floating-controls select, .mobile-floating-controls button { width: 56px; }
+}
+
+/* Move bg-switcher to top-left on mobile to avoid overlap with right floating controls */
+@media (max-width: 768px) {
+  .bg-switcher {
+    left: 8px !important;
+    right: auto !important;
+    top: 8px !important;
+    gap: 6px !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+  }
+  .bg-switcher .banner-btn { padding: 6px 8px !important; font-size: 13px !important; }
+}
+
+@media (max-width: 420px) {
+  .bg-switcher {
+    left: -50% !important;
+    right: auto !important;
+    top: 6px !important;
+    gap: 4px !important;
+  }
+  .bg-switcher .banner-btn { padding: 5px 6px !important; font-size: 12px !important; }
+}
+    outline: none !important;
+  }
+}
+
+@media (max-width: 420px) {
+  select[aria-label="選擇語言"], button[title="查看群組討論"] {
+    transform: none !important;
+    box-shadow: none !important;
+    transition: none !important;
+  }
+  select[aria-label="選擇語言"]:active, select[aria-label="選擇語言"]:focus,
+  button[title="查看群組討論"]:active, button[title="查看群組討論"]:focus {
+    transform: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+}
+
+/* Disable chat-input enlargement and keep input normal-size on mobile */
+@media (max-width: 768px) {
+  .chat-input:hover, .chat-input:active {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  /* Prevent txtinputplace from being enlarged on mobile */
+  .txtinputplace {
+    flex: 0 1 auto !important;
+    min-width: 120px !important;
+    font-size: 13px !important;
+    padding: 6px 8px !important;
+    height: 36px !important;
+    border-radius: 8px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .chat-input:hover, .chat-input:active {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  .txtinputplace {
+    flex: 0 1 auto !important;
+    min-width: 100px !important;
+    font-size: 12px !important;
+    padding: 6px 6px !important;
+    height: 34px !important;
+    border-radius: 8px !important;
   }
 }
