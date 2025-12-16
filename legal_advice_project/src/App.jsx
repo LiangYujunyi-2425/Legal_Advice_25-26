@@ -8,6 +8,7 @@ import IntroSprite from './IntroSprite'
 import RightBlock from './block'
 import RightDecor from './RightDecor'
 import useVoiceCommands from './hooks/useVoiceCommands';
+import BackgroundSwitcher from './BackgroundSwitcher';
 
 
 
@@ -105,6 +106,9 @@ function App() {
       >
         {voiceEnabled ? '智能語音辅助' : '关闭語音辅助'}
       </button>
+
+      {/* 背景切换按钮 */}
+      <BackgroundSwitcher />
 
     </>
   )
