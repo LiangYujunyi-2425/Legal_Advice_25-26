@@ -900,7 +900,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
               onTouchEnd={(e) => { e.preventDefault(); stopRecognition(); }}
               onClick={(e) => { e.preventDefault(); if (!recognizing) startRecognition(); else stopRecognition(); }}
               title={supportsSpeech ? `按住說話 (或點擊開始/停止)。語言: ${selectedLang}` : '瀏覽器不支援語音辨識'}
-              style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.08)',fontSize: '18px',fontWeight: 'bold' ,background: recognizing ? '#e74c3c' : undefined, color: recognizing ? '#fff' : undefined }}
+              style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.08)', background: recognizing ? '#e74c3c' : undefined, color: recognizing ? '#fff' : undefined }}
             >
               {recognizing ? '● 錄音中…' : '🎤 語音'}
             </button>

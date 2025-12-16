@@ -803,6 +803,39 @@ body.bg-image {
   :root { font-size: 15px; }
   body { height: auto; }
 
+  /* 全頁文字整體縮小（覆蓋大部分明確 px 定義的字級） */
+  body, body * {
+    font-size: 0.92em !important;
+    line-height: 1.3 !important;
+  }
+
+/* 語言選擇與輸入框整體尺寸調整 */
+.chat-input select[aria-label="選擇語言"] {
+  font-size: 13px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  height: 34px;
+}
+
+.txtinputplace {
+  flex: 1 1 auto; /* 讓輸入框占用剩餘空間 */
+  min-width: 160px;
+  font-size: 16px; /* 放大輸入文字 */
+  padding: 10px 12px;
+  height: 44px;
+  border-radius: 16px;
+}
+
+@media (max-width: 768px) {
+  .chat-input select[aria-label="選擇語言"] { font-size: 12px; padding: 3px 6px; height: 32px; }
+  .txtinputplace { font-size: 15px; height: 40px; }
+}
+
+@media (max-width: 420px) {
+  .chat-input select[aria-label="選擇語言"] { font-size: 11px; padding: 2px 5px; height: 30px; }
+  .txtinputplace { font-size: 14px; height: 38px; }
+}
+
   /* Banner stretch full width and reduce height */
   .banner {
     left: 0;
@@ -864,15 +897,59 @@ body.bg-image {
   }
 
   .chat-messages { padding: 6px; }
-  .message { max-width: 86%; font-size: 16px; }
+  /* Shrink message font and bubble spacing for mobile */
+  .message { max-width: 86%; font-size: 15px; padding: 8px 10px; }
+  .message.user, .message.assistant { font-size: 15px; }
 
+  /* Shrink titles and headings */
+  .title { font-size: 15px; }
+
+  /* Chat input: tighten spacing, smaller font and buttons for mobile */
+  .chat-input {
+    gap: 6px;
+    align-items: center;
+  }
   .chat-input input[type="text"], .chat-input input {
-    font-size: 15px;
-    padding: 10px 12px;
+    font-size: 13px;
+    padding: 8px 10px;
+    border-radius: 14px;
+    height: 38px;
+  }
+  .chat-input button {
+    font-size: 13px;
+    padding: 6px 8px;
+    border-radius: 12px;
+    height: 36px;
+    min-width: 44px;
   }
 
+  /* Specific mobile shrink rules for mic, text input placeholder area, and send button */
+  .mic-button {
+    width: 10px;
+    height: 36px;
+    padding: 6px;
+    font-size: 5px;
+  }
+  .txtinputplace {
+    font-size: 5px;
+    padding: 4px 6px;
+    height: 36px;
+  }
+  .ai_txt_sendbutton {
+    font-size: 5px;
+    padding: 6px 8px;
+    height: 36px;
+    min-width: 44px;
+  }
+
+  /* General buttons and controls */
+  .banner-btn { font-size: 14px; padding: 8px 10px; }
+  .remove-btn { font-size: 14px; padding: 6px 10px; }
+  .file-label { font-size: 14px; padding: 6px 8px; }
+  .left-icon { width: 34px; height: 34px; }
+
   .bg-switcher { right: 6%; top: 74px; }
-  .openbutt { right: 12px; top: 8px; }
+  .openbutt { right: 12px; top: 8px; transform: none; }
 
   /* Make background video focus on top for mobile crop */
   #bg-video { object-position: center top; }
@@ -881,11 +958,25 @@ body.bg-image {
 /* Extra small phones: tighten spacing and increase drawer height for easier tapping */
 @media (max-width: 420px) {
   :root { font-size: 14px; }
+  /* 更進一步整頁文字縮小，讓手機顯示更緊湊 */
+  body, body * {
+    font-size: 0.88em !important;
+    line-height: 1.25 !important;
+  }
   .drawer { height: 48vh; }
   .banner { height: 52px; padding: 6px 10px; }
   .banner-btn { font-size: 13px; padding: 6px 8px; }
-  .message { font-size: 15px; padding: 10px; }
-  .chat-input button { padding: 10px 12px; }
+  .message { font-size: 14px; padding: 8px; }
+  .chat-input { gap: 4px; }
+  .chat-input input[type="text"], .chat-input input { font-size: 13px; padding: 7px 10px; height: 36px; }
+  .chat-input button { padding: 6px 8px; font-size: 12px; height: 34px; min-width: 40px; }
+  .remove-btn { font-size: 13px; padding: 8px 10px; }
+  .file-label { font-size: 13px; }
+
+  /* Extra small screen: make mic/send/input even tighter */
+  .mic-button { width: 5px; height: 5px; padding: 2px; font-size: 5px; }
+  .txtinputplace { font-size: 5px; padding: 6px 6px; height: 34px; }
+  .ai_txt_sendbutton { font-size: 5px; padding: 5px 6px; height: 34px; min-width: 38px; }
 }
   border-radius: 50%;
   transform-origin: 50% 50%;
@@ -1586,4 +1677,57 @@ body.bg-image {
   100% {
     transform: translateX(-100%);
   }
+}
+
+/* 强制性的手机端覆盖（放在文件末尾，优先级高于早期声明） */
+@media (max-width: 768px) {
+  .mic-button, .ai_txt_sendbutton, .txtinputplace {
+    font-size: 12px !important;
+    padding: 6px 8px !important;
+    height: 36px !important;
+    min-width: 40px !important;
+  }
+  .mic-button { width: 36px !important; }
+}
+
+@media (max-width: 420px) {
+  .mic-button, .ai_txt_sendbutton, .txtinputplace {
+    font-size: 5px !important;
+    padding: 5px 6px !important;
+    height: 34px !important;
+    min-width: 36px !important;
+  }
+  .mic-button { width: 32px !important; }
+}
+
+/* 强制缩小页面上所有按钮与控制在手机断点，并把 mic 长度设为 60px */
+@media (max-width: 768px) {
+  /* mic length 60px */
+  .mic-button { width: 60px !important; height: 36px !important; }
+
+  /* 通用按钮缩小 */
+  button, .banner-btn, .remove-btn, .ai_txt_sendbutton, .voicecontroltxtweb, .openbutt, .bg-switcher .banner-btn {
+    font-size: 13px !important;
+    padding: 6px 8px !important;
+    height: 36px !important;
+    border-radius: 8px !important;
+    min-width: 44px !important;
+  }
+
+  /* 背景切换控件与语音控制进一步调整 */
+  .bg-switcher { gap: 6px !important; right: 6% !important; top: 74px !important; }
+  .voicecontroltxtweb { font-size: 13px !important; padding: 6px 8px !important; height: 36px !important; }
+}
+
+@media (max-width: 420px) {
+  .mic-button { width: 60px !important; height: 34px !important; }
+  button, .banner-btn, .remove-btn, .ai_txt_sendbutton, .voicecontroltxtweb, .openbutt, .bg-switcher .banner-btn {
+    font-size: 12px !important;
+    padding: 5px 6px !important;
+    height: 34px !important;
+    border-radius: 6px !important;
+    min-width: 36px !important;
+  }
+  .bg-switcher { right: 6% !important; top: 66px !important; }
+  .voicecontroltxtweb { font-size: 12px !important; padding: 5px 6px !important; height: 34px !important; }
 }
