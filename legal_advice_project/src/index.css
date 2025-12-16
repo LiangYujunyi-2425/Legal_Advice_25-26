@@ -1787,8 +1787,8 @@ body.bg-image {
     z-index: 2200 !important;
   }
   /* Stack: language on top, discussion button under it (moved down slightly) */
-  select[aria-label="選擇語言"] { top: 150px !important; }
-  button[title="查看群組討論"] { top: 210px !important; }
+  select[aria-label="選擇語言"] { top: 290px !important; }
+  button[title="查看群組討論"] { top: 340px !important; }
   /* Make select's inner text smaller to fit */
   select[aria-label="選擇語言"] option { font-size: 12px !important; }
 }
@@ -1800,8 +1800,8 @@ body.bg-image {
     padding: 5px 6px !important;
     border-radius: 10px !important;
   }
-  select[aria-label="選擇語言"] { top: 165px !important; }
-  button[title="查看群組討論"] { top: 198px !important; }
+  select[aria-label="選擇語言"] { top: 255px !important; }
+  button[title="查看群組討論"] { top: 278px !important; }
 }
 
 /* Ensure language select and discussion button are not affected by .chat-input touch/active effects */
