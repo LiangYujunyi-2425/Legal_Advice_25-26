@@ -1752,9 +1752,9 @@ body.bg-image {
     padding: 6px 8px !important;
     z-index: 2200 !important;
   }
-  /* Stack: language on top, discussion button under it */
-  select[aria-label="選擇語言"] { top: 90px !important; }
-  button[title="查看群組討論"] { top: 150px !important; }
+  /* Stack: language on top, discussion button under it (moved down slightly) */
+  select[aria-label="選擇語言"] { top: 110px !important; }
+  button[title="查看群組討論"] { top: 170px !important; }
   /* Make select's inner text smaller to fit */
   select[aria-label="選擇語言"] option { font-size: 12px !important; }
 }
@@ -1766,8 +1766,8 @@ body.bg-image {
     padding: 5px 6px !important;
     border-radius: 10px !important;
   }
-  select[aria-label="選擇語言"] { top: 82px !important; }
-  button[title="查看群組討論"] { top: 138px !important; }
+  select[aria-label="選擇語言"] { top: 125px !important; }
+  button[title="查看群組討論"] { top: 158px !important; }
 }
 
 /* Ensure language select and discussion button are not affected by .chat-input touch/active effects */
@@ -1792,7 +1792,7 @@ body.bg-image {
     flex-direction: column;
     position: fixed;
     right: 12px;
-    top: 90px;
+    top: 150px;
     gap: 8px;
     z-index: 2300;
     align-items: center;
@@ -1800,8 +1800,31 @@ body.bg-image {
   .mobile-floating-controls select, .mobile-floating-controls button { width: 60px; }
 }
 @media (max-width: 420px) {
-  .mobile-floating-controls { right: 10px; top: 82px; }
+  .mobile-floating-controls { right: 10px; top: 250px; }
   .mobile-floating-controls select, .mobile-floating-controls button { width: 56px; }
+}
+
+/* Move bg-switcher to top-left on mobile to avoid overlap with right floating controls */
+@media (max-width: 768px) {
+  .bg-switcher {
+    left: 8px !important;
+    right: auto !important;
+    top: 8px !important;
+    gap: 6px !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+  }
+  .bg-switcher .banner-btn { padding: 6px 8px !important; font-size: 13px !important; }
+}
+
+@media (max-width: 420px) {
+  .bg-switcher {
+    left: -50% !important;
+    right: auto !important;
+    top: 6px !important;
+    gap: 4px !important;
+  }
+  .bg-switcher .banner-btn { padding: 5px 6px !important; font-size: 12px !important; }
 }
     outline: none !important;
   }
