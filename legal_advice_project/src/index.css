@@ -1076,6 +1076,28 @@ body.bg-image {
   /* Show a compact upload button in left-controls for mobile users */
   .mobile-upload-btn{ display:inline-flex !important; align-items:center; justify-content:center; padding:6px; border-radius:10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 6px 14px rgba(0,0,0,0.32); }
   .mobile-upload-btn .left-icon{ width:28px; height:28px; }
+  /* Mobile: shrink and center the roundtable discussion area */
+  .roundtable-card{ width: min(420px, 92%); max-height: 90vh; border-radius: 14px; padding: 8px; }
+  .roundtable-center{
+    position: relative !important;
+    top: 0 !important;
+    left: 50% !important;
+    transform: translate(-50%, 0) !important;
+    width: 92% !important;
+    max-width: 380px !important;
+    height: auto !important;
+    padding: 8px !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+  }
+  .roundtable-center .center-text{ width:100% !important; height: 260px !important; max-height: 70vh !important; padding:8px !important; box-sizing: border-box; }
+  .roundtable-agents{ top: 8px !important; left: 50% !important; transform: translateX(-50%) !important; }
+  .agent-node{ width: 88px !important; height: 88px !important; }
+  .agent-node img{ width: 88px !important; height: 88px !important; }
+  .agent-node .name{ top: 58px !important; font-size: 11px !important; width: 100px !important; }
 }
 
 /* 拍照模式伸展：左側 panel 伸展到中間並把中間泡泡挤压 */
