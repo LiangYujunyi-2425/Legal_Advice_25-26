@@ -289,14 +289,48 @@ button:focus-visible {
 
 
 .banner-btn {
-  background-color: #e2a953;
-  color: #001e1d;
-  border: none;
+  background: rgba(255, 255, 255, 0.2); /* 半透明背景 */
+  border-radius: 12px;                  /* 圓角 */
+  backdrop-filter: blur(10px);          /* 核心：背景模糊 */
+  -webkit-backdrop-filter: blur(10px);  /* Safari 支援 */
+  border: 1px solid rgba(255, 255, 255, 0.3); /* 淡淡邊框 */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);  /* 陰影增加層次 */
+  padding: 20px;
+  color: #fff;  
   padding: 10px 15px;
   font-size: 16px;
-  border-radius: 5px;
   cursor: pointer;
   transition: all 0.3s ease;
+}
+
+/* 背景切换控件 */
+.bg-switcher {
+  position: fixed;
+  top: 30px; /* 在 banner 下方 */
+  right: 10%;
+  display: flex;
+  gap: 8px;
+  z-index: 1003;
+  
+}
+.bg-switcher .banner-btn { padding: 8px 10px; font-size: 14px; border-radius: 10px; }
+.bg-switcher .banner-btn.active { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.35); }
+
+/* Body 背景变体 */
+body.bg-default {
+  /* 保持透明以让背景视频可见 */
+  background: transparent;
+  
+}
+body.bg-gradient {
+  background: linear-gradient(135deg, #001e1d 0%, #003b3b 50%, #006d77 100%);
+}
+body.bg-image {
+  /* 使用 public/snowhill.jpg 作为图案背景；如果需要覆盖可在此添加渐变叠层 */
+  background-image: url('/snowhill.jpg');
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .banner-btn:hover {
