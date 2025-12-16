@@ -1783,8 +1783,8 @@ body.bg-image {
     z-index: 2200 !important;
   }
   /* Stack: language on top, discussion button under it (moved down slightly) */
-  select[aria-label="選擇語言"] { top: 110px !important; }
-  button[title="查看群組討論"] { top: 170px !important; }
+  select[aria-label="選擇語言"] { top: 150px !important; }
+  button[title="查看群組討論"] { top: 210px !important; }
   /* Make select's inner text smaller to fit */
   select[aria-label="選擇語言"] option { font-size: 12px !important; }
 }
@@ -1796,8 +1796,8 @@ body.bg-image {
     padding: 5px 6px !important;
     border-radius: 10px !important;
   }
-  select[aria-label="選擇語言"] { top: 125px !important; }
-  button[title="查看群組討論"] { top: 158px !important; }
+  select[aria-label="選擇語言"] { top: 165px !important; }
+  button[title="查看群組討論"] { top: 198px !important; }
 }
 
 /* Ensure language select and discussion button are not affected by .chat-input touch/active effects */
@@ -1827,11 +1827,11 @@ body.bg-image {
     z-index: 2300;
     align-items: center;
   }
-  .mobile-floating-controls select, .mobile-floating-controls button, .mobile-floating-controls .mobile-voice-btn { width: 60px; }
+  .mobile-floating-controls select, .mobile-floating-controls button, .mobile-floating-controls .mobile-voice-btn { width: 60px; background-color: #00aaff; }
   .mobile-floating-controls .mobile-voice-btn { padding: 6px 8px; height: 36px; border-radius: 10px; }
 }
 @media (max-width: 420px) {
-  .mobile-floating-controls { right: 10px; top: 250px; }
+  .mobile-floating-controls { right: 10px; top: 600px; }
   .mobile-floating-controls select, .mobile-floating-controls button { width: 56px; }
 }
 
