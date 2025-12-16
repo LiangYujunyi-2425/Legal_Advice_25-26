@@ -1062,6 +1062,27 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       </div>
 
       {/* 泡泡动画覆盖层（发送消息时触发） */}
+      {/* Mobile floating controls: language select + 查看討論 (rendered outside chat-input to avoid transform issues) */}
+      <div className="mobile-floating-controls" aria-hidden={false}>
+        <select
+          value={selectedLang}
+          onChange={(e) => setSelectedLang(e.target.value)}
+          aria-label="選擇語言"
+          style={{ padding: 4, borderRadius: 8 }}
+        >
+          <option value="yue-HK">粵</option>
+          <option value="zh-HK">繁</option>
+          <option value="zh-CN">普</option>
+          <option value="en-US">EN</option>
+        </select>
+        <button
+          title="查看群組討論"
+          onClick={(e) => { e.stopPropagation(); setOverlayActive(true); setVisible(false); }}
+          style={{ marginTop: 8 }}
+        >
+          討論
+        </button>
+      </div>
       <div className="bubbles-overlay" ref={overlayRef} aria-hidden={!bubblesActive} style={{ display: bubblesActive ? 'block' : 'none' }}>
         <div className="bubbles-container">
           {bubbles.map((b, i) => {

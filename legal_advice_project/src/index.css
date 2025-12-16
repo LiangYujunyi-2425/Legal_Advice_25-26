@@ -1707,7 +1707,7 @@ body.bg-image {
 
   /* 通用按钮缩小 */
   button, .banner-btn, .remove-btn, .ai_txt_sendbutton, .voicecontroltxtweb, .openbutt, .bg-switcher .banner-btn {
-    font-size: 13px !important;
+    font-size: 9px !important;
     padding: 6px 8px !important;
     height: 36px !important;
     border-radius: 8px !important;
@@ -1730,4 +1730,125 @@ body.bg-image {
   }
   .bg-switcher { right: 6% !important; top: 66px !important; }
   .voicecontroltxtweb { font-size: 12px !important; padding: 5px 6px !important; height: 34px !important; }
+}
+
+/* Mobile: move language select and "查看討論" button into a small floating right bar */
+@media (max-width: 768px) {
+  /* container-like visual for the floating bar (uses pseudo-background via both items) */
+  /* hide original controls inside chat-input and instead show `.mobile-floating-controls` */
+  .chat-input select[aria-label="選擇語言"], .chat-input button[title="查看群組討論"] { display: none !important; }
+
+  select[aria-label="選擇語言"], button[title="查看群組討論"] {
+    position: fixed !important;
+    right: 12px !important;
+    width: 60px !important;
+    display: block !important;
+    text-align: center !important;
+    background: rgba(0,0,0,0.6) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255,255,255,0.06) !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45) !important;
+    border-radius: 12px !important;
+    padding: 6px 8px !important;
+    z-index: 2200 !important;
+  }
+  /* Stack: language on top, discussion button under it */
+  select[aria-label="選擇語言"] { top: 90px !important; }
+  button[title="查看群組討論"] { top: 150px !important; }
+  /* Make select's inner text smaller to fit */
+  select[aria-label="選擇語言"] option { font-size: 12px !important; }
+}
+
+@media (max-width: 420px) {
+  select[aria-label="選擇語言"], button[title="查看群組討論"] {
+    width: 56px !important;
+    right: 10px !important;
+    padding: 5px 6px !important;
+    border-radius: 10px !important;
+  }
+  select[aria-label="選擇語言"] { top: 82px !important; }
+  button[title="查看群組討論"] { top: 138px !important; }
+}
+
+/* Ensure language select and discussion button are not affected by .chat-input touch/active effects */
+@media (max-width: 768px) {
+  select[aria-label="選擇語言"], button[title="查看群組討論"] {
+    transform: none !important;
+    box-shadow: none !important;
+    transition: none !important;
+  }
+  select[aria-label="選擇語言"]:active, select[aria-label="選擇語言"]:focus,
+  button[title="查看群組討論"]:active, button[title="查看群組討論"]:focus {
+    transform: none !important;
+    box-shadow: none !important;
+
+/* Mobile-floating-controls: hidden by default, shown on narrow screens */
+.mobile-floating-controls {
+  display: none;
+}
+@media (max-width: 768px) {
+  .mobile-floating-controls {
+    display: flex !important;
+    flex-direction: column;
+    position: fixed;
+    right: 12px;
+    top: 90px;
+    gap: 8px;
+    z-index: 2300;
+    align-items: center;
+  }
+  .mobile-floating-controls select, .mobile-floating-controls button { width: 60px; }
+}
+@media (max-width: 420px) {
+  .mobile-floating-controls { right: 10px; top: 82px; }
+  .mobile-floating-controls select, .mobile-floating-controls button { width: 56px; }
+}
+    outline: none !important;
+  }
+}
+
+@media (max-width: 420px) {
+  select[aria-label="選擇語言"], button[title="查看群組討論"] {
+    transform: none !important;
+    box-shadow: none !important;
+    transition: none !important;
+  }
+  select[aria-label="選擇語言"]:active, select[aria-label="選擇語言"]:focus,
+  button[title="查看群組討論"]:active, button[title="查看群組討論"]:focus {
+    transform: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+}
+
+/* Disable chat-input enlargement and keep input normal-size on mobile */
+@media (max-width: 768px) {
+  .chat-input:hover, .chat-input:active {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  /* Prevent txtinputplace from being enlarged on mobile */
+  .txtinputplace {
+    flex: 0 1 auto !important;
+    min-width: 120px !important;
+    font-size: 13px !important;
+    padding: 6px 8px !important;
+    height: 36px !important;
+    border-radius: 8px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .chat-input:hover, .chat-input:active {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  .txtinputplace {
+    flex: 0 1 auto !important;
+    min-width: 100px !important;
+    font-size: 12px !important;
+    padding: 6px 6px !important;
+    height: 34px !important;
+    border-radius: 8px !important;
+  }
 }
