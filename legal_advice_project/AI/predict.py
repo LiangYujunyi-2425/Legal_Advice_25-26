@@ -81,10 +81,38 @@ def extract_answer(text: str) -> str:
     return m.group(1).strip() if m else text.strip()
 
 def sanitize_output(text: str) -> str:
+    """
+    清理輸出文本，確保格式乾淨
+    """
     # 移除 <instruction> ... </instruction>
     text = re.sub(r"<instruction>.*?</instruction>", "", text, flags=re.DOTALL)
     # 移除 <question> ... </question>
     text = re.sub(r"<question>.*?</question>", "", text, flags=re.DOTALL)
+    # 移除 <answer> 標籤但保留內容
+    text = re.sub(r"<answer>|</answer>", "", text)
+    
+    # 移除 Markdown 格式符號
+    # 移除粗體 **text**
+    text = re.sub(r"\*\*([^*]+)\*\*", r"\1", text)
+    # 移除斜體 *text*
+    text = re.sub(r"\*([^*]+)\*", r"\1", text)
+    # 移除標題符號 # ## ###
+    text = re.sub(r"^#{1,6}\s+", "", text, flags=re.MULTILINE)
+    # 移除列表符號 - 或 * 開頭（但保留 • 符號）
+    text = re.sub(r"^[\-\*]\s+", "• ", text, flags=re.MULTILINE)
+    
+    # 移除多餘的轉義字符顯示
+    text = text.replace("\\n", "\n")
+    text = text.replace("\\t", " ")
+    text = text.replace("\\r", "")
+    
+    # 移除多餘的空白行（超過2個連續換行）
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    
+    # 移除行首行尾空白
+    lines = [line.strip() for line in text.split("\n")]
+    text = "\n".join(lines)
+    
     # 移除多餘空白
     return text.strip()
 
@@ -143,26 +171,117 @@ def format_responses_for_judge(responses: Dict[str, str]) -> str:
     return "\n".join(lines)
 
 # ---- Prompt templates ----
-def lawyer_template(user_question: str) -> str:
-    system_prompt = "假設你是一名律師。請根據香港法例從專業角度回答用戶的問題並解釋你的推理。限制：用繁體中文回答。不需要引入案例，不需要假設不存在的事實。請給我乾淨的回答，和使用點列方式輸出回覆。"
-    return f"{system_prompt}\n{user_question}"
+# 基礎系統提示詞 - 確保輸出格式乾淨
+BASE_FORMAT_INSTRUCTION = """
+重要格式要求：
+1. 必須100%使用繁體中文回答，絕對不可以使用任何英文單詞或短語
+2. 所有專業術語、法律用語都必須用繁體中文表達
+3. 不要使用任何 Markdown 符號（如 *, **, #, -, 等）
+4. 不要使用 \\n 或其他轉義字符
+5. 使用自然的段落和換行
+6. 使用「•」或數字來列點
+7. 保持回答簡潔清晰
+8. 不要輸出任何程式碼或特殊符號
+9. 嚴禁中英混雜，必須純繁體中文
+"""
 
-def contract_template(user_question: str, ) -> str:
-    system_prompt = "你是一名律師。請根據香港法例從專業角度分析用戶提供的文件，其風險、錯誤或遺漏，並詢問用戶需要什麼幫助。限制：用繁體中文回答。請給我乾淨的回答，和使用點列方式輸出回覆。"
-    return f"{system_prompt}\n用戶提供文件：{user_question}"
+def lawyer_template(user_question: str) -> str:
+    system_prompt = f"""假設你是一名律師。請根據香港法例從專業角度回答用戶的問題並解釋你的推理。
+
+重要指示：
+• 直接回答問題，不要有開場白或問候語
+• 不要說「您好」、「作為律師」等客套話
+• 立即進入正題，直接提供法律分析
+• 必須100%使用繁體中文回答，絕對不可以使用任何英文
+• 所有法律術語、專業用語都必須用繁體中文表達
+• 例如：不要寫 "unable to"，要寫「無法」；不要寫 "regardless of"，要寫「無論」
+• 嚴禁中英混雜
+• 不需要引入案例
+• 不需要假設不存在的事實
+• 使用清晰的段落和「•」符號列點
+• 不要使用 Markdown 格式符號（*, **, #, - 等）
+• 不要使用轉義字符（\\n, \\t 等）
+• 保持回答專業且易讀
+
+{BASE_FORMAT_INSTRUCTION}"""
+    return f"{system_prompt}\n\n用戶問題：{user_question}"
+
+def contract_template(user_question: str) -> str:
+    system_prompt = f"""你是一名律師。請根據香港法例從專業角度分析用戶提供的文件，其風險、錯誤或遺漏，並詢問用戶需要什麼幫助。
+
+重要指示：
+• 直接開始分析，不要有開場白或問候語
+• 不要說「您好」、「作為律師」等客套話
+• 立即進入正題，直接分析文件內容
+• 必須100%使用繁體中文回答，絕對不可以使用任何英文
+• 所有法律術語、專業用語都必須用繁體中文表達
+• 例如：不要寫 "unable to"，要寫「無法」；不要寫 "capable"，要寫「有能力的」
+• 嚴禁中英混雜
+• 使用清晰的段落和「•」符號列點
+• 不要使用 Markdown 格式符號（*, **, #, - 等）
+• 不要使用轉義字符（\\n, \\t 等）
+• 保持回答專業且易讀
+
+{BASE_FORMAT_INSTRUCTION}"""
+    return f"{system_prompt}\n\n用戶提供文件：{user_question}"
 
 def prosecutor_template(user_question: str) -> str:
-    system_prompt = "假設你是一名律師。請根據香港法例從專業角度回答用戶的問題並解釋你的推理並解釋你的推理。限制：用繁體中文回答。不需要引入案例，不需要假設不存在的事實。請給我乾淨的回答，和使用點列方式輸出回覆。"
-    return f"{system_prompt}\n{user_question}"
+    system_prompt = f"""假設你是一名檢控官。請根據香港法例從專業角度回答用戶的問題並解釋你的推理。
+
+重要指示：
+• 直接回答問題，不要有開場白或問候語
+• 不要說「您好」、「作為檢控官」等客套話
+• 立即進入正題，直接提供法律分析
+• 必須100%使用繁體中文回答，絕對不可以使用任何英文
+• 所有法律術語、專業用語都必須用繁體中文表達
+• 嚴禁中英混雜
+• 不需要引入案例
+• 不需要假設不存在的事實
+• 使用清晰的段落和「•」符號列點
+• 不要使用 Markdown 格式符號（*, **, #, - 等）
+• 不要使用轉義字符（\\n, \\t 等）
+• 保持回答專業且易讀
+
+{BASE_FORMAT_INSTRUCTION}"""
+    return f"{system_prompt}\n\n用戶問題：{user_question}"
 
 def judge_template(user_question: str, responses: Dict[str, str]) -> str:
-    system_prompt = "假設你是一名法官。總結多輪中雙方的觀點，並提供結論。限制：只需要提供結論，不需要輸出總結，用繁體中文回答，不需要引入案例，不需要假設不存在的事實。請給我乾淨的回答，和使用點列方式輸出回覆。你必須以『非專業法律意見，如需要法律援助請尋求專門人士協助。』結束每個回答。"
-    return f"{system_prompt}\n用戶問題：{user_question}\n律師們的觀點：{format_responses_for_judge(responses)}"
+    system_prompt = f"""假設你是一名法官。總結多輪中雙方的觀點，並提供結論。
+
+重要指示：
+• 直接提供結論，不要有開場白或問候語
+• 不要說「您好」、「作為法官」等客套話
+• 立即進入正題，直接總結和提供結論
+• 只需要提供結論，不需要輸出總結
+• 必須100%使用繁體中文回答，絕對不可以使用任何英文
+• 所有法律術語、專業用語都必須用繁體中文表達
+• 嚴禁中英混雜
+• 不需要引入案例
+• 不需要假設不存在的事實
+• 使用清晰的段落和「•」符號列點
+• 不要使用 Markdown 格式符號（*, **, #, - 等）
+• 不要使用轉義字符（\\n, \\t 等）
+• 你必須以「非專業法律意見，如需要法律援助請尋求專門人士協助。」結束每個回答
+
+{BASE_FORMAT_INSTRUCTION}"""
+    return f"{system_prompt}\n\n用戶問題：{user_question}\n\n律師們的觀點：{format_responses_for_judge(responses)}"
 
 def Guide_template(user_question: str, memory: Memory) -> str:
     history = "\n".join([f"{m['role']}: {m['content']}" for m in memory.messages[-6:]])
-    system_prompt = "你是一個名叫小律的法律顧問助手。禮貌地問候用戶並介紹自己。並回答用戶有關香港法律的疑問。限制：你必須以『非專業法律意見，如需要法律援助請尋求專門人士協助。』結束每個回答。用繁體中文回答。請給我乾淨的回答，和使用點列方式輸出回覆"
-    return f"{system_prompt}\n歷史：{history}\n用戶問題：{user_question}"
+    system_prompt = f"""你是一個名叫小律的法律顧問助手。禮貌地問候用戶並介紹自己。並回答用戶有關香港法律的疑問。
+
+限制：
+• 必須100%使用繁體中文回答，絕對不可以使用任何英文
+• 所有法律術語、專業用語都必須用繁體中文表達
+• 嚴禁中英混雜
+• 使用清晰的段落和「•」符號列點
+• 不要使用 Markdown 格式符號（*, **, #, - 等）
+• 不要使用轉義字符（\\n, \\t 等）
+• 保持回答友善且專業
+• 你必須以「非專業法律意見，如需要法律援助請尋求專門人士協助。」結束每個回答
+
+{BASE_FORMAT_INSTRUCTION}"""
+    return f"{system_prompt}\n\n對話歷史：{history}\n\n用戶問題：{user_question}"
 
 # ---- Agents ----
 class BaseAgent:

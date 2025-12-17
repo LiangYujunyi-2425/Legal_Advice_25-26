@@ -4,4 +4,5 @@ google-cloud-aiplatform>=1.26.0
 google-auth
 requests
 python-dotenv
-
+google-cloud-firestore
+httpx
