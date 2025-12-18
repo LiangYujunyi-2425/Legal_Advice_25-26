@@ -1,4 +1,3 @@
-# agent/contract.py
 from fastapi import APIRouter, Request
 from agent.db import db
 from agent.runtime import get_model
@@ -26,17 +25,14 @@ async def contract(request: Request):
     if model is None:
         return {"ok": False, "agent": "contract", "error": "GenerativeModel not initialized"}
     
-        doc_ref = db.collection("conversations").document(session_id)
+    # Firestore logging
+    doc_ref = db.collection("conversations").document(session_id)
     doc = doc_ref.get()
-    history = doc.to_dict().get("messages", []) if doc.exists else []
-
-    # 把歷史訊息拼接成文字
-    history_text = "\n".join([f"{m['role']}: {m['content']}" for m in history])
-
-
+    data = doc.to_dict() or {}
+    history_text = data.get("summary", "") if doc.exists else ""
 
     try:
-        resp = model.generate_content(f"{SYSTEM_PROMPT}\n{history_text}\n{user_question}".strip())
+        resp = model.generate_content(f"{SYSTEM_PROMPT}\n{history_text}\nuser: {user_question}")
         if not getattr(resp, "candidates", None):
             return {"ok": False, "agent": "contract", "error": "No candidates returned"}
 
@@ -45,8 +41,11 @@ async def contract(request: Request):
         return {"ok": False, "agent": "contract", "error": str(e)}
 
     # Firestore logging
-    doc_ref = db.collection("conversations").document(session_id)
-    agent_msg = {"role": "contract", "content": answer, "timestamp": datetime.datetime.utcnow().isoformat()}
+    agent_msg = {
+        "role": "contract",
+        "content": answer,
+        "timestamp": datetime.datetime.utcnow().isoformat()
+    }
 
     doc_ref.set({
         "expireAt": datetime.datetime.utcnow() + datetime.timedelta(hours=1)
@@ -55,6 +54,5 @@ async def contract(request: Request):
     doc_ref.update({
         "messages": firestore.ArrayUnion([agent_msg])
     })
-
-
+    
     return {"ok": True, "agent": "contract", "answer": answer}

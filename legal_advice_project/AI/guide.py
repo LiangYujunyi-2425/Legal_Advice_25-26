@@ -64,19 +64,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from agent import lawyer_router, contract_router, assistant_router, reviewer_router
+from agent import lawyer_router, contract_router, assistant_router, summarizer_router, summarizesreviewer_router
 
 app.include_router(lawyer_router, prefix="/lawyer")
 app.include_router(contract_router, prefix="/contract")
 app.include_router(assistant_router, prefix="/assistant")
-app.include_router(reviewer_router, prefix="/reviewer")
+app.include_router(summarizer_router, prefix="/summarizer")
+app.include_router(summarizesreviewer_router, prefix="/summarizesreviewer")
 
 # Guide Agent Prompt
 system_prompt = """
 你是一個任務分流器。請根據用戶的問題判斷應該交給哪個 Agent 處理：
 - "lawyer" → 法律問題（香港法例、勞工法、合規）
 - "contract" → 合同分析（條款風險、合約結構）
-- "assistant" → 一般諮詢（前台接待）
+- "assistant" → 前台接待（一般詢問、指引）
 
 請只回傳一個字串："lawyer"、"contract" 或 "assistant"。
 """
@@ -106,28 +107,38 @@ async def guide(request: Request):
 
     # 讀取過去對話
     doc = doc_ref.get()
-    history = []
-    if doc.exists:
-        history = doc.to_dict().get("messages", [])
+    data = doc.to_dict() or {}
+    summaries = data.get("summaries", [])
+    if isinstance(summaries, dict):
+        summaries = [summaries]
+    elif not isinstance(summaries, list):
+        summaries = []
+
+    latest_summary = ""
+    if summaries and isinstance(summaries[-1], dict):
+        latest_summary = summaries[-1].get("content", "")
 
     # 呼叫 Vertex AI 模型
     response = generative_model.generate_content(
-        f"{system_prompt}\n{user_question}".strip()
+        f"{system_prompt}\n最新摘要:\n{latest_summary}\n用戶問題:\n{user_question}".strip()
     )
     agent_type = response.candidates[0].content.parts[0].text.strip()
 
     # 新增訊息到 history
     user_message = {
-        "role": "user",
-        "content": user_question,
-        "timestamp": datetime.datetime.utcnow().isoformat()
+        "user": user_question,
     }
 
-    # 更新 Firestore
-    new_history = history + [user_message]
+    messages = data.get("messages", [])
+    if isinstance(messages, dict):
+        messages = [messages]
+    elif not isinstance(messages, list):
+        messages = []
+        
+    new_messages = messages + [user_message]
 
     doc_ref.set({
-        "messages": new_history,
+        "messages": new_messages,
         "expireAt": datetime.datetime.utcnow() + datetime.timedelta(hours=1)
     }, merge=True)
 
@@ -137,40 +148,23 @@ async def guide(request: Request):
         "assistant": "http://localhost:8080/assistant/" 
     } 
 
-    agent_answer = None
-    reviewed_answer = None
-    enable_review = body.get("enable_review", True)  # 默認啟用審查
-    
+    agent_answer = None 
     if agent_type in agent_url_map: 
         async with httpx.AsyncClient() as client: 
-            # 1. 調用原始 agent
             resp = await client.post(agent_url_map[agent_type], json={"session_id": session_id, "user_question": user_question}) 
             agent_answer = resp.json()
-            
-            # 2. 如果啟用審查且 agent 回答成功，則調用 reviewer
-            if enable_review and agent_answer and agent_answer.get("ok") and agent_answer.get("answer"):
-                try:
-                    review_resp = await client.post(
-                        "http://localhost:8080/reviewer/",
-                        json={
-                            "session_id": session_id,
-                            "original_answer": agent_answer["answer"],
-                            "original_question": user_question,
-                            "agent_type": agent_type
-                        }
-                    )
-                    reviewed_answer = review_resp.json()
-                except Exception as e:
-                    print(f"Reviewer error: {e}")
-                    # 如果審查失敗，仍然返回原始答案
-                    reviewed_answer = None
+            if agent_answer and agent_answer.get("ok"):
+                await client.post(
+                    "http://localhost:8080/summarizer/",   # 或 Cloud Run 公網 URL
+                    json={
+                        "session_id": session_id,
+                        "user_question": user_question,
+                        "agent_response": agent_answer.get("answer")
+                    }
+                )
 
     return {
-        "ok": True,
-        "agent_type": agent_type,
-        "agent_response": agent_answer,
-        "reviewed_response": reviewed_answer,  # 審查後的回答
-        "final_answer": reviewed_answer.get("answer") if reviewed_answer and reviewed_answer.get("ok") else (agent_answer.get("answer") if agent_answer else None)
+        "agent_response": agent_answer
     }
 
 if __name__ == "__main__":

@@ -28,10 +28,12 @@ async def lawyer(request: Request):
     # Firestore logging
     doc_ref = db.collection("conversations").document(session_id)
     doc = doc_ref.get()
-    history = doc.to_dict().get("messages", []) if doc.exists else []
+    data = doc.to_dict() or {}
+    summaries = data.get("summaries", []) if doc.exists else []
 
-    # 拼接歷史訊息
-    history_text = "\n".join([f"{m['role']}: {m['content']}" for m in history])
+    history_text = ""
+    if isinstance(summaries, list):
+        history_text = "\n".join([s.get("content", "") for s in summaries if isinstance(s, dict)])
 
     try:
         resp = model.generate_content(f"{SYSTEM_PROMPT}\n{history_text}\nuser: {user_question}")
@@ -44,9 +46,7 @@ async def lawyer(request: Request):
 
     # Firestore logging
     agent_msg = {
-        "role": "lawyer",
-        "content": answer,
-        "timestamp": datetime.datetime.utcnow().isoformat()
+        "lawyer": answer,
     }
 
     doc_ref.set({
@@ -56,5 +56,5 @@ async def lawyer(request: Request):
     doc_ref.update({
         "messages": firestore.ArrayUnion([agent_msg])
     })
-
+    
     return {"ok": True, "agent": "lawyer", "answer": answer}
