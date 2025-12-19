@@ -64,11 +64,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from agent import lawyer_router, contract_router, assistant_router, summarizer_router, summarizesreviewer_router
+from agent import lawyer_router, contract_router, assistant_router, reviewer_router, summarizer_router, summarizesreviewer_router 
 
 app.include_router(lawyer_router, prefix="/lawyer")
 app.include_router(contract_router, prefix="/contract")
 app.include_router(assistant_router, prefix="/assistant")
+app.include_router(reviewer_router, prefix="/reviewer")
 app.include_router(summarizer_router, prefix="/summarizer")
 app.include_router(summarizesreviewer_router, prefix="/summarizesreviewer")
 
@@ -95,6 +96,8 @@ async def guide(request: Request):
     body = await request.json()
     user_question = body.get("user_question")
     session_id = body.get("session_id")
+
+    print(f"[Guide] Received question: {user_question}, session: {session_id}")
 
     if not user_question or not session_id:
         return {"ok": False, "error": "Missing user_question or session_id"}
@@ -148,24 +151,20 @@ async def guide(request: Request):
         "assistant": "http://localhost:8080/assistant/" 
     } 
 
-    agent_answer = None 
-    if agent_type in agent_url_map: 
-        async with httpx.AsyncClient() as client: 
-            resp = await client.post(agent_url_map[agent_type], json={"session_id": session_id, "user_question": user_question}) 
+    agent_answer = None
+    if agent_type in agent_url_map:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # 呼叫對應的 agent（例如 lawyer）
+            resp = await client.post(
+                agent_url_map[agent_type],
+                json={"session_id": session_id, "user_question": user_question}
+            )
             agent_answer = resp.json()
-            if agent_answer and agent_answer.get("ok"):
-                await client.post(
-                    "http://localhost:8080/summarizer/",   # 或 Cloud Run 公網 URL
-                    json={
-                        "session_id": session_id,
-                        "user_question": user_question,
-                        "agent_response": agent_answer.get("answer")
-                    }
-                )
 
-    return {
-        "agent_response": agent_answer
-    }
+            return agent_answer
+
+    
+    print(f"[Guide] Final response: {agent_answer}")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))

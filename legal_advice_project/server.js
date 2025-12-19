@@ -14,7 +14,7 @@ const __dirname = path.dirname(__filename);
 
 // 创建 Express 应用
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT;
 
 // ✅ 添加 CORS 支持
 app.use(cors());
@@ -89,4 +89,11 @@ app.post('/cache/:sessionId/compose', (req, res) => {
 // ✅ 启动服务
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
+});
+
+const frontendFolder = path.join(__dirname, "dist"); // 或 dist
+app.use(express.static(frontendFolder));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(frontendFolder, "index.html"));
 });

@@ -7,11 +7,14 @@ import datetime
 router = APIRouter()
 
 SYSTEM_REVIEW = """
-你是一個AI短期記憶管理員，你的目的是讓候選摘要與既有摘要上下文連貫，令自己可以通過這些摘要記起和用戶之間的對話內容。
-請確保候選摘要與既有摘要上下文連貫，並在必要時修正。
-可以作出適當精簡。
-可以作出適當推理，但不要加入新的假設。
-請只回傳修正後的摘要文字
+你是一個AI短期記憶管理員，你的目的是讓候選摘要與既有摘要上下文連貫並串聯成一篇文章，令AI(自己)可以通過這個文章記起和用戶之間的對話內容。
+要求:
+  能讓AI(自己)只通過這一篇文章就知道用戶和AI(自己)之間的所有對話內容。
+  在必要時修正(增加或刪減)文章。
+  不要加入新的假設。
+  請只回傳修正(增加或刪減)後文章的文字，
+  不需要任何格式標記，只需要文章的文字，
+  請用繁體中文回答。
 """.strip()
 
 @router.post("/")
@@ -33,7 +36,7 @@ async def summarizesreviewer(request: Request):
     elif not isinstance(summaries, list):
         summaries = []
 
-    recent_text = "\n".join([s.get("content", "") for s in summaries[-3:] if isinstance(s, dict)])
+    recent_text = "\n".join([s.get("content", "") for s in summaries[-10:] if isinstance(s, dict)])
 
     model = get_model()
     try:

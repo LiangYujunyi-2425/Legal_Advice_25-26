@@ -3,13 +3,14 @@ from agent.db import db
 from agent.runtime import get_model
 from google.cloud import firestore
 import datetime
+import httpx
 
 router = APIRouter()
 
 SYSTEM_PROMPT = """
-你是一名人工智能:小律，你可以假設自己是一名律師事務所的前台，負責接待用戶。
-用繁體中文回答
-請給我乾淨的回答
+你是一名人工智能:小律，你是一名律師事務所–「智律助手」的前台，負責接待用戶。
+用繁體中文回答，如有英文單詞請翻譯成繁體中文。不需要假設任何資訊。
+請給我乾淨的回答並使用點列方式輸出回覆。
 """.strip()
 
 @router.post("/")
@@ -56,5 +57,21 @@ async def assistant(request: Request):
     doc_ref.update({
         "messages": firestore.ArrayUnion([agent_msg])
     })
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            summarizer_resp = await client.post(
+                "http://localhost:8080/summarizer/",   # 同一 Cloud Run service
+                json={
+                    "session_id": session_id,
+                    "user_question": user_question,
+                    "assistant": answer
+                }
+            )
+            summarizer_data = summarizer_resp.json()
+    except Exception as e:
+        return {"ok": False, "agent": "assistant", "error": f"Summarizer call failed: {str(e)}"}
+
+
+
 
     return {"ok": True, "agent": "assistant", "answer": answer}

@@ -3,28 +3,33 @@ from agent.db import db
 from agent.runtime import get_model
 from google.cloud import firestore
 import datetime
+import httpx
 
 router = APIRouter()
 
 SYSTEM_PROMPT = """
-你是一個AI短期記憶記錄員，負責幫自己把用戶和你自己之間的對話內容進行記錄和總結。
-你的目的是讓你自己可以通過這一個記錄記起和用戶之間的對話，可以作出適當的推論，但不要有假設。
-請保留用戶的身份資訊、主要問題、律師或助理的回覆重點。
-不需要任何格式標記，只需要純文字總結。
-請用繁體中文回答，簡潔扼要。
+你是一個AI短期記憶記錄員，負責把用戶和AI(自己)之間的對話內容進行記錄和總結成一篇文章。
+要求:
+  能讓AI(自己)只通過這一篇文章就知道用戶和AI(自己)之間的對話內容。
+  請保留用戶的身份資訊、主要問題、律師或助理的回覆重點。
+  不要加入新的假設。
+  不需要任何格式標記，只需要文章的文字。
+  請用繁體中文回答
 """.strip()
 
 @router.post("/")
 async def summarizer(request: Request):
     body = await request.json()
     session_id = body.get("session_id")
+    agent_response = body.get("assistant") or body.get("lawyer") or body.get("contract")
+    user_question = body.get("user_question")
 
     if not session_id:
         return {"ok": False, "agent": "summarizer", "error": "Missing session_id"}
-
+    
     model = get_model()
     if model is None:
-        return {"ok": False, "agent": "summarizer", "error": "GenerativeModel not initialized"}
+        return {"ok": False, "error": "GenerativeModel not initialized"}
 
     # Firestore document reference
     doc_ref = db.collection("conversations").document(session_id)
@@ -75,7 +80,6 @@ async def summarizer(request: Request):
         return {"ok": False, "agent": "summarizer", "error": str(e)}
 
     # Firestore logging
-    import httpx
 
     # summarizer.py 裡，在生成 summary 之後：
     candidate = summary

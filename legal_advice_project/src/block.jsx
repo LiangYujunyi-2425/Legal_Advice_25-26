@@ -387,168 +387,45 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     const text = (typeof textArg === 'string' ? textArg : input).trim();
     if (!text) return;
 
-    // push user message and a placeholder assistant message which we'll update while streaming
+    // push user message and placeholder assistant message
     const userMessage = { role: 'user', content: text };
     setMessages(prev => [...prev, userMessage, { role: 'assistant', content: 'AI團隊正在分析您的問題…' }]);
-    // push user message into memory cache (best-effort)
-    try {
-      const url = cacheBase ? `${cacheBase}/cache/${encodeURIComponent(sessionId)}/message` : `/cache/${encodeURIComponent(sessionId)}/message`;
-      fetch(url, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userMessage)
-      }).catch(() => {});
-    } catch (e) {}
+
     setInput('');
     setAiMood('thinking');
     setSquash(true);
     setTimeout(() => setSquash(false), 160);
 
-    // 啟動 overlay（即使尚無 agent 訊息也先顯示群組討論視圖）
-    setOverlayMessagesState([]);
-    setOverlayParticipants([]);
-    setOverlayActive(true);
-    setVisible(false);
+    // 呼叫 Cloud Run API，而不是本地 cache
+    try {
+      const resp = await fetch("https://guideagent-926721049029.us-central1.run.app/guide", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId,
+          user_question: text
+        })
+      });
+      const data = await resp.json();
 
+      // 更新最後一個 assistant message
+      setMessages(prev => {
+        const copy = [...prev];
+        copy[copy.length - 1] = { role: 'assistant', content: data.answer || '抱歉，AI沒有回覆' };
+        return copy;
+      });
 
-    // Stream from remote predict endpoint and update assistant message incrementally
-    (async () => {
-      try {
-        let accumulated = '';
-        let hasAgent = false; // 是否有 multi-agent 討論事件
-        // collect multi-agent messages locally so we can act on them when stream ends
-        const multiAgentMessages = [];
-        for await (const chunk of streamPredict(text, false, null, sessionId, 6)) {
-          if (chunk && typeof chunk === 'object' && chunk.agent) {
-            const agentNameRaw = String(chunk.agent || 'Agent');
-            const agentName = agentNameRaw.toLowerCase();
-            const speakerName = (agentNameRaw[0] || '').toUpperCase() + agentNameRaw.slice(1);
-            const outputText = chunk.output || '';
-
-            // determine avatarKey for this agent
-            const avatarKey = agentName === 'judge' ? 'judge' : (agentName === 'lawyer' || agentName === 'prosecutor' ? 'lawyer' : (agentName === 'owner' ? 'owner' : 'manager'));
-
-            // add participant if not exists
-            setOverlayParticipants(prev => {
-              const exists = prev.find(p => (p.name || '').toLowerCase() === agentName);
-              if (exists) return prev;
-              return [...prev, { id: Date.now() + Math.random(), avatarKey, name: speakerName }];
-            });
-
-            const m = {
-              id: Date.now() + Math.random(),
-              speaker: speakerName,
-              role: speakerName,
-              text: outputText,
-              avatarKey
-            };
-
-            // 每個 agent 的訊息都加入 overlay（模擬群組討論）
-            setOverlayMessagesState(prev => [...prev, m]);
-            multiAgentMessages.push(m);
-
-            // 標記有 agent 討論，避免把流式文字立即更新到主對話
-            hasAgent = true;
-
-            // ensure we are in overlay view
-            setOverlayActive(true);
-            setVisible(false);
-
-            continue;
-          }
-
-          // 一般 assistant streaming（非 agent event 的文字片段）
-          let piece = typeof chunk === 'string' ? chunk : chunk?.output || JSON.stringify(chunk);
-          accumulated += piece;
-          // 只有在沒有任何 agent 討論時才即時更新主對話的 streaming 片段
-          if (!hasAgent) {
-            setMessages(prev => {
-              const copy = [...prev];
-              copy[copy.length - 1] = { role: 'assistant', content: accumulated };
-              return copy;
-            });
-          }
-        }
-
-        // finished streaming
-        if (multiAgentMessages.length > 0) {
-          // 優先取得最後的 Judge 結論，若沒有則退回使用最後一個 agent
-          const reversed = [...multiAgentMessages].reverse();
-          const judgeMsg = reversed.find(m => (m.speaker || '').toLowerCase() === 'judge');
-          if (judgeMsg) {
-            const rawText = judgeMsg.text || '';
-            setMessages(prev => {
-              const copy = [...prev];
-              copy[copy.length - 1] = { role: 'assistant', content: rawText };
-              return copy;
-            });
-            // push assistant/judge conclusion to cache
-            try {
-              const url = cacheBase ? `${cacheBase}/cache/${encodeURIComponent(sessionId)}/message` : `/cache/${encodeURIComponent(sessionId)}/message`;
-              fetch(url, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ role: 'assistant', content: rawText })
-              }).catch(() => {});
-            } catch (e) {}
-          } else {
-            const lastAgent = multiAgentMessages[multiAgentMessages.length - 1];
-            const rawText = lastAgent.text || '';
-            setMessages(prev => {
-              const copy = [...prev];
-              copy[copy.length - 1] = { role: 'assistant', content: rawText };
-              return copy;
-            });
-            try {
-              const url = cacheBase ? `${cacheBase}/cache/${encodeURIComponent(sessionId)}/message` : `/cache/${encodeURIComponent(sessionId)}/message`;
-              fetch(url, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ role: 'assistant', content: rawText })
-              }).catch(() => {});
-            } catch (e) {}
-          }
-
-          setOverlayMessagesState([]);
-          setOverlayParticipants([]);
-          setOverlayActive(false);
-          setVisible(true);
-
-          // 已用 multi-agent 的 Judge 結論，避免後續從 accumulated 再加入重複內容
-          accumulated = '';
-        }
-
-        // compute last paragraph from accumulated stream and append as a focused assistant message
-        try {
-          const normalized = (accumulated || '').replace(/\r\n/g, '\n');
-          const paragraphs = normalized.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
-          const lastPara = paragraphs.length > 0 ? paragraphs[paragraphs.length - 1] : (normalized.trim() || '');
-          if (lastPara) {
-            setMessages(prev => [...prev, { role: 'assistant', content: lastPara }]);
-            try {
-              const url = cacheBase ? `${cacheBase}/cache/${encodeURIComponent(sessionId)}/message` : `/cache/${encodeURIComponent(sessionId)}/message`;
-              fetch(url, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ role: 'assistant', content: lastPara })
-              }).catch(() => {});
-            } catch (e) {}
-          }
-        } catch (e) {
-          // ignore paragraph extraction errors
-        }
-
-        setAiMood('happy');
-        setTimeout(() => setAiMood('neutral'), 900);
-      } catch (err) {
-        console.error('Predict stream error', err);
-        setMessages(prev => {
-          const copy = [...prev];
-          copy[copy.length - 1] = { role: 'assistant', content: `❌ 發生錯誤：${String(err)}` };
-          return copy;
-        });
-        setAiMood('sad');
-        setTimeout(() => setAiMood('neutral'), 1200);
-      } finally {
-        setSquash(false);
-      }
-    })();
+      setAiMood('neutral');
+    } catch (err) {
+      console.error("Cloud Run API error", err);
+      setMessages(prev => {
+        const copy = [...prev];
+        copy[copy.length - 1] = { role: 'assistant', content: `❌ 呼叫 Cloud Run API 失敗：${String(err)}` };
+        return copy;
+      });
+      setAiMood('sad');
+      setTimeout(() => setAiMood('neutral'), 1200);
+    }
   };
 
   // Start bubble animation flow: create bubbles, position origin near latest user message,
