@@ -1837,7 +1837,7 @@ body.bg-image {
   button[title="查看群組討論"]:active, button[title="查看群組討論"]:focus {
     transform: none !important;
     box-shadow: none !important;
-
+  
 /* Mobile-floating-controls: hidden by default, shown on narrow screens */
 .mobile-floating-controls {
   display: none;
