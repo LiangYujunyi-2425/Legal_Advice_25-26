@@ -829,19 +829,6 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             >
               {ttsEnabled ? '🔊 語音開' : '🔇 語音關'}
             </button>
-            <div style={{ marginLeft: 8 }}>
-             <button
-                className="ai_txt_sendbutton"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOverlayActive(true);
-                  setVisible(false);
-                }}
-                title="查看群組討論"
-              >
-                查看討論
-              </button>
-            </div>
 
             <label className="file-label" style={{ marginLeft: 4 }}>
               📎
@@ -857,7 +844,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           <div
             className={`ai-face ${facePop ? 'pop' : ''} ${aiMood}`}
             ref={eyesRef}
-            style={{ position: 'fixed', left: '13%', top: '50px' }}
+            style={{ position: 'fixed', left: '11%', top: '50px', zIndex: 1900 }}
           >
             <img
               src={xiaojinglin}
@@ -882,7 +869,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
               setWelcomeAudioError(err?.message || 'play failed');
             }
           }}
-          style={{ position: 'fixed', right: 18, top: 18, zIndex: 200 }}
+          style={{ position: 'fixed', right: 18, top: 18, zIndex: 200 ,display:'none'}}
         >
           ▶︎ 播放歡迎語音
         </button>
@@ -971,22 +958,6 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           <option value="zh-CN">普</option>
           <option value="en-US">EN</option>
         </select>
-        <button
-          title="查看群組討論"
-          onClick={(e) => { e.stopPropagation(); setOverlayActive(true); setVisible(false); }}
-          style={{ marginTop: 8 }}
-        >
-          討論
-        </button>
-        <button
-          className="mobile-voice-btn"
-          aria-pressed={mobileVoiceEnabled}
-          onClick={(e) => { e.stopPropagation(); toggleMobileVoice(); }}
-          title="切換語音控制"
-          style={{ marginTop: 8 }}
-        >
-          {mobileVoiceEnabled ? '語音輔助ON' : '語音輔助OFF'}
-        </button>
       </div>
       <div className="bubbles-overlay" ref={overlayRef} aria-hidden={!bubblesActive} style={{ display: bubblesActive ? 'block' : 'none' }}>
         <div className="bubbles-container">
