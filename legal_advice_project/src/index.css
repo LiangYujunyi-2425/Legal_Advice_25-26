@@ -1794,7 +1794,7 @@ select[aria-label="選擇語言"] { display: none !important; }
   .chat-input select[aria-label="選擇語言"] { display: none !important; }
 
   /* hide the large App-level voice control on mobile; we provide a compact one in the floating bar */
-  .voicecontroltxtweb { display: none !important; }
+  /* (removed blanket hide to allow explicit control; see override at file end) */
   .chat-input .mic-button { display: none !important; }
   /* 預設：大螢幕隱藏語言選擇器 */ 
 
@@ -1838,32 +1838,8 @@ select[aria-label="選擇語言"] { display: none !important; }
   select[aria-label="選擇語言"]:active, select[aria-label="選擇語言"]:focus {
     transform: none !important;
     box-shadow: none !important;
-  
-/* Mobile-floating-controls: hidden by default, shown on narrow screens */
-.mobile-floating-controls {
-  display: none !important;
-}
-@media (max-width: 768px) {
-  .mobile-floating-controls {
-    display: flex !important;
-    flex-direction: column;
-    position: fixed;
-    right: 12px;
-    top: 110px;
-    gap: 8px;
-    z-index: 2300;
-    align-items: center;
   }
-  .mobile-floating-controls select, .mobile-floating-controls button, .mobile-floating-controls .mobile-voice-btn { width: 60px; background-color: #00aaff; }
-  .mobile-floating-controls .mobile-voice-btn { padding: 6px 8px; height: 36px; border-radius: 10px; }
-  /* 默认隐藏语音按钮，只有当父容器带有 show-mobile-voice 时才显示 */
-  .mobile-floating-controls .mobile-voice-btn { display: none !important; }
-  .mobile-floating-controls.show-mobile-voice .mobile-voice-btn { display: inline-flex !important; }
-}
-@media (max-width: 420px) {
-  .mobile-floating-controls { right: 10px; top: 600px; }
-  .mobile-floating-controls select, .mobile-floating-controls button { width: 56px; }
-}
+  
 
 /* Move bg-switcher to top-left on mobile to avoid overlap with right floating controls */
 @media (max-width: 768px) {
@@ -1889,7 +1865,6 @@ select[aria-label="選擇語言"] { display: none !important; }
 }
     outline: none !important;
   }
-}
 
 @media (max-width: 420px) {
   select[aria-label="選擇語言"] {
@@ -1901,6 +1876,19 @@ select[aria-label="選擇語言"] { display: none !important; }
     transform: none !important;
     box-shadow: none !important;
     outline: none !important;
+  }
+}
+
+/* On mobile place top-level voice control at top-left; desktop keeps original position */
+@media (max-width: 768px) {
+  .voicecontroltxtweb {
+    display: inline-flex !important;
+    left: 12px !important;
+    top: 12px !important;
+    right: auto !important;
+    bottom: auto !important;
+    position: fixed !important;
+    z-index: 240 !important;
   }
 }
 

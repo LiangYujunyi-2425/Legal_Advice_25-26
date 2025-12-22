@@ -958,15 +958,6 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           <option value="zh-CN">普</option>
           <option value="en-US">EN</option>
         </select>
-        <button
-          className="mobile-voice-btn"
-          aria-pressed={mobileVoiceEnabled}
-          onClick={(e) => { e.stopPropagation(); toggleMobileVoice(); }}
-          title="切換語音控制"
-          style={{ marginTop: 8 }}
-        >
-          {mobileVoiceEnabled ? '語音輔助ON' : '語音輔助OFF'}
-        </button>
       </div>
       <div className="bubbles-overlay" ref={overlayRef} aria-hidden={!bubblesActive} style={{ display: bubblesActive ? 'block' : 'none' }}>
         <div className="bubbles-container">
