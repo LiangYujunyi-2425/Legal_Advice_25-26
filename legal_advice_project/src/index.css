@@ -1795,7 +1795,8 @@ select[aria-label="選擇語言"] { display: none !important; }
 
   /* hide the large App-level voice control on mobile; we provide a compact one in the floating bar */
   /* (removed blanket hide to allow explicit control; see override at file end) */
-  .chat-input .mic-button { display: none !important; }
+  /* 在手機版顯示麥克風按鈕，置中並維持可點擊外觀 */
+  .chat-input .mic-button { display: inline-flex !important; align-items: center !important; justify-content: center !important; }
   /* 預設：大螢幕隱藏語言選擇器 */ 
 
   select[aria-label="選擇語言"] {
