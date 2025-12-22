@@ -1657,8 +1657,8 @@ body.bg-image {
 .chip-loading{ margin-left:8px; opacity:0.9 }
 
 @media (max-width: 600px){
-  .suggestion-bar{ padding:6px 8px; gap:6px }
-  .suggestion-chip{ font-size:13px; padding:6px 10px }
+  .suggestion-bar{ padding:6px 8px; gap:6px; flex-wrap:wrap; overflow-x:visible }
+  .suggestion-chip{ font-size:13px; padding:6px 10px; white-space:normal; }
 }
 
 
