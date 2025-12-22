@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Legal Advice Assistant",
+  "version": "0.1.0",
+  "description": "Popup UI for the Legal Advice app",
+  "action": {
+    "default_title": "Legal Assistant",
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": ["http://localhost:5173/*"]
+}
