@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Legal Assistant</title>
+  <style>
+    html,body,#app {height: 100%; margin:0;}
+    iframe {border: none; width: 360px; height: 600px;}
+  </style>
+</head>
+<body>
+  <!-- Development: to preview the app inside popup, change src to your local dev server (http://localhost:5173) -->
+  <!-- Production: the built app will be copied into chrome-extension/dist and you can set src="dist/index.html" or inline files -->
+
+  <div id="app">
+    <iframe id="appFrame" src="http://localhost:5173" title="Legal Assistant UI"></iframe>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
