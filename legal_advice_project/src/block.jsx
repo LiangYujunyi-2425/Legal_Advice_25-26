@@ -844,7 +844,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           <div
             className={`ai-face ${facePop ? 'pop' : ''} ${aiMood}`}
             ref={eyesRef}
-            style={{ position: 'fixed', left: '13%', top: '50px' }}
+            style={{ position: 'fixed', left: '11%', top: '50px', zIndex: 1900 }}
           >
             <img
               src={xiaojinglin}
