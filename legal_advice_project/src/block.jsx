@@ -519,6 +519,14 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   // --- Web Speech API: 语音识别 (兼容 webkit) ---
   const [recognizing, setRecognizing] = useState(false);
   const [selectedLang, setSelectedLang] = useState('yue-HK'); // 默认粤语
+  const [speechEnabled, setSpeechEnabled] = useState(() => {
+    try {
+      const v = localStorage.getItem('speechEnabled');
+      return v === null ? true : v === 'true';
+    } catch (e) {
+      return true;
+    }
+  });
   const recognitionRef = useRef(null);
   const supportsSpeech = typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition);
 
@@ -620,6 +628,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   };
   const ttsVoicesRef = useRef([]);
   const ttsVoiceRef = useRef(null);
+  const lastSpokenContentRef = useRef(''); // Track last spoken content to avoid duplicate speech on re-render
 
   useEffect(() => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
@@ -650,10 +659,26 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       try { stopRecognition(); } catch (e) { /* ignore */ }
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
-      const v = ttsVoiceRef.current;
-      if (v) u.voice = v;
-      // ensure language hints; some voices require correct lang
-      u.lang = (v && v.lang) ? v.lang : 'zh-HK';
+
+      // select voice based on selectedLang preference
+      const vs = ttsVoicesRef.current || [];
+      const lc = (selectedLang || '').toLowerCase();
+      let chosen = null;
+      if (vs.length) {
+        if (lc.includes('yue')) {
+          chosen = vs.find(v => (v.lang && v.lang.toLowerCase().includes('yue')) || (v.lang && v.lang.toLowerCase().includes('hk')) || (v.name && v.name.toLowerCase().includes('canton')));
+        } else if (lc.startsWith('zh')) {
+          chosen = vs.find(v => v.lang && v.lang.toLowerCase().startsWith(lc)) || vs.find(v => v.lang && v.lang.toLowerCase().startsWith('zh'));
+        } else if (lc.startsWith('en')) {
+          chosen = vs.find(v => v.lang && v.lang.toLowerCase().startsWith('en')) || vs.find(v => v.name && v.name.toLowerCase().includes('english'));
+        }
+        if (!chosen) chosen = ttsVoiceRef.current || vs[0];
+      } else {
+        chosen = ttsVoiceRef.current;
+      }
+
+      if (chosen) u.voice = chosen;
+      u.lang = (chosen && chosen.lang) ? chosen.lang : (lc.startsWith('en') ? 'en-US' : (lc.includes('yue') ? 'yue-HK' : (lc.startsWith('zh') ? selectedLang : 'zh-HK')));
       u.rate = 1;
       u.pitch = 1;
       u.onstart = () => { try { setAiMood('excited'); } catch (e) {} };
@@ -677,15 +702,20 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     }
   };
 
-  // 当有新的 assistant 消息时自动读出（粤语优先）
+  // 当 assistant 消息内容改变时自动读出
   useEffect(() => {
     if (!messages || !messages.length) return;
     const last = messages[messages.length - 1];
     if (last && last.role === 'assistant' && last.content) {
-      // small delay to avoid racing with animations
-      setTimeout(() => speakText(last.content), 120);
+      // Only speak if content has changed (避免重复播報)
+      if (last.content !== lastSpokenContentRef.current) {
+        lastSpokenContentRef.current = last.content;
+        // small delay to avoid racing with animations
+        setTimeout(() => speakText(last.content), 120);
+      }
     }
-  }, [messages.length]);
+  }, [messages]); // Monitor entire messages array to catch content changes
+
 
   // 监听全局语音命令事件（由 useVoiceCommands 发出）
   useEffect(() => {
@@ -778,7 +808,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             {messages.map((msg, index) => (
               <div key={index} className={`message ${msg.role}`}>
                 {msg.role === 'assistant' ? (
-                  <AiMessage text={msg.content} />
+                  <AiMessage text={msg.content} speak={false} />
                 ) : (
                     msg.content
 
@@ -808,6 +838,15 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
               <option value="en-US">English (en-US)</option>
             </select>
 
+            <button
+              className={`mic-button`}
+              onClick={(e) => { e.preventDefault(); setTtsEnabled(prev => { const next = !prev; try { localStorage.setItem('ttsEnabled', String(next)); } catch (e) {} return next; }); }}
+              title={ttsEnabled ? '語音播報: 開' : '語音播報: 關'}
+              style={{ padding: '6px 10px', borderRadius: 8 }}
+            >
+              {ttsEnabled ? '語音播報🔊' : '語音播報🔈'}
+            </button>
+
             <input
               className='txtinputplace'
               ref={inputRef}
@@ -820,15 +859,6 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             />
 
             <button className='ai_txt_sendbutton' onClick={() => sendMessage()} >送出</button>
-
-            {/* TTS 开关：默认开启，点击可关闭/开启并持久化 */}
-            <button
-              className='ai_txt_sendbutton'
-              onClick={(e) => { e.stopPropagation(); toggleTts(); }}
-              title={ttsEnabled ? '語音播報：開啟（點擊關閉）' : '語音播報：關閉（點擊開啟）'}
-            >
-              {ttsEnabled ? '🔊 語音開' : '🔇 語音關'}
-            </button>
 
             <label className="file-label" style={{ marginLeft: 4 }}>
               📎
@@ -929,7 +959,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
                   <div className={`rt-body`}>
                     <div className={`center-message`}>
                       {m.role === 'assistant' ? (
-                        <AiMessage text={m.text} />
+                        <AiMessage text={m.text} speak={false} />
                       ) : (
                         <ReactMarkdown rehypePlugins={[rehypeRaw]}>
                           {m.text}
