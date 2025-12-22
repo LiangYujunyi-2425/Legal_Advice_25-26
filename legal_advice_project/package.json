@@ -7,7 +7,7 @@
     "dev": "vite",
     "proxy": "node dev-proxy.js",
     "build": "vite build",
-    "build:extension": "npm run build && rm -rf ../chrome-extension/dist && cp -r dist ../chrome-extension/dist",
+    "build:extension": "npm run build && cp -r dist/* ../chrome-extension/",
     "lint": "eslint .",
     "preview": "vite preview"
   },
