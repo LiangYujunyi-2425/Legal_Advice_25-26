@@ -869,7 +869,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
               setWelcomeAudioError(err?.message || 'play failed');
             }
           }}
-          style={{ position: 'fixed', right: 18, top: 18, zIndex: 200 }}
+          style={{ position: 'fixed', right: 18, top: 18, zIndex: 200 ,display:'none'}}
         >
           ▶︎ 播放歡迎語音
         </button>
