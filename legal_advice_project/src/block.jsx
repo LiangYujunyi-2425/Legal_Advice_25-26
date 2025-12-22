@@ -829,19 +829,6 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             >
               {ttsEnabled ? '🔊 語音開' : '🔇 語音關'}
             </button>
-            <div style={{ marginLeft: 8 }}>
-             <button
-                className="ai_txt_sendbutton"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOverlayActive(true);
-                  setVisible(false);
-                }}
-                title="查看群組討論"
-              >
-                查看討論
-              </button>
-            </div>
 
             <label className="file-label" style={{ marginLeft: 4 }}>
               📎
@@ -971,13 +958,6 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           <option value="zh-CN">普</option>
           <option value="en-US">EN</option>
         </select>
-        <button
-          title="查看群組討論"
-          onClick={(e) => { e.stopPropagation(); setOverlayActive(true); setVisible(false); }}
-          style={{ marginTop: 8 }}
-        >
-          討論
-        </button>
         <button
           className="mobile-voice-btn"
           aria-pressed={mobileVoiceEnabled}

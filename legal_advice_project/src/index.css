@@ -1784,17 +1784,21 @@ body.bg-image {
   .voicecontroltxtweb { font-size: 12px !important; padding: 5px 6px !important; height: 34px !important; }
 }
 
+/* 預設：大螢幕隱藏語言選擇器和查看討論按鈕 */
+select[aria-label="選擇語言"] { display: none !important; }
+
 /* Mobile: move language select and "查看討論" button into a small floating right bar */
 @media (max-width: 768px) {
   /* container-like visual for the floating bar (uses pseudo-background via both items) */
   /* hide original controls inside chat-input and instead show `.mobile-floating-controls` */
-  .chat-input select[aria-label="選擇語言"], .chat-input button[title="查看群組討論"] { display: none !important; }
+  .chat-input select[aria-label="選擇語言"] { display: none !important; }
 
   /* hide the large App-level voice control on mobile; we provide a compact one in the floating bar */
   .voicecontroltxtweb { display: none !important; }
   .chat-input .mic-button { display: none !important; }
+  /* 預設：大螢幕隱藏語言選擇器 */ 
 
-  select[aria-label="選擇語言"], button[title="查看群組討論"] {
+  select[aria-label="選擇語言"] {
     position: fixed !important;
     right: 12px !important;
     width: 60px !important;
@@ -1810,37 +1814,34 @@ body.bg-image {
   }
   /* Stack: language on top, discussion button under it (moved down slightly) */
   select[aria-label="選擇語言"] { top: 290px !important; }
-  button[title="查看群組討論"] { top: 340px !important; }
   /* Make select's inner text smaller to fit */
   select[aria-label="選擇語言"] option { font-size: 12px !important; }
 }
 
 @media (max-width: 420px) {
-  select[aria-label="選擇語言"], button[title="查看群組討論"] {
+  select[aria-label="選擇語言"] {
     width: 56px !important;
     right: 10px !important;
     padding: 5px 6px !important;
     border-radius: 10px !important;
   }
   select[aria-label="選擇語言"] { top: 255px !important; }
-  button[title="查看群組討論"] { top: 278px !important; }
 }
 
 /* Ensure language select and discussion button are not affected by .chat-input touch/active effects */
 @media (max-width: 768px) {
-  select[aria-label="選擇語言"], button[title="查看群組討論"] {
+  select[aria-label="選擇語言"] {
     transform: none !important;
     box-shadow: none !important;
     transition: none !important;
   }
-  select[aria-label="選擇語言"]:active, select[aria-label="選擇語言"]:focus,
-  button[title="查看群組討論"]:active, button[title="查看群組討論"]:focus {
+  select[aria-label="選擇語言"]:active, select[aria-label="選擇語言"]:focus {
     transform: none !important;
     box-shadow: none !important;
   
 /* Mobile-floating-controls: hidden by default, shown on narrow screens */
 .mobile-floating-controls {
-  display: none;
+  display: none !important;
 }
 @media (max-width: 768px) {
   .mobile-floating-controls {
@@ -1855,6 +1856,9 @@ body.bg-image {
   }
   .mobile-floating-controls select, .mobile-floating-controls button, .mobile-floating-controls .mobile-voice-btn { width: 60px; background-color: #00aaff; }
   .mobile-floating-controls .mobile-voice-btn { padding: 6px 8px; height: 36px; border-radius: 10px; }
+  /* 默认隐藏语音按钮，只有当父容器带有 show-mobile-voice 时才显示 */
+  .mobile-floating-controls .mobile-voice-btn { display: none !important; }
+  .mobile-floating-controls.show-mobile-voice .mobile-voice-btn { display: inline-flex !important; }
 }
 @media (max-width: 420px) {
   .mobile-floating-controls { right: 10px; top: 600px; }
@@ -1888,13 +1892,12 @@ body.bg-image {
 }
 
 @media (max-width: 420px) {
-  select[aria-label="選擇語言"], button[title="查看群組討論"] {
+  select[aria-label="選擇語言"] {
     transform: none !important;
     box-shadow: none !important;
     transition: none !important;
   }
-  select[aria-label="選擇語言"]:active, select[aria-label="選擇語言"]:focus,
-  button[title="查看群組討論"]:active, button[title="查看群組討論"]:focus {
+  select[aria-label="選擇語言"]:active, select[aria-label="選擇語言"]:focus {
     transform: none !important;
     box-shadow: none !important;
     outline: none !important;
