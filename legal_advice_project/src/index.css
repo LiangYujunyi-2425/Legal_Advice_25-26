@@ -1785,7 +1785,7 @@ body.bg-image {
 }
 
 /* 預設：大螢幕隱藏語言選擇器和查看討論按鈕 */
-select[aria-label="選擇語言"] { display: none !important; }
+/* Removed global hide so language selector can be shown on desktop */
 
 /* Mobile: move language select and "查看討論" button into a small floating right bar */
 @media (max-width: 768px) {
