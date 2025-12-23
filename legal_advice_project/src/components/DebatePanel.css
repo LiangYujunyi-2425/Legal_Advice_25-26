@@ -35,7 +35,7 @@
   border: 3px solid rgba(0,0,0,0.06);
 }
 .debate-agent img { width: 100%; height: 100%; object-fit: cover; display:block }
-.agent-name { font-weight: 600; margin-bottom: 6px; font-size: 14px }
+.agent-name { font-weight: 600; margin-bottom: 6px; font-size: 14px; color: black; }
 .speech { height: 56px; display:flex; align-items:flex-start; justify-content:center }
 .speech-bubble {
   background: #fff;
