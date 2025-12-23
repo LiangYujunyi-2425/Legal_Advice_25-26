@@ -13,6 +13,8 @@ import rehypeRaw from 'rehype-raw';
 import SuggestionBar from './components/SuggestionBar';
 import { useSuggestions } from './hooks/useSuggestions';
 import AiMessage from './components/AiMessage';
+import DebatePanel from './components/DebatePanel';
+import './components/DebatePanel.css';
 
 
 // 居中泡泡聊天（保留 API / 上傳 邏輯），帶 banner 波動與右側 AI 表情互動
@@ -37,7 +39,9 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   const overlayScrollRef = useRef(null);
   const chatMessagesRef = useRef(null);
   const bubbleTimerRef = useRef(null);
+  const debateTimerRef = useRef(null);
   const playTimersRef = useRef([]);
+  const [showDebate, setShowDebate] = useState(false);
   const [overlayMessagesState, setOverlayMessagesState] = useState([]);
   const [overlayParticipants, setOverlayParticipants] = useState([]);
   const [speakingAgentId, setSpeakingAgentId] = useState(null);
@@ -395,6 +399,13 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     setAiMood('thinking');
     setSquash(true);
     setTimeout(() => setSquash(false), 160);
+
+    // 顯示模擬討論動畫（短暫）
+    try {
+      setShowDebate(true);
+      if (debateTimerRef.current) clearTimeout(debateTimerRef.current);
+      debateTimerRef.current = setTimeout(() => setShowDebate(false), 8000);
+    } catch (e) { }
 
     // 呼叫 Cloud Run API，而不是本地 cache
     try {
@@ -903,6 +914,10 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
         >
           ▶︎ 播放歡迎語音
         </button>
+      )}
+      {/* 模擬法官/律師/教授/調解員討論動畫 */}
+      {showDebate && (
+        <DebatePanel onClose={() => { setShowDebate(false); if (debateTimerRef.current) clearTimeout(debateTimerRef.current); }} />
       )}
       {/* 圆桌会话 overlay（Round-table） */}
       <div className="roundtable-overlay" style={{ display: (overlayActive || overlayMessagesState.length) ? 'flex' : 'none' }} aria-hidden={!(overlayActive || overlayMessagesState.length)}>
