@@ -5,9 +5,7 @@ import judgeAvatar from './assets/judge.webp';
 import lawyerAvatar from './assets/lawyer.webp';
 import ownerAvatar from './assets/owner.webp';
 import managerAvatar from './assets/property_manager.webp';
-import leaseMessages from './data/leaseMessages';
 import welcomeSound from './assets/welcome.mp3';
-import { streamPredict } from './api/predictClient';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import SuggestionBar from './components/SuggestionBar';
@@ -23,9 +21,6 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   const [input, setInput] = useState('');
   const [isIslandExpanded, setIsIslandExpanded] = useState(false);
   const [pendingPdfText, setPendingPdfText] = useState(null); // 待发送的 PDF 文本
-  const API_URL = import.meta.env.VITE_API_URL || '';
-  // For testing: hardcode cache base to local backend
-  const cacheBase = 'http://localhost:5000';
   const inputRef = useRef(null);
 
   useImperativeHandle(ref, () => ({
@@ -62,27 +57,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   const aiMood = propAiMood || aiMoodLocal;
   const setAiMood = propSetAiMood || setAiMoodLocal;
   const [facePop, setFacePop] = useState(false);
-  const [mobileVoiceEnabled, setMobileVoiceEnabled] = useState(false);
-
-  const toggleMobileVoice = () => {
-    try {
-      if (!mobileVoiceEnabled) {
-        try { window.startVoiceRecognition?.(); } catch (e) {}
-        try { window.dispatchEvent(new CustomEvent('voice:forceStart')); } catch (e) {}
-        setMobileVoiceEnabled(true);
-        try { localStorage.setItem('voiceAutoEnabled', JSON.stringify(true)); window.dispatchEvent(new CustomEvent('voice:autoToggle', { detail: { enabled: true } })); } catch (err) {}
-      } else {
-        try { window.stopVoiceRecognition?.(); } catch (e) {}
-        try { window.dispatchEvent(new CustomEvent('voice:forceStop')); } catch (e) {}
-        setMobileVoiceEnabled(false);
-        try { localStorage.setItem('voiceAutoEnabled', JSON.stringify(false)); window.dispatchEvent(new CustomEvent('voice:autoToggle', { detail: { enabled: false } })); } catch (err) {}
-      }
-    } catch (e) {
-      console.warn('toggleMobileVoice error', e);
-    }
-  };
   const [welcomeAudioAllowed, setWelcomeAudioAllowed] = useState(false);
-  const [welcomeAudioError, setWelcomeAudioError] = useState(null);
   const welcomeAudioRef = useRef(null);
   const toggleVisible = () => {
     setVisible(prev => !prev);
@@ -99,135 +74,24 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
 
   // try auto-playing welcome audio on mount; if blocked, show a small play button
   useEffect(() => {
-    let mounted = true;
-    try {
-      // use imported module path (Vite will resolve to correct URL)
-      const a = new Audio(welcomeSound);
-      a.preload = 'auto';
-      welcomeAudioRef.current = a;
-      const p = a.play();
-      if (p && typeof p.then === 'function') {
-        p.then(() => {
-          if (!mounted) return;
-          setWelcomeAudioAllowed(true);
-        }).catch((err) => {
-          if (!mounted) return;
-          // autoplay blocked by browser policy
-          setWelcomeAudioAllowed(false);
-          setWelcomeAudioError(err?.message || 'blocked');
-        });
-      }
-    } catch (e) {
-      setWelcomeAudioAllowed(false);
-      setWelcomeAudioError(e?.message || 'err');
+    const a = new Audio(welcomeSound);
+    a.preload = 'auto';
+    welcomeAudioRef.current = a;
+
+    const p = a.play();
+    if (p && typeof p.then === 'function') {
+      p.then(() => setWelcomeAudioAllowed(true))
+      .catch(err => {
+        setWelcomeAudioAllowed(false);
+        setWelcomeAudioError(err?.message || 'blocked');
+      });
     }
 
     return () => {
-      mounted = false;
-      try { welcomeAudioRef.current?.pause(); welcomeAudioRef.current = null; } catch (e) {}
+      a.pause();
+      welcomeAudioRef.current = null;
     };
   }, []);
-
-
-  // play conversation into the center overlay (自动触发于 sendMessage)
-  const playConversation = (conversation = leaseMessages, speed = 900) => {
-    // clear existing timers/intervals
-    playTimersRef.current.forEach(t => clearTimeout(t));
-    playTimersRef.current = [];
-    setOverlayMessagesState([]);
-    setAiMood('thinking');
-
-    // hide/缩小中央泡泡以呈现中间对话（圆桌）
-    setVisible(false);
-
-    // build participants from conversation (unique speakers)
-    const parts = [];
-    const seen = new Set();
-    conversation.messages.forEach(m => {
-      const key = (m.avatarKey || m.role || m.speakerName || 'guest') + '::' + (m.speakerName || '');
-      if (!seen.has(key)) {
-        seen.add(key);
-        parts.push({ id: Date.now() + Math.random(), avatarKey: m.avatarKey || m.role || 'lawyer', name: m.speakerName || m.role });
-      }
-    });
-    setOverlayParticipants(parts);
-
-    // helper: type one message char-by-char and animate speaker
-    const typeMessage = (m, idx, perChar = 28) => {
-      return new Promise((resolve) => {
-        // add message entry with empty display text and alternating side (left/right)
-        const side = (idx % 2 === 0) ? 'left' : 'right';
-        setOverlayMessagesState(prev => [...prev, { id: m.id || Date.now() + idx, speaker: m.speakerName, role: m.role, text: '', avatarKey: m.avatarKey, side }]);
-        // find participant id to map speaking animation
-        const p = parts.find(p => (p.avatarKey === m.avatarKey) || (p.name === m.speakerName));
-        const speakingId = p?.id || null;
-        if (speakingId) setSpeakingAgentId(speakingId);
-
-        // optionally trigger bubbles flow for certain roles
-        if (['lawyer','judge','property_manager','owner'].includes(m.role)) {
-          startBubblesFlow(m.text);
-        }
-
-        // gradually append characters
-        const chars = Array.from(m.text || '');
-        chars.forEach((ch, ci) => {
-          const t = setTimeout(() => {
-            setOverlayMessagesState(prev => {
-              const copy = [...prev];
-              const idxIn = copy.findIndex(x => x.id === (m.id || Date.now() + idx));
-              if (idxIn !== -1) {
-                copy[idxIn] = { ...copy[idxIn], text: copy[idxIn].text + ch };
-              }
-              return copy;
-            });
-            // small mood flicker
-            setAiMood(ci % 2 === 0 ? 'thinking' : 'happy');
-            // keep speaking animation active during typing
-          }, ci * perChar);
-          playTimersRef.current.push(t);
-        });
-
-        // finish after all chars
-        const finishT = setTimeout(() => {
-          setSpeakingAgentId(null);
-          setAiMood('neutral');
-          resolve();
-        }, (chars.length * perChar) + 120);
-        playTimersRef.current.push(finishT);
-      });
-    };
-
-    // play messages sequentially
-    (async () => {
-      for (let i = 0; i < conversation.messages.length; i++) {
-        const m = conversation.messages[i];
-        try {
-          await typeMessage(m, i, Math.max(20, Math.floor(speed / 30)));
-        } catch (e) {
-          // continue on error
-        }
-        // small pause between messages
-        const pauseT = setTimeout(() => {}, 220);
-        playTimersRef.current.push(pauseT);
-        await new Promise(res => setTimeout(res, 220));
-      }
-
-      // done: compose final reply and restore
-      setAiMood('neutral');
-      const finalReply = (() => {
-        try { return composeFinalReply(conversation); } catch { return '已完成討論，請參考上方要點。'; }
-      })();
-      setMessages(prev => [...prev, { role: 'assistant', content: finalReply }]);
-      // short delay then restore central bubble
-      const endDelay = setTimeout(() => {
-        setOverlayMessagesState([]);
-        setOverlayParticipants([]);
-        setVisible(true);
-        playTimersRef.current = [];
-      }, 800);
-      playTimersRef.current.push(endDelay);
-    })();
-  };
 
   const avatarMap = {
     judge: judgeAvatar,
@@ -297,21 +161,18 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       const { detail } = event;
       if (!detail || !detail.text) return;
 
-      const { text, source } = detail;
+      const { text} = detail;
       
       // 打開聊天窗口
       try { setVisible(true); } catch (e) {}
-
-      // 将识别的文本作为用户消息自动发送
-      console.log(`📄 从 ${source} 提取的文本，自动发送到聊天:`, text.substring(0, 100) + '...');
       
       // 存储待发送的文本
       setPendingPdfText(text);
     };
 
     window.addEventListener('pdf:textExtracted', handlePdfTextExtracted);
-    return () => window.removeEventListener('pdf:textExtracted', handlePdfTextExtracted);
-  }, [setVisible]);
+    return () => window.removeEventListener('pdf:textExtracted', handlePdfTextExtracted); 
+  }, []);
 
   // 处理待发送的 PDF 文本 - 在 sendMessage 定义后自动发送
   useEffect(() => {
@@ -325,13 +186,10 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           await sendMessage(pendingPdfText);
         } else {
           // 回退：把文本填入输入框以便手动发送
-          setInput(pendingPdfText);
-          setTimeout(() => inputRef.current?.focus(), 100);
+          console.error('sendMessage 未定義，無法發送 PDF 文本');
         }
       } catch (e) {
-        console.error('自动发送 PDF 文本失败，已回退至输入框：', e);
-        setInput(pendingPdfText);
-        setTimeout(() => inputRef.current?.focus(), 100);
+        console.error('發送失敗', e);
       } finally {
         setPendingPdfText(null);
       }
@@ -349,16 +207,6 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       // ignore
     }
   }, [messages.length]);
-
-  // auto-scroll overlay chat to latest message
-  useEffect(() => {
-    try {
-      const el = overlayScrollRef.current;
-      if (el) el.scrollTop = el.scrollHeight;
-    } catch (e) {
-      // ignore
-    }
-  }, [overlayMessagesState.length]);
 
   // Random blink: add `blink` class to eyes group at random intervals
   useEffect(() => {
