@@ -104,7 +104,7 @@ function App() {
           fontWeight: 'bold'
         }}
       >
-        {voiceEnabled ? '智能語音辅助' : '关闭語音辅助'}
+        {voiceEnabled ? '關閉語音輔助' : '智能語音輔助'}
       </button>
 
       {/* 背景切换按钮 */}

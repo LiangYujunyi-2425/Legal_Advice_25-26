@@ -21,44 +21,28 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
   const [input, setInput] = useState('');
   const [isIslandExpanded, setIsIslandExpanded] = useState(false);
   const [pendingPdfText, setPendingPdfText] = useState(null); // 待发送的 PDF 文本
-  const inputRef = useRef(null);
-
-  useImperativeHandle(ref, () => ({
-    addMessage(role, content) {
-      setMessages(prev => [...prev, { role, content }]);
-    }
-  }));
-
-  const eyesRef = useRef(null);
-  const overlayRef = useRef(null);
-  const overlayScrollRef = useRef(null);
-  const chatMessagesRef = useRef(null);
-  const bubbleTimerRef = useRef(null);
-  const debateTimerRef = useRef(null);
-  const playTimersRef = useRef([]);
   const [showDebate, setShowDebate] = useState(false);
-  const [overlayMessagesState, setOverlayMessagesState] = useState([]);
-  const [overlayParticipants, setOverlayParticipants] = useState([]);
-  const [speakingAgentId, setSpeakingAgentId] = useState(null);
-  const [overlayActive, setOverlayActive] = useState(false);
-  const [sessionId] = useState(() => {
-    try {
-      let id = localStorage.getItem('la_session_id');
-      if (!id) {
-        id = 's_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
-        localStorage.setItem('la_session_id', id);
-      }
-      return id;
-    } catch (e) { return 's_default'; }
-  });
-
+  const [overlayMessagesState] = useState([]);
+  const [overlayParticipants] = useState([]);
+  const [speakingAgentId] = useState(null);
+  const [overlayActive] = useState(false);
   const [squash, setSquash] = useState(false);
   const [aiMoodLocal, setAiMoodLocal] = useState('neutral'); // fallback local mood
-  const aiMood = propAiMood || aiMoodLocal;
-  const setAiMood = propSetAiMood || setAiMoodLocal;
   const [facePop, setFacePop] = useState(false);
   const [welcomeAudioAllowed, setWelcomeAudioAllowed] = useState(false);
+  const [recognizing, setRecognizing] = useState(false);
+  const [selectedLang, setSelectedLang] = useState('yue-HK');
+  
+  const aiMood = propAiMood || aiMoodLocal;
+  const setAiMood = propSetAiMood || setAiMoodLocal;
+  const eyesRef = useRef(null);
+  const overlayScrollRef = useRef(null);
+  const chatMessagesRef = useRef(null);
+  const debateTimerRef = useRef(null);
   const welcomeAudioRef = useRef(null);
+  const recognitionRef = useRef(null);
+  const supportsSpeech = typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition);
+
   const toggleVisible = () => {
     setVisible(prev => !prev);
     // 当弹窗打开时聚焦输入框并展开灵动岛
@@ -71,6 +55,25 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       }
     }, 120);
   };
+
+  const [sessionId] = useState(() => {
+    try {
+      let id = localStorage.getItem('la_session_id');
+      if (!id) {
+        id = 's_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+        localStorage.setItem('la_session_id', id);
+      }
+      return id;
+    } catch (e) { return 's_default'; }
+  });
+
+  const inputRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({
+    addMessage(role, content) {
+      setMessages(prev => [...prev, { role, content }]);
+    }
+  }));
 
   // try auto-playing welcome audio on mount; if blocked, show a small play button
   useEffect(() => {
@@ -208,40 +211,13 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     }
   }, [messages.length]);
 
-  // Random blink: add `blink` class to eyes group at random intervals
-  useEffect(() => {
-    let mounted = true;
-    let timeoutId = null;
-
-    const schedule = () => {
-      const delay = 2000 + Math.random() * 6000; // 2-8s
-      timeoutId = setTimeout(() => {
-        if (!mounted) return;
-        const eyes = eyesRef.current;
-        if (!eyes) { schedule(); return; }
-        eyes.classList.add('blink');
-        // short blink
-        setTimeout(() => {
-          eyes.classList.remove('blink');
-          if (mounted) schedule();
-        }, 140);
-      }, delay);
-    };
-
-    schedule();
-    return () => {
-      mounted = false;
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-  }, []);
-
   const sendMessage = async (textArg) => {
     const text = (typeof textArg === 'string' ? textArg : input).trim();
     if (!text) return;
 
     // push user message and placeholder assistant message
     const userMessage = { role: 'user', content: text };
-    setMessages(prev => [...prev, userMessage, { role: 'assistant', content: 'AI團隊正在分析您的問題…' }]);
+    setMessages(prev => [...prev, userMessage, { role: 'assistant', content: 'AI團隊正在分析你的問題…' }]);
 
     setInput('');
     setAiMood('thinking');
@@ -279,77 +255,13 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       console.error("Cloud Run API error", err);
       setMessages(prev => {
         const copy = [...prev];
-        copy[copy.length - 1] = { role: 'assistant', content: `❌ 呼叫 Cloud Run API 失敗：${String(err)}` };
+        copy[copy.length - 1] = { role: 'assistant', content: `伺服器暫時無法回應，請稍後再試` };
         return copy;
       });
       setAiMood('sad');
       setTimeout(() => setAiMood('neutral'), 1200);
     }
   };
-
-  // Start bubble animation flow: create bubbles, position origin near latest user message,
-  // keep them animating for 10s, then dismiss and re-open the dialog.
-  const [bubblesActive, setBubblesActive] = useState(false);
-  const [bubbles, setBubbles] = useState([]);
-
-  const startBubblesFlow = (text) => {
-    // create simple bubble placeholders
-    const count = 5;
-    const avatarKeys = Object.keys(avatarMap);
-    const arr = Array.from({ length: count }).map((_, i) => ({
-      id: Date.now() + i,
-      text: '思考…',
-      delay: i * 0.12,
-      angle: Math.random() * Math.PI * 2,
-      dist: 80 + Math.random() * 120,
-      avatarKey: avatarKeys[Math.floor(Math.random() * avatarKeys.length)],
-    }));
-    setBubbles(arr);
-    setBubblesActive(true);
-
-    // allow DOM 更新后找出刚发的 user 消息位置作为动画中心
-    setTimeout(() => {
-      try {
-        const msgs = document.querySelectorAll('.chat-messages .message.user');
-        const last = msgs[msgs.length - 1];
-        let x = window.innerWidth / 2;
-        let y = window.innerHeight / 2;
-        if (last) {
-          const r = last.getBoundingClientRect();
-          x = r.left + r.width / 2;
-          y = r.top + r.height / 2;
-        }
-        if (overlayRef.current) {
-          overlayRef.current.style.setProperty('--origin-x', `${x}px`);
-          overlayRef.current.style.setProperty('--origin-y', `${y}px`);
-        }
-      } catch (e) {
-        // ignore
-      }
-    }, 80);
-
-    // 10 秒后结束动画并恢复对话框
-    if (bubbleTimerRef.current) clearTimeout(bubbleTimerRef.current);
-    bubbleTimerRef.current = setTimeout(() => {
-      setBubblesActive(false);
-      setBubbles([]);
-      setVisible(true);
-    }, 10000);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (bubbleTimerRef.current) clearTimeout(bubbleTimerRef.current);
-    };
-  }, []);
-
-  // cleanup play timers on unmount
-  useEffect(() => {
-    return () => {
-      playTimersRef.current.forEach(t => clearTimeout(t));
-      playTimersRef.current = [];
-    };
-  }, []);
 
   const uploadFile = async (event) => {
     const file = event.target.files?.[0];
@@ -371,23 +283,6 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       setTimeout(() => setAiMood('neutral'), 1200);
     }
   };
-
-  // ---------------- Camera Scanner (边框引导 + 边缘检测 + 防抖自动拍摄) ----------------
-  // Camera scanner feature removed per request.
-
-  // --- Web Speech API: 语音识别 (兼容 webkit) ---
-  const [recognizing, setRecognizing] = useState(false);
-  const [selectedLang, setSelectedLang] = useState('yue-HK'); // 默认粤语
-  const [speechEnabled, setSpeechEnabled] = useState(() => {
-    try {
-      const v = localStorage.getItem('speechEnabled');
-      return v === null ? true : v === 'true';
-    } catch (e) {
-      return true;
-    }
-  });
-  const recognitionRef = useRef(null);
-  const supportsSpeech = typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition);
 
   useEffect(() => {
     if (!supportsSpeech) return;
@@ -412,7 +307,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           const combined = (input ? input + ' ' : '') + finalTrans;
           setInput(combined);
           // small delay to ensure state update then send
-          setTimeout(() => sendMessage(combined), 80);
+          setTimeout(() => sendMessage(combined));
         } else {
           const combined = (input ? input + ' ' : '') + interim;
           setInput(combined);
@@ -435,6 +330,10 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     return () => {
       try { recognitionRef.current?.abort(); } catch (e) {}
       recognitionRef.current = null;
+      rec.onresult = null;
+      rec.onerror = null;
+      rec.onend = null;
+      rec.abort?.();
     };
   }, [selectedLang]);
 
@@ -442,7 +341,9 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
     if (!supportsSpeech) {
       setWelcomeAudioError('語音辨識不支援於此瀏覽器');
       return;
-    }
+    };
+    if (recognizing) return;
+
     try {
       recognitionRef.current.lang = selectedLang;
       recognitionRef.current.start();
@@ -478,13 +379,6 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       return true;
     }
   });
-  const toggleTts = () => {
-    setTtsEnabled(prev => {
-      const next = !prev;
-      try { localStorage.setItem('ttsEnabled', String(next)); } catch (e) {}
-      return next;
-    });
-  };
   const ttsVoicesRef = useRef([]);
   const ttsVoiceRef = useRef(null);
   const lastSpokenContentRef = useRef(''); // Track last spoken content to avoid duplicate speech on re-render
@@ -512,7 +406,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
 
   const speakText = (text) => {
     if (!ttsEnabled) return;
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;  
     try {
       // stop any ongoing recognition to avoid mic feedback during TTS
       try { stopRecognition(); } catch (e) { /* ignore */ }
@@ -670,7 +564,6 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
                   <AiMessage text={msg.content} speak={false} />
                 ) : (
                     msg.content
-
                 )}
               </div>
             ))}
@@ -691,8 +584,8 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             </button>
 
             <select value={selectedLang} onChange={(e) => setSelectedLang(e.target.value)} aria-label="選擇語言" style={{ padding: 1, borderRadius: 6 }}>
-              <option value="yue-HK">粤语 (yue-HK)</option>
-              <option value="zh-HK">繁中-香港 (zh-HK)</option>
+              <option value="yue-HK">粵語 (yue-HK)</option>
+              <option value="zh-HK">繁體中文-香港 (zh-HK)</option>
               <option value="zh-CN">普通话 (zh-CN)</option>
               <option value="en-US">English (en-US)</option>
             </select>
@@ -788,19 +681,6 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             })}
           </div>
 
-          <div className={`roundtable-center ${speakingAgentId ? 'agent-active' : ''}`} role="dialog" aria-label="圓桌會議">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div className="center-title">法律精靈圓桌會議</div>
-              <div>
-                <button
-                  aria-label="關閉群組討論"
-                  onClick={() => { setOverlayActive(false); setVisible(true); }}
-                  style={{ marginLeft: 8 }}
-                >
-                  關閉
-                </button>
-              </div>
-            </div>
             <div className="center-text" ref={overlayScrollRef}>
               {overlayMessagesState.length === 0 ? (
                 <div className={`rt-message msg-center placeholder`} style={{ marginBottom: 10 }}>
@@ -835,7 +715,6 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
             </div>
           </div>
         </div>
-      </div>
 
       {/* 泡泡动画覆盖层（发送消息时触发） */}
       {/* Mobile floating controls: language select + 查看討論 (rendered outside chat-input to avoid transform issues) */}
@@ -851,23 +730,6 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           <option value="zh-CN">普</option>
           <option value="en-US">EN</option>
         </select>
-      </div>
-      <div className="bubbles-overlay" ref={overlayRef} aria-hidden={!bubblesActive} style={{ display: bubblesActive ? 'block' : 'none' }}>
-        <div className="bubbles-container">
-          {bubbles.map((b, i) => {
-            const tx = Math.cos(b.angle) * b.dist;
-            const ty = Math.sin(b.angle) * b.dist;
-            const style = { '--tx': `${tx}px`, '--ty': `${ty}px`, left: 0, top: 0 };
-            return (
-              <div key={b.id} className={`bubble-agent ${bubblesActive ? 'show' : ''}`} style={style}>
-                  <div className="orb">
-                    <img src={avatarMap[b.avatarKey] || xiaojinglin} alt="agent" />
-                  </div>
-                <div className="btext">{b.text}</div>
-              </div>
-            );
-          })}
-        </div>
       </div>
     </>
   );
