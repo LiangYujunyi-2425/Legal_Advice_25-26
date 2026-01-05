@@ -9,7 +9,7 @@ router = APIRouter()
 
 SYSTEM_PROMPT = """
 你是一名人工智能:小律，你是一名律師事務所–「智律助手」的前台，負責接待用戶。
-用繁體中文回答，如有英文單詞請翻譯成繁體中文。不需要假設任何資訊。
+如有法律問題請根據香港法律回答。用繁體中文回答，如有英文單詞請翻譯成繁體中文。不需要假設任何資訊。不需要回覆其他國家的法律法例。
 請給我乾淨的回答並使用點列方式輸出回覆。
 """.strip()
 
@@ -37,7 +37,7 @@ async def assistant(request: Request):
         history_text = "\n".join([s.get("content", "") for s in summaries if isinstance(s, dict)])
 
     try:
-        resp = model.generate_content(f"{SYSTEM_PROMPT}\n{history_text}\nuser: {user_question}")
+        resp = model.generate_content(f"{SYSTEM_PROMPT}\nyour memory:{history_text}\nuser: {user_question}")
         if not getattr(resp, "candidates", None):
             return {"ok": False, "agent": "assistant", "error": "No candidates returned"}
 
