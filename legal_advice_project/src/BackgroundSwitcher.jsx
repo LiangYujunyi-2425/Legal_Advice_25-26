@@ -4,9 +4,9 @@ import snowhill from './assets/snowhill.jpg';
 
 export default function BackgroundSwitcher() {
   const options = [
-    { id: 'default', label: '默认' },
-    { id: 'gradient', label: '渐变' },
-    { id: 'image', label: '图案' }
+    { id: 'default', label: '默認' },
+    { id: 'gradient', label: '漸變' },
+    { id: 'image', label: '圖案' }
   ];
 
   const [active, setActive] = useState('default');
