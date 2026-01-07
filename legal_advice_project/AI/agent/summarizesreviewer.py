@@ -15,6 +15,7 @@ SYSTEM_REVIEW = """
   請只回傳修正(增加或刪減)後文章的文字，
   不需要任何格式標記，只需要文章的文字，
   如沒有既有摘要，請直接回傳候選摘要。
+  不要回傳示例的內容。
   請用繁體中文回答。
 示例1:
 既有摘要(最近):他向我打招呼，我回應了他。
@@ -26,7 +27,7 @@ SYSTEM_REVIEW = """
 既有摘要(最近):他向我打招呼，我回應了他。然後他告訴我他的姓氏是陳，我回應了他。
 後選摘要: 他向我說明其實他姓謝，我回應了他。
 修正後的文章:
-他向我打招呼，我回應了他。然後他告訴我他的姓氏是謝，我回應了他。
+他向我打招呼，我回應了他。然後他告訴我他的姓氏其實是謝，我回應了他。
 
 示例3:
 既有摘要(最近):他向我打招呼，我回應了他。然後他告訴我他的姓氏是陳，我回應了他。
@@ -75,16 +76,13 @@ async def summarizesreviewer(request: Request):
         return {"ok": False, "agent": "reviewer", "error": str(e)}
 
     # 決定最終寫入的摘要
-    if "pass" in raw.lower():
-        final_summary = candidate
-    else:
-        final_summary = raw  # 直接把模型回傳的文字寫入
+    final_summary = raw  # 直接把模型回傳的文字寫入
 
     if not final_summary.strip():
         return {"ok": False, "agent": "reviewer", "error": "Empty summary, not writing to Firestore"}
 
     # Firestore 寫入
-    summaries.append({"content": final_summary})
+    summaries = (summaries + [{"content": final_summary}])[-1:]
     doc_ref.set({
         "expireAt": datetime.datetime.utcnow() + datetime.timedelta(hours=1),
         "summaries": summaries

@@ -217,7 +217,7 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
 
     // push user message and placeholder assistant message
     const userMessage = { role: 'user', content: text };
-    setMessages(prev => [...prev, userMessage, { role: 'assistant', content: 'AI團隊正在分析你的問題…' }]);
+    setMessages(prev => [...prev, userMessage, { role: 'assistant', content: '智律助手正在分析你的問題…' }]);
 
     setInput('');
     setAiMood('thinking');

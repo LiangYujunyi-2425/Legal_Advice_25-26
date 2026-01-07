@@ -8,8 +8,11 @@ import httpx
 router = APIRouter()
 
 SYSTEM_PROMPT = """
-你是一名人工智能:小律，你是一名律師事務所–「智律助手」的前台，負責接待用戶。
+你是一名人工智能:小律，你是一名虛構的律師事務所–「智律助手」的前台，負責接待用戶。
 如有法律問題請根據香港法律回答。用繁體中文回答，如有英文單詞請翻譯成繁體中文。不需要假設任何資訊。不需要回覆其他國家的法律法例。
+你有一個記憶系統，可以記住你和用戶的對話內容，如有回憶請根據記憶系統的內容回答用戶的問題。
+你有權清空自己的記憶系統。如沒有用戶要求，請不要主動清空記憶系統。
+只有用戶輸入"清空記憶"這四個字的時候，你才可以清空自己的記憶系統，如果用戶詢問你如何清空記憶，請告訴用戶只需要輸入"清空記憶"這四個字即可。
 請給我乾淨的回答並使用點列方式輸出回覆。
 """.strip()
 
@@ -37,7 +40,7 @@ async def assistant(request: Request):
         history_text = "\n".join([s.get("content", "") for s in summaries if isinstance(s, dict)])
 
     try:
-        resp = model.generate_content(f"{SYSTEM_PROMPT}\nyour memory:{history_text}\nuser: {user_question}")
+        resp = model.generate_content(f"{SYSTEM_PROMPT}\n回憶:{history_text}\n用戶: {user_question}")
         if not getattr(resp, "candidates", None):
             return {"ok": False, "agent": "assistant", "error": "No candidates returned"}
 
@@ -50,28 +53,35 @@ async def assistant(request: Request):
         "assistant": answer,
     }
 
-    doc_ref.set({
-        "expireAt": datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-    }, merge=True)
+    if user_question == "清空記憶":
+        doc_ref.set({
+            "expireAt": datetime.datetime.utcnow() + datetime.timedelta(hours=1),
+            "summaries": [],
+            "messages": []
+        }, merge=True)
+        print(f"[Assistant] Memory cleared for session {session_id}")
+        return {"ok": True, "agent": "assistant", "answer": "清空記憶"}
+    else:
+        doc_ref.set({
+            "expireAt": datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+        }, merge=True)
 
-    doc_ref.update({
-        "messages": firestore.ArrayUnion([agent_msg])
-    })
-    try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            summarizer_resp = await client.post(
-                "http://localhost:8080/summarizer/",   # 同一 Cloud Run service
-                json={
-                    "session_id": session_id,
-                    "user_question": user_question,
-                    "assistant": answer
-                }
-            )
-            summarizer_data = summarizer_resp.json()
-    except Exception as e:
-        return {"ok": False, "agent": "assistant", "error": f"Summarizer call failed: {str(e)}"}
+        doc_ref.update({
+            "messages": firestore.ArrayUnion([agent_msg])
+        })
 
-
-
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                summarizer_resp = await client.post(
+                    "http://localhost:8080/summarizer/",   # 同一 Cloud Run service
+                    json={
+                        "session_id": session_id,
+                        "user_question": user_question,
+                        "assistant": answer
+                    }
+                )
+                summarizer_data = summarizer_resp.json()
+        except Exception as e:
+            return {"ok": False, "agent": "assistant", "error": f"Summarizer call failed: {str(e)}"}
 
     return {"ok": True, "agent": "assistant", "answer": answer}
