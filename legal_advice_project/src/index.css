@@ -1858,10 +1858,12 @@ body.bg-image {
     top: 6px !important;
     gap: 4px !important;
   }
-  .bg-switcher .banner-btn { padding: 5px 6px !important; font-size: 12px !important; }
-}
+  .bg-switcher .banner-btn { 
+    padding: 5px 6px !important; 
+    font-size: 12px !important; 
     outline: none !important;
   }
+}
 
 @media (max-width: 420px) {
   select[aria-label="選擇語言"] {
@@ -1919,4 +1921,5 @@ body.bg-image {
     height: 34px !important;
     border-radius: 8px !important;
   }
+}
 }

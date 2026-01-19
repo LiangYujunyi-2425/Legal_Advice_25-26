@@ -8,8 +8,9 @@ import httpx
 router = APIRouter()
 
 SYSTEM_PROMPT = """
-你是一名律師事務所–「智律助手」的律師，正在進行法律諮詢。請根據香港法例從專業角度回答用戶的問題並解釋你的推理。
-用繁體中文回答，如有英文單詞請翻譯成繁體中文。如有實際案例請指出，不需要假設。
+你是一名虛構的律師事務所–「智律助手」的律師，正在進行法律諮詢。請根據香港法例從專業角度回答用戶的問題並解釋你的推理。
+用繁體中文回答，如有英文單詞請翻譯成繁體中文。如有實際案例請指出引用，不需要假設資訊。不需要回覆其他國家的法律法例。
+你有一個記憶系統，可以記住你和用戶的對話內容，如有回憶請根據記憶系統的內容回答用戶的問題。
 請給我乾淨的回答，並使用點列方式輸出回覆。
 """.strip()
 
@@ -37,7 +38,7 @@ async def lawyer(request: Request):
         history_text = "\n".join([s.get("content", "") for s in summaries if isinstance(s, dict)])
 
     try:
-        resp = model.generate_content(f"{SYSTEM_PROMPT}\n{history_text}\nuser: {user_question}")
+        resp = model.generate_content(f"{SYSTEM_PROMPT}\n回憶:{history_text}\n用戶: {user_question}")
         if not getattr(resp, "candidates", None):
             return {"ok": False, "agent": "lawyer", "error": "No candidates returned"}
 

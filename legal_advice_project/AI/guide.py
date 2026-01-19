@@ -76,9 +76,9 @@ app.include_router(summarizesreviewer_router, prefix="/summarizesreviewer")
 # Guide Agent Prompt
 system_prompt = """
 你是一個任務分流器。請根據用戶的問題判斷應該交給哪個 Agent 處理：
-- "lawyer" → 法律問題（香港法例、勞工法、合規）
+- "lawyer" → 法律問題
 - "contract" → 合同分析（條款風險、合約結構）
-- "assistant" → 前台接待（一般詢問、指引）
+- "assistant" → 前台接待（一般閒聊）
 
 請只回傳一個字串："lawyer"、"contract" 或 "assistant"。
 """
