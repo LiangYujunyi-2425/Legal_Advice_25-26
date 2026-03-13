@@ -9,9 +9,6 @@ import './index.css';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
-// 调试：打印 API 配置
-console.log('API_URL configured:', API_URL || 'NOT SET - using relative paths');
-
 export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResult, onRecognizedText }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -33,7 +30,6 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
       // 廣播給其他組件（例如 chat）讓它們可以根據此設定決定是否自動啓動語音輸入
       window.dispatchEvent(new CustomEvent('voice:autoToggle', { detail: { enabled } }));
     } catch (err) {
-      console.warn('讀取 voiceAutoEnabled 時發生錯誤，使用預設 true', err);
     }
 
     const startCamera = async () => {
@@ -43,7 +39,6 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
           videoRef.current.srcObject = stream;
         }
       } catch (err) {
-        console.error('無法取得攝像頭串流：', err);
       }
     };
 
@@ -53,7 +48,6 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
   // 将识别的文本直接发送到聊天框
   const sendTextToChat = (text, source = '文档') => {
     if (!text) {
-      console.warn('没有文本内容发送');
       return;
     }
 
@@ -68,7 +62,6 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
 
     // 同时记录文本
     setRecognizedText(text);
-    console.log(`✅ 已识别文本（来自 ${source}）:`, text.substring(0, 100) + '...');
   };
 
   // Helper: 使用 tesseract worker 识别图片或 canvas
@@ -99,13 +92,12 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
         reader.onload = async (event) => {
           try {
             const imgData = event.target.result;
-            const text = await ocrWithWorker(imgData, (m) => console.log('img OCR:', m));
+            const text = await ocrWithWorker(imgData, (m) => {});
             setRecognizedText(text || '');
 
             // 将 OCR 识别的文字直接发送到聊天框
             sendTextToChat(text, '图片');
           } catch (err) {
-            console.error('圖片 OCR 失敗:', err);
           } finally {
             setLoading(false);
           }
@@ -114,7 +106,6 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
       } else if (file.type === 'application/pdf') {
         // PDF 文本提取
         try {
-          console.log('正在提取 PDF 文本...');
           // 传入进度回调与最大页数
           const pdfText = await extractPdfText(file, {
             maxPages: 5,
@@ -123,12 +114,10 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
               if (m.page) {
                 const msg = `頁 ${m.page}: ${m.status || '完成'}`;
                 setPdfProgress(msg);
-                console.log(msg);
               } else if (m.status) {
                 const pct = typeof m.progress === 'number' ? Math.round(m.progress * 100) : '';
                 const msg = `${m.status} ${pct ? `(${pct}%)` : ''}`;
                 setPdfProgress(msg);
-                console.log('Tesseract:', msg);
               }
             }
           });
@@ -139,17 +128,14 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
           // 将提取的文本直接发送到聊天框（AI 分析由 block.jsx 处理）
           sendTextToChat(pdfText, 'PDF');
         } catch (err) {
-          console.error('PDF 提取失败:', err);
           alert('PDF 处理失败: ' + err.message);
         } finally {
           setLoading(false);
         }
       } else {
-        console.error('不支援的檔案類型');
         setLoading(false);
       }
     } catch (err) {
-      console.error('檔案處理失敗:', err);
       setLoading(false);
     }
   };
@@ -166,7 +152,7 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
     setLoading(true);
 
     try {
-      const text = await ocrWithWorker(canvas, (m) => console.log('camera OCR:', m));
+      const text = await ocrWithWorker(canvas, (m) => {});
 
       setRecognizedText(text || '');
 
@@ -185,7 +171,6 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
 
       // AI 分析通过 block.jsx 中的 streamPredict 处理
     } catch (err) {
-      console.error('OCR 或分析失敗：', err);
     } finally {
       setLoading(false);
     }
@@ -223,7 +208,6 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
       if (file.type === 'application/pdf' || file.type.startsWith('image/')) {
         handleFile(file);
       } else {
-        console.error('只支援 PDF 和圖片檔案');
       }
     }
   };
@@ -304,7 +288,7 @@ export default function Title({ shrink, videoOpen, setVideoOpen, onAnalysisResul
         {/* Mobile-only upload button: triggers the hidden file input for mobile users */}
         <button
           className="icon-btn mobile-upload-btn"
-          onClick={() => { try { fileInputRef.current?.click(); } catch (e) { console.warn('mobile upload click failed', e); } }}
+          onClick={() => { try { fileInputRef.current?.click(); } catch (e) { } }}
           aria-label="手機上傳檔案"
           title="上傳檔案"
         >

@@ -33,7 +33,6 @@ export async function* streamPredict(prompt, has_contract = false, apiKey = null
       }
     } catch (e) {
       // ignore cache errors and continue with original prompt
-      console.warn('Failed to fetch recent cache', e && e.message);
     }
   }
 
@@ -51,7 +50,6 @@ export async function* streamPredict(prompt, has_contract = false, apiKey = null
       throw new Error(`Predict API error: ${res.status} ${txt}`);
     }
   } catch (err) {
-    console.warn('Direct fetch failed, attempting local proxy fallback (relative /predict):', err && err.message);
     // fallback to local proxy to avoid CORS - useful for local development
     try {
       res = await fetch(LOCAL_PROXY, {

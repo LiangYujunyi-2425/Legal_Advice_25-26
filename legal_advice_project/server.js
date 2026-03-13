@@ -38,14 +38,11 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// ✅ 上传接口
 app.post("/upload", upload.single("file"), (req, res) => {
   if (!req.file) {
-    console.log("❌ 没有收到文件");
     return res.status(400).json({ error: "No file received" });
   }
 
-  console.log("✅ 收到文件：", req.file);
   res.status(200).json({
     message: "PDF uploaded successfully",
     filename: req.file.filename,
@@ -88,7 +85,6 @@ app.post('/cache/:sessionId/compose', (req, res) => {
 
 // ✅ 启动服务
 app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
 
 const frontendFolder = path.join(__dirname, "dist"); // 或 dist

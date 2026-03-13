@@ -2,7 +2,6 @@
 const PREDICT_ENDPOINT = 'https://api-926721049029.us-central1.run.app/predict';
 
 async function testAIResponse() {
-  console.log('🔄 正在測試AI API響應...');
 
   try {
     const response = await fetch(PREDICT_ENDPOINT, {
@@ -25,8 +24,6 @@ async function testAIResponse() {
     let buffer = '';
     let chunkCount = 0;
 
-    console.log('📡 AI API響應開始：');
-    console.log('=' .repeat(50));
 
     while (true) {
       const { value, done } = await reader.read();
@@ -43,23 +40,18 @@ async function testAIResponse() {
           const data = line.slice(6); // 移除 'data: '
 
           if (data === '[DONE]') {
-            console.log('=' .repeat(50));
-            console.log('✅ AI響應完成');
             return;
           }
 
           try {
             const parsed = JSON.parse(data);
             chunkCount++;
-            console.log(`📦 Chunk ${chunkCount}:`, JSON.stringify(parsed, null, 2));
           } catch (e) {
-            console.log(`📦 Chunk ${chunkCount + 1} (原始):`, data);
           }
         }
       }
     }
   } catch (error) {
-    console.error('❌ API調用失敗:', error.message);
   }
 }
 

@@ -16,7 +16,6 @@ function AiMessage({ text, speak = true, lang = 'yue-HK' }) {
       window.speechSynthesis.speak(utter);
     } catch (e) {
       // fail silently
-      console.warn('speechSynthesis error', e);
     }
     // 不需要 cleanup，cancel 在下一次 effect 執行時會處理
   }, [normalized, speak, lang]);

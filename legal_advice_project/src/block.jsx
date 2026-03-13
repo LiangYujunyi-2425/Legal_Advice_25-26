@@ -189,10 +189,8 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           await sendMessage(pendingPdfText);
         } else {
           // 回退：把文本填入输入框以便手动发送
-          console.error('sendMessage 未定義，無法發送 PDF 文本');
         }
       } catch (e) {
-        console.error('發送失敗', e);
       } finally {
         setPendingPdfText(null);
       }
@@ -252,7 +250,6 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
 
       setAiMood('neutral');
     } catch (err) {
-      console.error("Cloud Run API error", err);
       setMessages(prev => {
         const copy = [...prev];
         copy[copy.length - 1] = { role: 'assistant', content: `伺服器暫時無法回應，請稍後再試` };
@@ -274,7 +271,6 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       alert('合同分析功能已集成到 PDF/图片上传流程中。请通过左侧面板上传 PDF 或拍照。');
       setAiMood('neutral');
     } catch (error) {
-      console.error('处理失败', error);
       setMessages(prev => [
         ...prev,
         { role: 'assistant', content: '❌ 文件分析失敗，請稍後再試。' }
@@ -313,12 +309,10 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
           setInput(combined);
         }
       } catch (e) {
-        console.warn('speech onresult error', e);
       }
     };
 
     rec.onerror = (e) => {
-      console.warn('SpeechRecognition error', e);
       setRecognizing(false);
     };
 
@@ -451,7 +445,6 @@ const RightBlock = forwardRef(({ visible, setVisible, videoOpen, aiMood: propAiM
       window.speechSynthesis.speak(u);
     } catch (e) {
       // ignore TTS errors
-      console.warn('TTS error', e);
     }
   };
 

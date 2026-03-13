@@ -33,7 +33,6 @@ const server = http.createServer((req, res) => {
     });
 
     proxyReq.on('error', (err) => {
-      console.error('Proxy request error:', err && err.message);
       res.writeHead(502, { 'Content-Type': 'text/plain' });
       res.end('Bad Gateway (proxy)');
     });
@@ -41,7 +40,6 @@ const server = http.createServer((req, res) => {
     // pipe request body
     req.pipe(proxyReq, { end: true });
   } catch (e) {
-    console.error('Proxy internal error', e && e.message);
     res.writeHead(500, { 'Content-Type': 'text/plain' });
     res.end('Internal proxy error');
   }
@@ -49,5 +47,4 @@ const server = http.createServer((req, res) => {
 
 // Bind to 0.0.0.0 so the server is reachable from Codespaces / container forwarded ports
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Dev proxy listening on http://0.0.0.0:${PORT} -> ${TARGET}`);
 });

@@ -28,7 +28,6 @@ export async function extractPdfText(pdfFile, options = {}) {
     const text = await extractPdfLocally(pdfFile, options);
     return text;
   } catch (err) {
-    console.error('PDF 提取失败:', err);
     throw new Error(`无法提取 PDF 文本: ${err.message}`);
   }
 }
@@ -46,15 +45,12 @@ async function extractPdfLocally(pdfFile, options = {}) {
     const text = await extractTextViaPdfJs(pdfFile);
     if (text && text.trim().length > 50) {
       // 如果成功提取了足够的文本，返回它
-      console.log('✅ 使用 PDF.js 成功提取文本，长度:', text.length);
       return text;
     }
   } catch (err) {
-    console.warn('PDF.js 提取失败:', err.message);
   }
 
   // 方案 2：转换 PDF 页面为图片，然后进行 OCR（处理扫描 PDF）
-  console.log('🔄 PDF.js 提取文本不足，转换为图片进行 OCR...');
   const text = await extractTextFromPdfViaOCR(pdfFile, options);
   return text;
 }
@@ -93,7 +89,6 @@ async function extractTextViaPdfJs(pdfFile) {
         .join(' ');
       fullText += pageText + '\n';
     } catch (err) {
-      console.warn(`提取第 ${pageNum} 页失败:`, err.message);
     }
   }
   
@@ -129,15 +124,11 @@ async function extractTextFromPdfViaOCR(pdfFile, options = {}) {
   let fullText = '';
   const maxPages = Math.min(pdf.numPages, optMaxPages || 5);
 
-  console.log(`📄 PDF 有 ${pdf.numPages} 页，将处理前 ${maxPages} 页进行 OCR...`);
-
   // 创建 Tesseract worker 一次复用
   const worker = createWorker({
     logger: (m) => {
       // m: { status, progress }
       if (onProgress) onProgress(m);
-      // 也在控制台输出关键状态
-      if (m.status) console.log('Tesseract:', m.status, m.progress);
     }
   });
 
@@ -149,32 +140,12 @@ async function extractTextFromPdfViaOCR(pdfFile, options = {}) {
 
     for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
       try {
-        console.log(`🔄 正在处理第 ${pageNum} 页...`);
-        const page = await pdf.getPage(pageNum);
-
-        // 设置缩放比例以获得高质量的图片
-        const scale = 2;
-        const viewport = page.getViewport({ scale });
-
-        // 创建 canvas 并渲染页面
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        await page.render({
-          canvasContext: context,
-          viewport: viewport
-        }).promise;
-
         // 使用 worker 识别 canvas
         const { data: { text } } = await worker.recognize(canvas);
         fullText += (text || '') + '\n---\n';
 
         if (onProgress) onProgress({ page: pageNum, status: 'page_done' });
-        console.log(`✅ 第 ${pageNum} 页 OCR 完成`);
       } catch (err) {
-        console.warn(`❌ 第 ${pageNum} 页 OCR 失败:`, err.message);
         if (onProgress) onProgress({ page: pageNum, status: 'page_error', error: err.message });
       }
     }

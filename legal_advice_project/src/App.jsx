@@ -72,7 +72,6 @@ function App() {
               localStorage.setItem('voiceAutoEnabled', JSON.stringify(true));
               window.dispatchEvent(new CustomEvent('voice:autoToggle', { detail: { enabled: true } }));
             } catch (err) {
-              console.warn('保存 voiceAutoEnabled 失敗', err);
             }
           } else {
             if (typeof window !== 'undefined') {
@@ -86,7 +85,6 @@ function App() {
               localStorage.setItem('voiceAutoEnabled', JSON.stringify(false));
               window.dispatchEvent(new CustomEvent('voice:autoToggle', { detail: { enabled: false } }));
             } catch (err) {
-              console.warn('保存 voiceAutoEnabled 失敗', err);
             }
           }
         }}
