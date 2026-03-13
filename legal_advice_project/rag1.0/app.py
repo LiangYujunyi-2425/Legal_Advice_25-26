@@ -7,7 +7,16 @@ from rag_pipelinev2 import rag_search_with_rerank, generate_answer_with_review
 from contract_pipelinev2 import analyze_contract_file
 
 app = Flask(__name__)
-CORS(app)  # 允許跨來源請求（給 React 用）
+
+# 明确指定允许的来源，避免使用通配符 * 以提高安全性
+# 本地开发允许 localhost，生产环境请根据前端域名调整
+allowed_origins = [
+    "http://localhost:5173",  # Vite 开发服务器
+    "http://localhost:3000",  # dev-proxy 本地代理
+    "https://your-frontend-domain.com"  # 替换为实际的前端生产域名
+]
+
+CORS(app, origins=allowed_origins)
 
 
 @app.route("/ask", methods=["POST"])
